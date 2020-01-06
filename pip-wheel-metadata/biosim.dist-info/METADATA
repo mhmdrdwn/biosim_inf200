@@ -1,0 +1,16 @@
+Metadata-Version: 2.1
+Name: biosim
+Version: 0.0.0
+Summary: A population dynamics simulation written in Python
+Home-page: UNKNOWN
+Author: Mohamed Radwan & Nasibeh Mohammadi
+Author-email: mohamed.radwan@nmbu.no & nasibeh.mohammadi@nmbu.no
+License: UNKNOWN
+Platform: UNKNOWN
+Requires-Dist: matplotlib
+Requires-Dist: numpy
+Requires-Dist: pandas
+
+UNKNOWN
+
+
