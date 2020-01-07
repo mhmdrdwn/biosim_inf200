@@ -19,7 +19,23 @@ import os
 import os.path
 
 from biosim.simulation import BioSim
+from biosim.fauna import Fauna
+from biosim.fauna import Herbivores
+from biosim.fauna import Carnivores
 
 
 class TestFauna:
+    def test_age(self):
+        """No fodder available in the desert"""
+        f = Fauna()
+        assert f.age == 0
+        f.grow()
+        assert f.age == 1
+        # age increases one year after one year
+
+    def test_weight(self):
+        f = Fauna()
+        assert f.weight == 0
+
+class TestHerbivores:
     pass

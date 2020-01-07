@@ -3,6 +3,8 @@ pyproject.toml
 setup.cfg
 setup.py
 src/biosim/__init__.py
+src/biosim/fauna.py
+src/biosim/landscapes.py
 src/biosim/simulation.py
 src/biosim.egg-info/PKG-INFO
 src/biosim.egg-info/SOURCES.txt

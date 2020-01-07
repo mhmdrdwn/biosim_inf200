@@ -24,14 +24,18 @@ from biosim.landscapes import Ocean
 from biosim.landscapes import Mountains
 from biosim.landscapes import Savannah
 from biosim.landscapes import Jungle
+from biosim.fauna import Herbivores
+from biosim.fauna import Carnivores
+
 """ is it possible now to import just biosim.landscapes as landscapes
 since it's not conflicting with anything here"""
 
 
 class TestLandscapes:
-    def test_surrounding(self):
+    def test_geogr_map(self):
         pass
-        #the sea is surrounding the island
+        # the sea is surrounding the island, should it be here or
+        # simulation class
 
 
 class TestDesert:
@@ -56,11 +60,16 @@ class TestMountains:
 class TestSavannah:
     def test_yearly_growth(self):
         s = Savannah()
+        h = Herbivores()
+
+        s.fodder - h.F
         pre_f = s.fodder
+        assert s.fodder == s.f_max
+        # the initial amount is f_max
         s.apply_yearly_growth()
         post_f = s.fodder
         pre_f != post_f
-        post_f - pre_f == s.alpha*(s.f_max - pre_f)
+        assert post_f - pre_f == s.alpha*(s.f_max - pre_f)
         # the growth or the difference between them is given by the fomula
 
 
