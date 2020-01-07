@@ -23,6 +23,9 @@ from biosim.fauna import Fauna
 from biosim.fauna import Herbivores
 from biosim.fauna import Carnivores
 
+from random import seed
+from random import gauss
+
 
 class TestFauna:
     def test_age(self):
@@ -38,12 +41,32 @@ class TestFauna:
     def test_weight(self):
         f = Fauna()
         initial = f.weight
+        seed(1)
+        assert f.weight == 1.2881847531554629
+        # initial weight should be a function that is decorated as variable
+        # it's following Gaussain distro, the seed 1 will generate that value
         f.grow()
         assert f.weight == f.eta*initial
         # weight increases by eta factor every year
         f.eat()
         assert f.weight == f.beta*initial
         # weight increases by beta factor when eating
+        # how to test gaussian distribution of weights?
+
+    def test_fitness(self):
+        f = Fauna()
+        f.phi_weight = 0.1
+        f.phi_age = 0.2
+        f.a_half = 40
+        # how can we get weight from gaussain ditribution
+        assert f.fitness == 0.1630552263
+        assert 0 <= f.fitness <= 1
+
+
+    def test_migration(self):
+        f = Fauna()
+        f.migrate()
+
 
 
 class TestHerbivores:

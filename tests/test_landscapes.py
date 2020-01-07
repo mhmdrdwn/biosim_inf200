@@ -62,7 +62,9 @@ class TestSavannah:
         s = Savannah()
         assert s.fodder == s.f_max
         h = Herbivores()
-        assert s.fodder <= s.f_max
+        h.eat()
+        assert 0 <= s.fodder < s.f_max
+        assert s.fodder == s.f_max - h.F
         # the initial amount is f_max
         s.apply_yearly_growth()
         post_f = s.fodder
