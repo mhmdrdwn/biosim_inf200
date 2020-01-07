@@ -22,6 +22,9 @@ from biosim.simulation import BioSim
 from biosim.landscapes import Desert
 from biosim.landscapes import Ocean
 from biosim.landscapes import Mountains
+from biosim.landscapes import Savannah
+""" is it possible now to import just biosim.landscapes as landscapes
+since it's not conflicting with anything here"""
 
 
 class TestLandscapes:
@@ -45,4 +48,18 @@ class TestMountains:
     def test_nu_animals(self):
         m = Mountains()
         assert m.nu_animals == 0
+
+
+class TestSavannah:
+    def test_yearly_growth(self):
+        s = Savannah()
+        pre_f = s.fodder
+        s.apply_yearly_growth()
+        post_f = s.fodder
+        pre_f != post_f
+        post_f - pre_f == s.alpha*(s.f_max - pre_f)
+        # the growth or the difference between them is given by the fomula
+
+class TestJungle:
+    pass
 

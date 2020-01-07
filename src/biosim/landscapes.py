@@ -21,3 +21,7 @@ class Mountains(Landscapes):
 
 class Ocean(Landscapes):
     pass
+
+
+class Savannah(Landscapes):
+    pass
