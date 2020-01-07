@@ -60,25 +60,26 @@ class TestMountains:
 class TestSavannah:
     def test_yearly_growth(self):
         s = Savannah()
-        h = Herbivores()
-
-        s.fodder - h.F
-        pre_f = s.fodder
         assert s.fodder == s.f_max
+        h = Herbivores()
+        assert s.fodder <= s.f_max
         # the initial amount is f_max
         s.apply_yearly_growth()
         post_f = s.fodder
-        pre_f != post_f
-        assert post_f - pre_f == s.alpha*(s.f_max - pre_f)
+        assert post_f >= s.fooder
+        #assert post_f - pre_f == s.alpha*(s.f_max - pre_f)
         # the growth or the difference between them is given by the fomula
 
 
 class TestJungle:
     def test_yearly_growth(self):
         j = Jungle()
-        j.fodder == j.f_max
+        assert j.fodder == j.f_max
+        h = Herbivores()
+        assert j.fodder <= j.f_max
+        #assert j.fodder == j.f_max - j.nu_herbivores*h.F
         j.apply_yearly_growth()
-        j.fodder == j.f_max
+        assert j.fodder == j.f_max
         # at the start of eac simulation the fodder will have f_max
         # after a year the fodder will have f_max, no matter how much was eaten
         # still not right

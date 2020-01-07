@@ -31,11 +31,20 @@ class TestFauna:
         assert f.age == 0
         f.grow()
         assert f.age == 1
+        f.grow()
+        assert f.age == 2
         # age increases one year after one year
 
     def test_weight(self):
         f = Fauna()
-        assert f.weight == 0
+        initial = f.weight
+        f.grow()
+        assert f.weight == f.eta*initial
+        # weight increases by eta factor every year
+        f.eat()
+        assert f.weight == f.beta*initial
+        # weight increases by beta factor when eating
+
 
 class TestHerbivores:
     pass
