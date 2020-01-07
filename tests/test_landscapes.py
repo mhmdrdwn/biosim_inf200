@@ -23,6 +23,7 @@ from biosim.landscapes import Desert
 from biosim.landscapes import Ocean
 from biosim.landscapes import Mountains
 from biosim.landscapes import Savannah
+from biosim.landscapes import Jungle
 """ is it possible now to import just biosim.landscapes as landscapes
 since it's not conflicting with anything here"""
 
@@ -60,6 +61,13 @@ class TestSavannah:
         post_f - pre_f == s.alpha*(s.f_max - pre_f)
         # the growth or the difference between them is given by the fomula
 
+
 class TestJungle:
-    pass
+    def test_yearly_growth(self):
+        j = Jungle()
+        j.fodder == j.f_max
+        j.apply_yearly_growth()
+        j.fodder == j.f_max
+        # at the start of eac simulation the fodder will have f_max
+        # after a year the fodder will have f_max, no matter how much was eaten
 

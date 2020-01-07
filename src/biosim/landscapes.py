@@ -25,3 +25,7 @@ class Ocean(Landscapes):
 
 class Savannah(Landscapes):
     pass
+
+
+class Jungle(Landscapes):
+    pass
