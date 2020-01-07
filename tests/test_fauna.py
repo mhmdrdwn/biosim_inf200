@@ -22,7 +22,7 @@ from biosim.simulation import BioSim
 from biosim.fauna import Fauna
 from biosim.fauna import Herbivores
 from biosim.fauna import Carnivores
-
+from biosim.landscapes import Jungle
 from random import seed
 from random import gauss
 
@@ -66,6 +66,26 @@ class TestFauna:
     def test_migration(self):
         f = Fauna()
         f.migrate()
+
+
+    def test_birth(self):
+        f = Fauna()
+        f.fitness = 0.1630552263
+        f.gamma = 0.2
+        j = Jungle()
+        j.nu_animals = 1
+        assert f.birth == 0
+        # probablity is zero if animals is less than 2
+        j.nu_animals = 2
+        assert f.birth > 0
+        # probablity should be more than 0
+        assert f.birth == 0.03261104526
+        # probablity of giving birth if there are two animals in the cell
+        f.weight  = 33.00
+        assert f.birth == 0
+        # probablity is zero when weight is less than 33.25
+
+
 
 
 
