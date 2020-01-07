@@ -21,5 +21,5 @@ import os.path
 from biosim.simulation import BioSim
 
 
-class AnimalsTest:
+class TestFauna:
     pass

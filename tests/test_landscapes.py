@@ -29,7 +29,9 @@ since it's not conflicting with anything here"""
 
 
 class TestLandscapes:
-    pass
+    def test_surrounding(self):
+        pass
+        #the sea is surrounding the island
 
 
 class TestDesert:
@@ -70,4 +72,5 @@ class TestJungle:
         j.fodder == j.f_max
         # at the start of eac simulation the fodder will have f_max
         # after a year the fodder will have f_max, no matter how much was eaten
+        # still not right
 
