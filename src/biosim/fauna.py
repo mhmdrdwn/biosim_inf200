@@ -8,7 +8,7 @@ __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 from random import seed
 from random import gauss
-
+from biosim.landscapes import Landscapes
 class Fauna:
     def __init__(self):
         self.carni_parameters = {'eta': 0.125, 'F': 10.0, 'beta': 0.75, 'w_birth': 6.0, 'sigma_birth': 1.0}
@@ -33,18 +33,38 @@ class Fauna:
         self.weight_herbi -= self.weight_herbi * self.herbi_parameters['eta']
         # that's just for carni, still need to code herbi
 
-    def eat(self):
-        self.weight_carni += self.carni_parameters['beta']*self.carni_parameters['F']
+    def increase_weight(self, eaten_food, animal_type):
+        # create variable that save the aviable amount of food
+        self.weight_herbi += self.herbi_parameters[
+                                 'beta'] * eaten_food
+        self.weight_carni += self.carni_parameters[
+                                 'beta'] * eaten_food
+
         # that's just for carni, still need to code herbi
 
 
 class Herbivores(Fauna):
-    pass
+    def --init--(self,available_food):
+        super() self.available_food
 
+    def eat(self):
+        if available_food > 0:
+            if self.herbi_parameters['F'] <= available_food:
+                self.weight_herbi += self.herbi_parameters['beta']*self.herbi_parameters['F']
+            else:
+                self.weight_herbi += self.herbi_parameters['beta']*self.available_food
 
 class Carnivores(Fauna):
-    pass
+    available_food = {'carni_food': self.weight_herbi,
+                      'herbi_food': Landscapes.available_fodder}
+    if available_food > 0:
+        if self.carni_parameters['F'] <= available_food:
+            self.weight_carni += self.carni_parameters['beta'] * \
+                                 self.carni_parameters['F']
+        else:
+            self.weight_carni += self.carni_parameters[
+                                     'beta'] * self.available_food
 
 
 f = Fauna()
-print(f.weight_herbi)
+
