@@ -24,14 +24,18 @@ from biosim.landscapes import Ocean
 from biosim.landscapes import Mountains
 from biosim.landscapes import Savannah
 from biosim.landscapes import Jungle
+from biosim.fauna import Herbivores
+from biosim.fauna import Carnivores
+
 """ is it possible now to import just biosim.landscapes as landscapes
 since it's not conflicting with anything here"""
 
 
 class TestLandscapes:
-    def test_surrounding(self):
+    def test_geogr_map(self):
         pass
-        #the sea is surrounding the island
+        # the sea is surrounding the island, should it be here or
+        # simulation class
 
 
 class TestDesert:
@@ -56,20 +60,28 @@ class TestMountains:
 class TestSavannah:
     def test_yearly_growth(self):
         s = Savannah()
-        pre_f = s.fodder
+        assert s.fodder == s.f_max
+        h = Herbivores()
+        h.eat()
+        assert 0 <= s.fodder < s.f_max
+        assert s.fodder == s.f_max - h.F
+        # the initial amount is f_max
         s.apply_yearly_growth()
         post_f = s.fodder
-        pre_f != post_f
-        post_f - pre_f == s.alpha*(s.f_max - pre_f)
+        assert post_f >= s.fooder
+        #assert post_f - pre_f == s.alpha*(s.f_max - pre_f)
         # the growth or the difference between them is given by the fomula
 
 
 class TestJungle:
     def test_yearly_growth(self):
         j = Jungle()
-        j.fodder == j.f_max
+        assert j.fodder == j.f_max
+        h = Herbivores()
+        assert j.fodder <= j.f_max
+        #assert j.fodder == j.f_max - j.nu_herbivores*h.F
         j.apply_yearly_growth()
-        j.fodder == j.f_max
+        assert j.fodder == j.f_max
         # at the start of eac simulation the fodder will have f_max
         # after a year the fodder will have f_max, no matter how much was eaten
         # still not right
