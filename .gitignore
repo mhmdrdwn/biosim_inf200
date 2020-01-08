@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 # Created by https://www.gitignore.io/api/linux,pycharm,windows
 # Edit at https://www.gitignore.io/?templates=linux,pycharm,windows
@@ -132,3 +133,8 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/linux,pycharm,windows
+=======
+.idea/*
+.tox/*
+*/__pycache__/*
+>>>>>>> initial_fauna_tests
