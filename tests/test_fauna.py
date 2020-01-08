@@ -31,24 +31,26 @@ class TestFauna:
     def test_age(self):
         f = Fauna()
         assert f.age == 0
-        f.grow()
+        f.grow_up()
         assert f.age == 1
-        f.grow()
+        f.grow_up()
         assert f.age == 2
         # age increases one year after one year
 
     def test_weight(self):
         f = Fauna()
-        initial = f.weight
         seed(1)
-        assert f.weight == 1.2881847531554629
+        assert f.weight_carni == 7.288184753155463
+        seed(1)
+        assert f.weight_herbi == 9.932277129733194
         # initial weight should be a function that is decorated as variable
         # it's following Gaussain distro, the seed 1 will generate that value
-        f.grow()
-        assert f.weight == f.eta*initial
-        # weight increases by eta factor every year
+        f.grow_up()
+        assert f.weight_herbi == f.eta*f.weight_herbi
+        assert f.weight_carni == f.eta*f.weight_carni
+        # weight weight by eta factor every year
         f.eat()
-        assert f.weight == f.beta*initial
+        assert f.weight_carni == f.beta*f.weight_carni
         # weight increases by beta factor when eating
         # how to test gaussian distribution of weights?
 
@@ -65,7 +67,6 @@ class TestFauna:
     def test_migration(self):
         f = Fauna()
         f.migrate()
-
 
     def test_birth(self):
         f = Fauna()
