@@ -84,10 +84,27 @@ class TestFauna:
         f.weight  = 33.00
         assert f.birth == 0
         # probablity is zero when weight is less than 33.25
+        # we need to test weights at the birth
 
-
-
-
+    def test_death(self):
+        h = Herbivores()
+        h.fitness = 0
+        assert h.death() == 0
+        h.fitness = 0.1
+        assert h.death() > 0
+        assert h.death == 0.36
+        # probablity of death given fitness 0.1 will be 0.36
+    
 
 class TestHerbivores:
+    h = Herbivores()
+    pre_weight = h.weight
+    h.beta = 0.9
+    h.F = 10
+    h.eat()
+    h.weight = pre_weight + h.beta*h.F
+    # when the animals eats F fodder, it will have anew weight beta*F
+
+
+class TestCarnivores:
     pass
