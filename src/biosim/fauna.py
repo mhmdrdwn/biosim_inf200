@@ -9,6 +9,8 @@ __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 from random import seed
 from random import gauss
 from biosim.landscapes import Landscapes
+
+
 class Fauna:
     def __init__(self):
         self.carni_parameters = {'eta': 0.125, 'F': 10.0, 'beta': 0.75, 'w_birth': 6.0, 'sigma_birth': 1.0}
@@ -20,51 +22,49 @@ class Fauna:
         seed(1)
         # Using Gaussian values for initial weight
         self.weight_carni = gauss(self.carni_parameters['w_birth'],self.carni_parameters['sigma_birth'])
+        seed(1)
         self.weight_herbi = gauss(self.herbi_parameters['w_birth'],self.herbi_parameters['sigma_birth'])
         # how to do that ????? Normal distribution of weights (what weights??)
 
-    def grow_up(self):
+    def grow_up(self, animal_type):
         self.age += 1
-        self.decrease_weight_annual()
+        self.decrease_weight_annual(animal_type)
         # age increase by 1 each year
 
-    def decrease_weight_annual(self):
-        self.weight_carni -= self.weight_carni*self.carni_parameters['eta']
-        self.weight_herbi -= self.weight_herbi * self.herbi_parameters['eta']
-        # that's just for carni, still need to code herbi
+    def decrease_weight_annual(self, animal_type):
+        if animal_type == 'Carnivores':
+            self.weight_carni -= self.weight_carni*self.carni_parameters['eta']
+        elif animal_type == 'Herbivores':
+            self.weight_herbi -= self.weight_herbi * self.herbi_parameters['eta']
 
-    def increase_weight(self, eaten_food, animal_type):
+    def increase_weight(self, animal_type, eaten_food):
         # create variable that save the aviable amount of food
-        self.weight_herbi += self.herbi_parameters[
-                                 'beta'] * eaten_food
-        self.weight_carni += self.carni_parameters[
-                                 'beta'] * eaten_food
+        if animal_type == 'herbivores':
+            self.weight_herbi += self.herbi_parameters['beta'] * eaten_food
+        elif animal_type == 'carnivores':
+            self.weight_carni += self.carni_parameters['beta'] * eaten_food
 
-        # that's just for carni, still need to code herbi
+    def fitness(self, animal_type):
+        if animal_type == 'Carnivores':
+            self.weight_carni -= self.weight_carni * self.carni_parameters[
+                'eta']
+        elif animal_type == 'Herbivores':
+            self.weight_herbi -= self.weight_herbi * self.herbi_parameters[
+                'eta']
 
 
 class Herbivores(Fauna):
-    def --init--(self,available_food):
-        super() self.available_food
+    pass
 
-    def eat(self):
-        if available_food > 0:
-            if self.herbi_parameters['F'] <= available_food:
-                self.weight_herbi += self.herbi_parameters['beta']*self.herbi_parameters['F']
-            else:
-                self.weight_herbi += self.herbi_parameters['beta']*self.available_food
 
 class Carnivores(Fauna):
-    available_food = {'carni_food': self.weight_herbi,
-                      'herbi_food': Landscapes.available_fodder}
-    if available_food > 0:
-        if self.carni_parameters['F'] <= available_food:
-            self.weight_carni += self.carni_parameters['beta'] * \
-                                 self.carni_parameters['F']
-        else:
-            self.weight_carni += self.carni_parameters[
-                                     'beta'] * self.available_food
+    pass
 
 
 f = Fauna()
-
+print('weight herbi: '+str(f.weight_herbi))
+print('weight carni: '+str(f.weight_carni))
+f.increase_weight('carnivores', 10)
+print('weight herbi: '+str(f.weight_herbi))
+print('weight carni: '+str(f.weight_carni))
+print(f.__class__.__name__ == 'Fauna')
