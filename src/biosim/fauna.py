@@ -42,3 +42,4 @@ f = Fauna()
 print(f.weight)
 f.eat()
 print(f.weight)
+aaaa
