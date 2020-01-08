@@ -77,6 +77,10 @@ class TestFauna:
         # how can we get weight from gaussain ditribution
         assert f.fitness == 0.1630552263
         assert 0 <= f.fitness <= 1
+        f.weight_carni = 0
+        assert f.fitness == 0
+        f.weight_herbi = 0
+        assert f.fitness == 0
 
     def test_migration(self):
         f = Fauna()
