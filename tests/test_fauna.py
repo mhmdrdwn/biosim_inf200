@@ -134,3 +134,4 @@ class TestCarnivores:
         h.eat()
         assert h.weight == pre_weight + h.beta*h.F
         # when the animals eats F animals, it will have a new weight beta*F
+
