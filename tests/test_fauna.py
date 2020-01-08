@@ -97,14 +97,40 @@ class TestFauna:
     
 
 class TestHerbivores:
-    h = Herbivores()
-    pre_weight = h.weight
-    h.beta = 0.9
-    h.F = 10
-    h.eat()
-    h.weight = pre_weight + h.beta*h.F
-    # when the animals eats F fodder, it will have anew weight beta*F
+    def test_herbivores_weight(self):
+        h = Herbivores()
+        pre_weight = h.weight
+        h.beta = 0.9
+        h.F = 10
+        h.eat()
+        assert h.weight == pre_weight + h.beta*h.F
+        # when the animals eats F fodder, it will have anew weight beta*F
 
 
 class TestCarnivores:
-    pass
+    def test_kill_probability(self):
+        c = Carnivores()
+        h = Herbivores()
+        c.fitness = 0.4
+        h.fitness = 0.5
+        assert c.kill_probablity == 0
+        c.fitness = 0.5
+        h.fitness = 0.4
+        DeltaPhiMax = 10.0
+        assert c.kill_probablity == (c.fitness - h.fitness)/DeltaPhiMax
+        assert c.kill_probablity == 0.01
+        # kill probablity should follow the rules given in carinvores based on
+        # the fitness of herbi and carni
+        c.fitness = 20
+        h.fitness = 9
+        assert c.kill_probablity == 1
+
+    def test_carinvories_weight(self):
+        c = Carnivores()
+        h = Herbivores()
+        pre_weight = h.weight
+        h.beta = 0.75
+        h.F = 50
+        h.eat()
+        assert h.weight == pre_weight + h.beta*h.F
+        # when the animals eats F animals, it will have a new weight beta*F
