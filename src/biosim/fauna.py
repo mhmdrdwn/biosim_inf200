@@ -6,15 +6,22 @@
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
+from random import seed
+from random import gauss
 
 class Fauna:
     def __init__(self):
-        self.parameters = {'carni': {'eta': 0.125, 'F': 10.0, 'beta': 0.75},
-                           'herbi': {'eta': 0.05, 'F': 50.0, 'beta': 0.9}}
+        self.carni_parameters = {'eta': 0.125, 'F': 10.0, 'beta': 0.75, 'w_birth': 6.0, 'sigma_birth': 1.0}
+        self.herbi_parameters = {'eta': 0.05, 'F': 50.0, 'beta': 0.9, 'w_birth': 8.0, 'sigma_birth': 1.5}
         # parameters dictionary, stil need a better implimentation of it
         self.age = 0
         # initial age is zero
-        self.weight = 1
+        # seed random number generator
+        seed(1)
+        # Using Gaussian values for initial weight
+        self.weight_carni = gauss(self.carni_parameters['w_birth'],self.carni_parameters['sigma_birth'])
+        self.weight_herbi = gauss(self.herbi_parameters['w_birth'],self.herbi_parameters['sigma_birth'])
+
         # how to do that ????? Normal distribution of weights (what weights??)
 
     def grow_up(self):
@@ -22,11 +29,12 @@ class Fauna:
         # age increase by 1 each year
 
     def decrease_weight_annual(self):
-        self.weight += self.weight*self.parameters['carni']['eta']
+        self.weight_carni += self.weight_carni*self.carni_parameters['eta']
+        self.weight_herbi += self.weight_herbi * self.herbi_parameters['eta']
         # that's just for carni, still need to code herbi
 
     def eat(self):
-        self.weight += self.parameters['carni']['beta']*self.parameters['carni']['F']
+        self.weight_carni += self.carni_parameters['beta']*self.carni_parameters['F']
         # that's just for carni, still need to code herbi
 
 
@@ -39,6 +47,4 @@ class Carnivores(Fauna):
 
 
 f = Fauna()
-print(f.weight)
-f.eat()
-print(f.weight)
+print(f.weight_herbi)

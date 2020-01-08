@@ -29,7 +29,6 @@ from random import gauss
 
 class TestFauna:
     def test_age(self):
-        """No fodder available in the desert"""
         f = Fauna()
         assert f.age == 0
         f.grow()
