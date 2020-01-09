@@ -8,6 +8,7 @@ __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 import numpy as np
 import pandas as pd
+import itertools
 
 
 class BioSim:
@@ -63,6 +64,7 @@ class BioSim:
         self.landscape_parameters = {'O': {}, 'J': {}, 'S': {}, 'D': {},
                                      'M': {}}
         self.last_year = 0
+        self.sorted_ = []
 
     def set_animal_parameters(self, species, params):
         """
@@ -107,7 +109,18 @@ class BioSim:
 
         :param population: List of dictionaries specifying population
         """
+        # loc = population[0]['loc']
+        # for element in self.ini_pop:
+        #    if element['loc'] == loc:
+        #        for item in population[0]['pop']:
+        #            element['pop'].append(item)
         self.ini_pop.append(population[0])
+
+    def sort(self):
+        def key_func(x):
+            return x['loc']
+
+        self.ini_pop = sorted(self.ini_pop, key=key_func)
 
     @property
     def year(self):
@@ -128,7 +141,7 @@ class BioSim:
         num_animals_dict = {'Herbivore': 0, 'Carnivore': 0}
         for element in self.ini_pop:
             key = element['pop'][0]['species']
-            num_animals_dict[key] = len(element['pop'])
+            num_animals_dict[key] += len(element['pop'])
         return num_animals_dict
 
     @property
@@ -137,9 +150,14 @@ class BioSim:
         cell on island."""
         cell_list = []
         num_animals_list = []
+        i = 0
         for element in self.ini_pop:
-            cell_list.append(element['loc'])
-            num_animals_list.append(len(element['pop']))
+            if element['loc'] not in cell_list:
+                cell_list.append(element['loc'])
+                num_animals_list.append(len(element['pop']))
+                i += 1
+            else:
+                num_animals_list[i-1] += len(element['pop'])
         df_dict = {'Cell': cell_list, 'Num of Animals': num_animals_list}
         print(len(cell_list))
         return pd.DataFrame(df_dict)
@@ -185,7 +203,7 @@ ini_herbs = [
         "loc": (10, 10),
         "pop": [
             {"species": "Herbivore", "age": 5, "weight": 20}
-            for _ in range(150)
+            for _ in range(3)
         ],
     }
 ]
@@ -194,7 +212,7 @@ ini_carns = [
         "loc": (20, 20),
         "pop": [
             {"species": "Carnivore", "age": 5, "weight": 20}
-            for _ in range(40)
+            for _ in range(5)
         ],
     }
 ]
@@ -203,25 +221,45 @@ ini_carns2 = [
         "loc": (10, 10),
         "pop": [
             {"species": "Carnivore", "age": 5, "weight": 20}
-            for _ in range(40)
+            for _ in range(4)
         ],
     }
 ]
-
+ini_carns3 = [
+    {
+        "loc": (30, 30),
+        "pop": [
+            {"species": "Carnivore", "age": 5, "weight": 20}
+            for _ in range(5)
+        ],
+    }
+]
+ini_carns4 = [
+    {
+        "loc": (40, 40),
+        "pop": [
+            {"species": "Carnivore", "age": 5, "weight": 20}
+            for _ in range(5)
+        ],
+    }
+]
 biosim = BioSim(island_map=geogr, ini_pop=ini_herbs, seed=123456)
 biosim.set_animal_parameters("Herbivore", {"zeta": 3.2, "xi": 1.8})
-print(biosim.cmax_animals)
-print(biosim.fauna_parameters)
-print(biosim.ymax_animals)
+# print(biosim.cmax_animals)
+# print(biosim.fauna_parameters)
+# print(biosim.ymax_animals)
 biosim.add_population(ini_carns)
 biosim.add_population(ini_carns2)
 biosim.add_population(ini_carns2)
-
+biosim.add_population(ini_carns)
+biosim.add_population(ini_carns3)
+biosim.add_population(ini_carns4)
+biosim.sort()
+print(biosim.ini_pop)
 print(type(biosim.ini_pop))
-
+print(biosim.ini_pop)
 print(biosim.num_animals_per_species)
 print(biosim.num_animals)
-print(biosim.ini_pop[0])
-print(biosim.ini_pop[1])
-print(biosim.ini_pop)
+# print(biosim.ini_pop[0])
+# print(biosim.ini_pop[1])
 print(biosim.animal_distribution)
