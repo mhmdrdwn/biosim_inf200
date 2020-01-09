@@ -11,6 +11,7 @@ from random import gauss
 from biosim.landscapes import *
 # That's is wrong, we can't import *
 import math
+import numpy as np
 
 
 class Fauna:
@@ -22,8 +23,16 @@ class Fauna:
         self.parameters = None
         # initial age is zero
         # Using Gaussian values for initial weight
-        self.weight = None
         # how to do that ????? Normal distribution of weights (what weights??)
+        self._weight = None
+
+    @property
+    def weight(self):
+        return self._weight
+
+    @weight.setter
+    def weight(self, value):
+        self._weight = value
 
     def grow_up(self):
         self.age += 1
@@ -37,6 +46,7 @@ class Fauna:
     def increase_weight(self, eaten_food):
         # create variable that save the avialable amount of food
         beta = self.parameters['beta']
+        print(self.weight)
         self.weight += beta * eaten_food
 
     @property
@@ -52,7 +62,7 @@ class Fauna:
 
             # fitness formula
             # do we need docorator here??
-
+    
     def migrate(self):
         pass
 
@@ -62,7 +72,7 @@ class Fauna:
         # just return the probablity based on the equation
 
     @property
-    def birth(self):
+    def birth_probablity(self):
         nu_fauna = self.cell.nu_fauna
         zeta = self.parameters['zeta']
         w_birth = self.parameters['w_birth']
@@ -77,10 +87,15 @@ class Fauna:
     def giving_birth(self):
         # now chnage the population of the cell
         # decrease the weight of the mother
-
-        self.cell.nu_fauna += 1
-        self.decrease_weight('xi')
-        # that's still wrong becuase it's with the weight of the baby
+        if np.random.random() > self.birth_probablity:
+            # if that random number is bigger than that probablity it should
+            # give birth
+            self.cell.nu_fauna += 1
+            self.decrease_weight('xi')
+            # that's still wrong becuase it's with the weight of the baby
+        else:
+            pass
+            # dont give birth
 
     @property
     def death(self):
@@ -88,7 +103,6 @@ class Fauna:
             return 1
         else:
             return self.weight * (1 - self.fitness)
-
 
 class Herbivores(Fauna):
     def __init__(self, cell):
@@ -100,8 +114,7 @@ class Herbivores(Fauna):
                            'a_half': 40, 'w_half': 10.0,
                            'gamma': 0.8, 'zeta': 3.5, 'xi': 1.2,
                            'mu': 0.25}
-        self.weight = gauss(self.parameters['w_birth'],
-                            self.parameters['sigma_birth'])
+        self._weight = gauss(self.parameters['w_birth'], self.parameters['sigma_birth'])
 
 
 class Carnivores(Fauna):
@@ -114,8 +127,9 @@ class Carnivores(Fauna):
                            'a_half': 60, 'w_half': 4.0,
                            'gamma': 0.8, 'zeta': 3.5, 'xi': 1.1,
                            'mu': 0.4}
-        self.weight = gauss(self.parameters['w_birth'],
-                            self.parameters['sigma_birth'])
+        self._weight = gauss(self.parameters['w_birth'], self.parameters['sigma_birth'])
+
+
 
 
 _cell = Savannah()
@@ -154,4 +168,4 @@ print('carni migration prob : '+str(c.migration_probability))
 print('herbi migration prob : '+str(h.migration_probability))
 print('death prob: ' + str(c.death))
 # print('fitness_carni: ' + str(f.fitness_carni(f.__class__.__name__)))
-print('birth prob: ' + str(c.birth))
+print('birth prob: ' + str(c.birth_probablity))
