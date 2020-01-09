@@ -9,7 +9,7 @@ __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 from random import seed
 from random import gauss
 from biosim.landscapes import *
-# That's is wrong
+# That's is wrong, we can't import *
 import math
 
 
@@ -24,9 +24,6 @@ class Fauna:
         # Using Gaussian values for initial weight
         self.weight = None
         # how to do that ????? Normal distribution of weights (what weights??)
-        self.fitness = None
-        self.death_probability = None
-        self.birth_probability = None
 
     def grow_up(self):
         self.age += 1
@@ -42,23 +39,30 @@ class Fauna:
         beta = self.parameters['beta']
         self.weight += beta * eaten_food
 
-    def calculate_fitness(self):
+    @property
+    def fitness(self):
         if self.weight == 0:
-            self.fitness = 0
+            return 0
         else:
             q1 = 1 / (1 + math.exp((self.parameters['phi_age']) * (
                     self.age - self.parameters['a_half'])))
             q2 = 1 / (1 + math.exp((-1 * (self.parameters['phi_weight']) * (
                     self.weight - self.parameters['w_half']))))
-            self.fitness = q1 * q2
+            return q1 * q2
 
             # fitness formula
             # do we need docorator here??
 
-    def migration(self):
+    def migrate(self):
         pass
 
-    def calculate_birth_probability(self):
+    @property
+    def migration_probability(self):
+        return self.parameters['mu']*self.fitness
+        # just return the probablity based on the equation
+
+    @property
+    def birth(self):
         nu_fauna = self.cell.nu_fauna
         zeta = self.parameters['zeta']
         w_birth = self.parameters['w_birth']
@@ -66,22 +70,24 @@ class Fauna:
         if nu_fauna >= 2 and self.weight >= zeta*(w_birth*sigma_birth):
             gamma = self.parameters['gamma']
             fitness = self.fitness
-            self.birth_probability = min(1, gamma * fitness * (nu_fauna - 1))
+            return min(1, gamma * fitness * (nu_fauna - 1))
         else:
-            self.birth_probability = 0
+            return 0
 
     def giving_birth(self):
         # now chnage the population of the cell
         # decrease the weight of the mother
+
         self.cell.nu_fauna += 1
         self.decrease_weight('xi')
         # that's still wrong becuase it's with the weight of the baby
 
-    def calculate_death(self):
+    @property
+    def death(self):
         if self.fitness == 0:
-            self.death_probability = 1
+            return 1
         else:
-            self.death_probability = self.weight * (1 - self.fitness)
+            return self.weight * (1 - self.fitness)
 
 
 class Herbivores(Fauna):
@@ -92,7 +98,8 @@ class Herbivores(Fauna):
                            'w_birth': 8.0, 'sigma_birth': 1.5,
                            'phi_age': 0.2, 'phi_weight': 0.1,
                            'a_half': 40, 'w_half': 10.0,
-                           'gamma': 0.8, 'zeta': 3.5, 'xi': 1.2}
+                           'gamma': 0.8, 'zeta': 3.5, 'xi': 1.2,
+                           'mu': 0.25}
         self.weight = gauss(self.parameters['w_birth'],
                             self.parameters['sigma_birth'])
 
@@ -105,7 +112,8 @@ class Carnivores(Fauna):
                            'w_birth': 6.0, 'sigma_birth': 1.0,
                            'phi_age': 0.4, 'phi_weight': 0.4,
                            'a_half': 60, 'w_half': 4.0,
-                           'gamma': 0.8, 'zeta': 3.5, 'xi': 1.1}
+                           'gamma': 0.8, 'zeta': 3.5, 'xi': 1.1,
+                           'mu': 0.4}
         self.weight = gauss(self.parameters['w_birth'],
                             self.parameters['sigma_birth'])
 
@@ -138,10 +146,12 @@ print('weight carni: ' + str(c.weight))
 print('age herbi: ' + str(h.age))
 print('age carni: ' + str(c.age))
 print('###############')
-c.calculate_fitness()
 print('fitness: ' + str(c.fitness))
-c.calculate_death()
-print('death prob: ' + str(c.death_probability))
+#c.grow_up()
+c.increase_weight(10)
+print('fitness: ' + str(c.fitness))
+print('carni migration prob : '+str(c.migration_probability))
+print('herbi migration prob : '+str(h.migration_probability))
+print('death prob: ' + str(c.death))
 # print('fitness_carni: ' + str(f.fitness_carni(f.__class__.__name__)))
-c.calculate_birth_probability()
-print('birth prob: ' + str(c.birth_probability))
+print('birth prob: ' + str(c.birth))
