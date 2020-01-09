@@ -16,6 +16,9 @@ import numpy as np
 
 class Fauna:
     def __init__(self, cell):
+        """
+
+        """
         # parameters dictionary, still need a better implimentation of it
         self.cell = cell
         # cell is an object of landscape where we instantiate a new animal
@@ -30,6 +33,7 @@ class Fauna:
     def weight(self):
         return self._weight
 
+    # maybe we dont need setter here
     @weight.setter
     def weight(self, value):
         self._weight = value
@@ -38,31 +42,31 @@ class Fauna:
         self.age += 1
         self.decrease_weight('eta')
         # age increase by 1 each year
-        # decresae the weight by the factor eta
+        # decrease the weight by the factor eta
 
     def decrease_weight(self, factor):
-        self.weight -= self.weight * self.parameters[factor]
+        self._weight -= self._weight * self.parameters[factor]
 
     def increase_weight(self, eaten_food):
         # create variable that save the avialable amount of food
         beta = self.parameters['beta']
-        print(self.weight)
-        self.weight += beta * eaten_food
+        print(self._weight)
+        self._weight += beta * eaten_food
 
     @property
     def fitness(self):
-        if self.weight == 0:
+        if self._weight == 0:
             return 0
         else:
             q1 = 1 / (1 + math.exp((self.parameters['phi_age']) * (
                     self.age - self.parameters['a_half'])))
             q2 = 1 / (1 + math.exp((-1 * (self.parameters['phi_weight']) * (
-                    self.weight - self.parameters['w_half']))))
+                    self._weight - self.parameters['w_half']))))
             return q1 * q2
 
             # fitness formula
             # do we need docorator here??
-    
+
     def migrate(self):
         pass
 
@@ -104,6 +108,7 @@ class Fauna:
         else:
             return self.weight * (1 - self.fitness)
 
+
 class Herbivores(Fauna):
     def __init__(self, cell):
         seed(1)
@@ -114,7 +119,10 @@ class Herbivores(Fauna):
                            'a_half': 40, 'w_half': 10.0,
                            'gamma': 0.8, 'zeta': 3.5, 'xi': 1.2,
                            'mu': 0.25}
-        self._weight = gauss(self.parameters['w_birth'], self.parameters['sigma_birth'])
+        self._weight = gauss(self.parameters['w_birth'],
+                             self.parameters['sigma_birth'])
+
+
 
 
 class Carnivores(Fauna):
@@ -127,7 +135,8 @@ class Carnivores(Fauna):
                            'a_half': 60, 'w_half': 4.0,
                            'gamma': 0.8, 'zeta': 3.5, 'xi': 1.1,
                            'mu': 0.4}
-        self._weight = gauss(self.parameters['w_birth'], self.parameters['sigma_birth'])
+        self._weight = gauss(self.parameters['w_birth'],
+                             self.parameters['sigma_birth'])
 
 
 

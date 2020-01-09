@@ -9,7 +9,6 @@ __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 class Landscapes:
     def __init__(self):
-        #self.geography_string = geography_string
         self.available_fodder = 0
         self.nu_fauna = 0
 
@@ -26,7 +25,10 @@ class Mountains(Landscapes):
 
 
 class Ocean(Landscapes):
-    def __init__(self):
+    def __init__(self, x):
+        """
+
+        """
         self.nu_fauna = 0
 
 
