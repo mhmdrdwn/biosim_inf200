@@ -9,7 +9,8 @@ __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 import numpy as np
 import pandas as pd
 import itertools
-
+from biosim.landscapes import *
+#that's wrong
 
 class BioSim:
     def __init__(
