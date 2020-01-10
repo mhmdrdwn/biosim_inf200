@@ -138,3 +138,5 @@ $RECYCLE.BIN/
 .tox/*
 */__pycache__/*
 >>>>>>> initial_fauna_tests
+
+doc/_build/
