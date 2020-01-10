@@ -19,13 +19,13 @@ class Desert(Landscapes):
         # That's becuase it's not changable, so it's private variable
 
 
-class Mountains(Landscapes):
+class Mountain(Landscapes):
     def __init__(self):
         pass
 
 
 class Ocean(Landscapes):
-    def __init__(self, x):
+    def __init__(self):
         """
 
         """
