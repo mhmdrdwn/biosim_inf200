@@ -8,7 +8,7 @@ __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 from random import seed
 from random import gauss
-from biosim.landscapes import *
+#from biosim.landscapes import *
 # That's is wrong, we can't import *
 import math
 import numpy as np
@@ -140,41 +140,3 @@ class Carnivores(Fauna):
 
 
 
-
-_cell = Savannah()
-_cell.nu_fauna = 3
-c = Carnivores(_cell)
-h = Herbivores(_cell)
-print(c)
-print(h)
-print('weight herbi: ' + str(h.weight))
-print('weight carni: ' + str(c.weight))
-print('###############')
-c.increase_weight(10)
-print('weight herbi: ' + str(h.weight))
-print('weight carni: ' + str(c.weight))
-print('###############')
-h.decrease_weight('eta')
-c.decrease_weight('eta')
-print('weight herbi: ' + str(h.weight))
-print('weight carni: ' + str(c.weight))
-print('age herbi: ' + str(h.age))
-print('age carni: ' + str(c.age))
-print('###############')
-h.grow_up()
-h.grow_up()
-c.grow_up()
-print('weight herbi: ' + str(h.weight))
-print('weight carni: ' + str(c.weight))
-print('age herbi: ' + str(h.age))
-print('age carni: ' + str(c.age))
-print('###############')
-print('fitness: ' + str(c.fitness))
-#c.grow_up()
-c.increase_weight(10)
-print('fitness: ' + str(c.fitness))
-print('carni migration prob : '+str(c.migration_probability))
-print('herbi migration prob : '+str(h.migration_probability))
-print('death prob: ' + str(c.death))
-# print('fitness_carni: ' + str(f.fitness_carni(f.__class__.__name__)))
-print('birth prob: ' + str(c.birth_probablity))
