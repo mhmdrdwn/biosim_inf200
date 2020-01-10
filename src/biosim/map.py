@@ -21,18 +21,23 @@ class Map:
                           'J': Jungle, 'D': Desert}
 
     def create_map_dict(self):
-        for character in self.geogr_string:
-            # build object of landscapes for each character
-            if character in self.char_dict.keys():
-                self.objects_list.append(self.char_dict[character]())
-        print(len(self.objects_list))
+        geogr_array = self.string_to_np_array()
+        # for element in geogr_array:
+        object_array = np.empty(geogr_array.shape, dtype=object)
+        # we did that to build array of the same dimesions
+        for i in np.arange(geogr_array.shape[0]):
+            for j in np.arange(geogr_array.shape[1]):
+                # build object of landscapes for each character
+                object_array[i][j] = self.char_dict[geogr_array[i][j]]
+        return object_array
 
     def string_to_np_array(self):
         geogr_string_clean = self.geogr_string.replace(' ', '')
         char_array = np.array([[j for j in i] for i in
                                geogr_string_clean.splitlines()])
-        print(char_array)
-        print(np.shape(char_array))
+        # convert string to numpy array with the same diemsions
+        return char_array
+
 
 
 map_str = """\
@@ -53,5 +58,3 @@ m = Map(map_str)
 print(m.geogr_string)
 print(m.char_dict)
 print(m.create_map_dict())
-print(m.objects_list)
-print(m.string_to_np_array())
