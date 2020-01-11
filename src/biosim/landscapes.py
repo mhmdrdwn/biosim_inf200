@@ -20,7 +20,7 @@ class Landscapes:
         # migration and birthing
         self.fauna_objects_dict = fauna_objects_dict
         # that should be list of dicts
-        self.fauna_fitness = {}
+        self.reverse_sorted_fauna_fitness = {}
 
     def save_fitness(self, fauna_objects, species):
         # this is to update the current fitness to be able to use in
@@ -30,38 +30,41 @@ class Landscapes:
         # saving the data only for the species that we want to save, not for all
         for fauna in fauna_objects[species]:
             species_fauna_fitness[fauna] = fauna.fitness
-        self.fauna_fitness[species] = species_fauna_fitness
+        self.reverse_sorted_fauna_fitness[species] = species_fauna_fitness
 
     def order_by_fitness(self, to_sort_objects, species):
         self.save_fitness(to_sort_objects, species)
-        self.fauna_fitness[species] = dict(
-            sorted(self.fauna_fitness[species].items(),
-                   key=operator.itemgetter(1), reverse=True))
+        self.reverse_sorted_fauna_fitness[species] = dict(sorted(self.reverse_sorted_fauna_fitness[species].items(), key=operator.itemgetter(1), reverse=True))
         # all fitnesses is sorted for the animals in species
 
-    def herbivore(self):
+    def herbivore_eat(self):
         # that should return the amount of food that is going to be
         # eaten by all animals in celll
-        self.order_by_fitness(self.fauna_objects_dict['Herbivore'])
+        self.order_by_fitness(self.fauna_objects_dict, 'Herbivore')
         # we need to sort animals by fitness prior to the eating, and the
         # animals with highest fitness eats first
-        for fauna in self.fauna_objects_dict['']:
-            reverse_sorted_fitness = sorted(fauna.fitness)
-
-    def reduce_fodder(self, amount_to_reduce):
-        # change the amount of avialable fadder in landscape after animal eats
-        # eaten_food = 0
-        if self._available_fodder >= amount_to_reduce:
-            # animals eat what he required
-            self._available_fodder -= amount_to_reduce
-        elif 0 < self._available_fodder < amount_to_reduce:
-            # aniamls eats what is left
-            self._available_fodder = 0
-        else:
-            # animals here recieves no food
-            self._available_fodder = 0
-        # last else statment is not required, so we can remove it and add
-        # it to the elif
+        for herbivore in self.reverse_sorted_fauna_fitness['Herbivore']:
+            # this is already reverse sorted dictionary, so animals at the
+            # beginning are the hight fitness
+            # heribore is an object that is saved in the dictionary,
+            # eat method is amethod in Fauna class
+            # change the amount of avialable fadder in landscape after animal eats
+            # eaten_food = 0
+            if self._available_fodder >= herbivore.parameters['F']:
+                # animals eat what he required
+                amount_to_eat = herbivore.parameters['F']
+                herbivore.eat(amount_to_eat)
+                self._available_fodder -= amount_to_eat
+            elif 0 < self._available_fodder < herbivore.parameters['F']:
+                # aniamls eats what is left
+                amount_to_eat = self._available_fodder
+                herbivore.eat(amount_to_eat)
+                self._available_fodder = 0
+            else:
+                # animals here recieves no food
+                self._available_fodder = 0
+                # last else statment is not required, so we can remove it and add
+                # it to the elif
 
     @property
     def available_fodder(self):
@@ -161,8 +164,8 @@ print(s.available_fodder)
 # print(s.herbivore())
 s.order_by_fitness(animals, 'Herbivore')
 s.order_by_fitness(animals, 'Carnivore')
-
-print(s.fauna_fitness)
+s.herbivore_eat()
+print(s.reverse_sorted_fauna_fitness)
 print('###########')
 j = Jungle(animals)
 print(j.fauna_objects_dict)

@@ -47,11 +47,11 @@ class Fauna:
     def decrease_weight(self, factor):
         self._weight -= self._weight * self.parameters[factor]
 
-    def increase_weight(self, eaten_food):
-        # create variable that save the avialable amount of food
-        beta = self.parameters['beta']
-        print(self._weight)
-        self._weight += beta * eaten_food
+    #def increase_weight(self, eaten_food):
+    #    # create variable that save the avialable amount of food
+    #    beta = self.parameters['beta']
+    #    print(self._weight)
+    #    self._weight += beta * eaten_food
 
     #@property
     def fitness(self):
@@ -126,6 +126,9 @@ class Herbivore(Fauna):
                            'mu': 0.25}
         self._weight = gauss(self.parameters['w_birth'],
                              self.parameters['sigma_birth'])
+
+    def eat(self, amount_to_eat):
+        self._weight += self.parameters['beta']*amount_to_eat
 
 
 class Carnivore(Fauna):
