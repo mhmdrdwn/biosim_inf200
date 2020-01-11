@@ -8,19 +8,18 @@ __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 from random import seed
 from random import gauss
-#from biosim.landscapes import *
+# from biosim.landscapes import *
 # That's is wrong, we can't import *
 import math
 import numpy as np
 
 
 class Fauna:
-    def __init__(self, cell):
+    def __init__(self):
         """
 
         """
         # parameters dictionary, still need a better implimentation of it
-        self.cell = cell
         # cell is an object of landscape where we instantiate a new animal
         self.age = 0
         self.parameters = None
@@ -28,6 +27,7 @@ class Fauna:
         # Using Gaussian values for initial weight
         # how to do that ????? Normal distribution of weights (what weights??)
         self._weight = None
+        self.fitness = 0
 
     @property
     def weight(self):
@@ -53,7 +53,7 @@ class Fauna:
         print(self._weight)
         self._weight += beta * eaten_food
 
-    @property
+    #@property
     def fitness(self):
         if self._weight == 0:
             return 0
@@ -67,12 +67,17 @@ class Fauna:
             # fitness formula
             # do we need docorator here??
 
+    #@fitness.setter
+    def fitness(self, value):
+        # this is just to be used in the landscape, not needed actually
+        self._fitness = value
+
     def migrate(self):
         pass
 
     @property
     def migration_probability(self):
-        return self.parameters['mu']*self.fitness
+        return self.parameters['mu'] * self.fitness
         # just return the probablity based on the equation
 
     @property
@@ -81,7 +86,7 @@ class Fauna:
         zeta = self.parameters['zeta']
         w_birth = self.parameters['w_birth']
         sigma_birth = self.parameters['sigma_birth']
-        if nu_fauna >= 2 and self.weight >= zeta*(w_birth*sigma_birth):
+        if nu_fauna >= 2 and self.weight >= zeta * (w_birth * sigma_birth):
             gamma = self.parameters['gamma']
             fitness = self.fitness
             return min(1, gamma * fitness * (nu_fauna - 1))
@@ -109,10 +114,10 @@ class Fauna:
             return self.weight * (1 - self.fitness)
 
 
-class Herbivores(Fauna):
-    def __init__(self, cell):
+class Herbivore(Fauna):
+    def __init__(self):
         seed(1)
-        super().__init__(cell)
+        super().__init__()
         self.parameters = {'eta': 0.05, 'F': 50.0, 'beta': 0.9,
                            'w_birth': 8.0, 'sigma_birth': 1.5,
                            'phi_age': 0.2, 'phi_weight': 0.1,
@@ -123,12 +128,10 @@ class Herbivores(Fauna):
                              self.parameters['sigma_birth'])
 
 
-
-
-class Carnivores(Fauna):
-    def __init__(self, cell):
+class Carnivore(Fauna):
+    def __init__(self):
         seed(1)
-        super().__init__(cell)
+        super().__init__()
         self.parameters = {'eta': 0.125, 'F': 10.0, 'beta': 0.75,
                            'w_birth': 6.0, 'sigma_birth': 1.0,
                            'phi_age': 0.4, 'phi_weight': 0.4,
@@ -137,6 +140,3 @@ class Carnivores(Fauna):
                            'mu': 0.4}
         self._weight = gauss(self.parameters['w_birth'],
                              self.parameters['sigma_birth'])
-
-
-
