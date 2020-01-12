@@ -107,11 +107,22 @@ class Fauna:
             # dont give birth
 
     @property
-    def death(self):
+    def death_probability(self):
         if self.fitness == 0:
             return 1
         else:
             return self.weight * (1 - self.fitness)
+
+    def die(self):
+        # if np.random.random() is more than the probability , then die
+        #del self
+        pass
+        # delete itself, but we dont need this
+
+    def eat(self, amount_to_eat):
+        self._weight += self.parameters['beta']*amount_to_eat
+        # the same behaviour for both carni and herbi, just the difference
+        # is in the amount to eat
 
 
 class Herbivore(Fauna):
@@ -127,19 +138,25 @@ class Herbivore(Fauna):
         self._weight = gauss(self.parameters['w_birth'],
                              self.parameters['sigma_birth'])
 
-    def eat(self, amount_to_eat):
-        self._weight += self.parameters['beta']*amount_to_eat
-
 
 class Carnivore(Fauna):
     def __init__(self):
         seed(1)
         super().__init__()
+        self._killing_probablity = 0
         self.parameters = {'eta': 0.125, 'F': 10.0, 'beta': 0.75,
                            'w_birth': 6.0, 'sigma_birth': 1.0,
                            'phi_age': 0.4, 'phi_weight': 0.4,
                            'a_half': 60, 'w_half': 4.0,
                            'gamma': 0.8, 'zeta': 3.5, 'xi': 1.1,
-                           'mu': 0.4}
+                           'mu': 0.4, 'DeltaPhiMax': 10.0}
         self._weight = gauss(self.parameters['w_birth'],
                              self.parameters['sigma_birth'])
+
+    def calculate_killing_probablity(self, herbivore_fitness):
+        if self.fitness <= herbivore_fitness:
+            self.killing_probablity = 0
+        elif 0 < self.fitness - herbivore_fitness < self.parameters['DeltaPhiMax']:
+            self.killing_probablity = (self.fitness - herbivore_fitness) / self.parameters['DeltaPhiMax']
+        else:
+            self.killing_probablity = 1

@@ -10,7 +10,7 @@ from biosim.fauna import Fauna
 from biosim.fauna import Herbivore
 from biosim.fauna import Carnivore
 import operator
-
+import numpy as np
 
 class Landscapes:
     def __init__(self, fauna_objects_dict):
@@ -20,7 +20,7 @@ class Landscapes:
         # migration and birthing
         self.fauna_objects_dict = fauna_objects_dict
         # that should be list of dicts
-        self.reverse_sorted_fauna_fitness = {}
+        self.sorted_fauna_fitness = {}
 
     def save_fitness(self, fauna_objects, species):
         # this is to update the current fitness to be able to use in
@@ -30,12 +30,20 @@ class Landscapes:
         # saving the data only for the species that we want to save, not for all
         for fauna in fauna_objects[species]:
             species_fauna_fitness[fauna] = fauna.fitness
-        self.reverse_sorted_fauna_fitness[species] = species_fauna_fitness
+        self.sorted_fauna_fitness[species] = species_fauna_fitness
 
-    def order_by_fitness(self, to_sort_objects, species):
+    def order_by_fitness(self, to_sort_objects, species, reverse = True):
         self.save_fitness(to_sort_objects, species)
-        self.reverse_sorted_fauna_fitness[species] = dict(sorted(self.reverse_sorted_fauna_fitness[species].items(), key=operator.itemgetter(1), reverse=True))
-        # all fitnesses is sorted for the animals in species
+        if reverse:
+            self.sorted_fauna_fitness[species] = dict(
+                sorted(self.sorted_fauna_fitness[species].items(),
+                       key=operator.itemgetter(1), reverse=True))
+        else:
+            self.sorted_fauna_fitness[species] = dict(
+                sorted(self.sorted_fauna_fitness[species].items(),
+                       key=operator.itemgetter(1)))
+        # all fitnesses is sorted for the animals in species, depends on the
+        # parameters whether it should be sorted or reverse sorted
 
     def herbivore_eat(self):
         # that should return the amount of food that is going to be
@@ -43,14 +51,24 @@ class Landscapes:
         self.order_by_fitness(self.fauna_objects_dict, 'Herbivore')
         # we need to sort animals by fitness prior to the eating, and the
         # animals with highest fitness eats first
-        for herbivore in self.reverse_sorted_fauna_fitness['Herbivore']:
+        for herbivore in self.sorted_fauna_fitness['Herbivore']:
             # this is already reverse sorted dictionary, so animals at the
             # beginning are the hight fitness
             # heribore is an object that is saved in the dictionary,
             # eat method is amethod in Fauna class
             # change the amount of avialable fadder in landscape after animal eats
             # eaten_food = 0
-            if self._available_fodder >= herbivore.parameters['F']:
+
+            if self._available_fodder == 0:
+                break
+                # break the for-loop to save computation cost becuase it's no
+                # longer effective to iterate through it and they will not
+                # recieve any food
+                # Animals here recieves no food
+                # self._available_fodder = 0
+                # last else statment is not required, so we can remove it and add
+                # it to the elif
+            elif self._available_fodder >= herbivore.parameters['F']:
                 # animals eat what he required
                 amount_to_eat = herbivore.parameters['F']
                 herbivore.eat(amount_to_eat)
@@ -60,12 +78,35 @@ class Landscapes:
                 amount_to_eat = self._available_fodder
                 herbivore.eat(amount_to_eat)
                 self._available_fodder = 0
-            else:
-                # animals here recieves no food
-                self._available_fodder = 0
-                # last else statment is not required, so we can remove it and add
-                # it to the elif
 
+    def carnivore_eat(self):
+        self.order_by_fitness(self.fauna_objects_dict, 'Carnivore')
+        self.order_by_fitness(self.fauna_objects_dict, 'Herbivore', False)
+        #reverse order the carnivore by fitness and sort the herbivore
+        for carnivore in self.sorted_fauna_fitness['Carnivore']:
+            # carbivore with highest fitness will kill the lowest fitness
+            # herbivore first and so on
+            if len(self.sorted_fauna_fitness['Herbivore']) == 0:
+                break
+                #if avaiable food (weight of herbi) is zero ,break the for loop becuase it's
+                # no longer efficient
+            for herbivore in self.sorted_fauna_fitness['Herbivore']:
+                # carnivore will kill herivore as a time
+                # if the
+                carnivore.calculate_killing_probablity(herbivore.fitness)
+                if np.random.random() > carnivore.killing_probablity:
+                    weight_to_eat = herbivore.weight
+                    del self.sorted_fauna_fitness['Herbivore'][herbivore]
+                    # remove it from the dictionary, meaning removing from the cell
+                    #herbivore.die()
+                    # we need a good implimenetation for method die in the fauna
+                    if weight_to_eat >= carnivore.parameters['F']:
+                        # that's wrong becuase, the weight to eat is the weight
+                        # of only one meal
+                        carnivore.eat(carnivore.parameters['F'])
+                    elif weight_to_eat < carnivore.parameters['F']:
+                        carnivore.eat(weight_to_eat)
+                        
     @property
     def available_fodder(self):
         return self._available_fodder
@@ -159,13 +200,14 @@ print(s.fauna_objects_dict)
 print(s.available_fodder)
 s.grow_fodder()
 print(s.available_fodder)
-s.reduce_fodder(10)
+# s.reduce_fodder(10)
 print(s.available_fodder)
 # print(s.herbivore())
-s.order_by_fitness(animals, 'Herbivore')
+s.order_by_fitness(animals, 'Herbivore', False)
 s.order_by_fitness(animals, 'Carnivore')
 s.herbivore_eat()
-print(s.reverse_sorted_fauna_fitness)
+s.carnivore_eat()
+print(s.sorted_fauna_fitness)
 print('###########')
 j = Jungle(animals)
 print(j.fauna_objects_dict)
