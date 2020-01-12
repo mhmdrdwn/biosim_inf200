@@ -72,11 +72,8 @@ class Fauna:
         # this is just to be used in the landscape, not needed actually
         self._fitness = value
 
-    def migrate(self):
-        pass
-
     @property
-    def migration_probability(self):
+    def move_probability(self):
         return self.parameters['mu'] * self.fitness
         # just return the probablity based on the equation
 
@@ -106,6 +103,9 @@ class Fauna:
             pass
             # dont give birth
 
+    def appetite(self, species, ):
+        return
+
     @property
     def death_probability(self):
         if self.fitness == 0:
@@ -134,7 +134,7 @@ class Herbivore(Fauna):
                            'phi_age': 0.2, 'phi_weight': 0.1,
                            'a_half': 40, 'w_half': 10.0,
                            'gamma': 0.8, 'zeta': 3.5, 'xi': 1.2,
-                           'mu': 0.25}
+                           'mu': 0.25, 'lambda': 1.0}
         self._weight = gauss(self.parameters['w_birth'],
                              self.parameters['sigma_birth'])
 
@@ -149,7 +149,7 @@ class Carnivore(Fauna):
                            'phi_age': 0.4, 'phi_weight': 0.4,
                            'a_half': 60, 'w_half': 4.0,
                            'gamma': 0.8, 'zeta': 3.5, 'xi': 1.1,
-                           'mu': 0.4, 'DeltaPhiMax': 10.0}
+                           'mu': 0.4, 'DeltaPhiMax': 10.0, 'lambda': 1.0}
         self._weight = gauss(self.parameters['w_birth'],
                              self.parameters['sigma_birth'])
 

@@ -6,6 +6,8 @@
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
+import math
+
 from biosim.fauna import Fauna
 from biosim.fauna import Herbivore
 from biosim.fauna import Carnivore
@@ -44,6 +46,46 @@ class Landscapes:
                        key=operator.itemgetter(1)))
         # all fitnesses is sorted for the animals in species, depends on the
         # parameters whether it should be sorted or reverse sorted
+
+    def calculate_relative_abundance_fodder(self, species):
+        return self.relevant_fodder(species)/((len(self.fauna_objects_dict[species])+1)*species().parameters['F'])
+        # we instantiate object of teh species given and get F from it
+        # maybe there is error here
+
+    def relevant_fodder(self, species):
+        if species == 'Herbivore':
+            return self._available_fodder
+            # return amount of relevant fodder for the differnt animals species
+        elif species == 'Carnivore':
+            total_herbi_weight = 0
+            for herbivore in self.fauna_objects_dict['Herbivore']:
+                total_herbi_weight += herbivore.weight
+            return total_herbi_weight
+            # remember each time a carni move, number of herbi is
+            # differnt in the cells, since they travel based on fitness
+            # maybe a herbi is higher fitness
+
+    def propensity(self, species, cell):
+        if cell == 'Mountain' or j == 'Ocean':
+            return 0
+        elif j is None:
+            relevant_fodder = self.calculate_relative_abundance_fodder(species)
+            return math.exp(relevant_fodder*species().parameters['lambda'])
+            # need to fix this spcies(), we need an object to be able to access
+            # parameters
+
+    def probability(self, species, cell, adj_cells):
+        total_propensity = 0
+        for cell in adj_cells:
+            total_propensity += self.propensity(species, cell)
+        return self.propensity(species, cell)/total_propensity
+        # this is the rule of probablity
+        if species().parameters['lambda'] == 0:
+            # all possible distination will be cjosen with equal probablity
+        elif species().parameters['lambda'] == 0:
+            # animals will go to cell with greater abundance of food
+        else:
+            # animals will turn away from food
 
     def herbivore_eat(self):
         # that should return the amount of food that is going to be
@@ -96,7 +138,7 @@ class Landscapes:
                 carnivore.calculate_killing_probablity(herbivore.fitness)
                 if np.random.random() > carnivore.killing_probablity:
                     weight_to_eat = herbivore.weight
-                    del self.sorted_fauna_fitness['Herbivore'][herbivore]
+                    #del self.sorted_fauna_fitness['Herbivore'][herbivore]
                     # remove it from the dictionary, meaning removing from the cell
                     #herbivore.die()
                     # we need a good implimenetation for method die in the fauna
