@@ -68,8 +68,6 @@ class Map:
                         cell_with_maximum_probability.add_fauna()
 
 
-
-
 map_str = """\
                OOOOOOOOOOOOOOOOOOOOO
                OOOOOOOOSMMMMJJJJJJJO

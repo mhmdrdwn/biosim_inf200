@@ -95,6 +95,23 @@ class Landscapes:
     def remove_fauna(self, animal):
         self.fauna_objects_dict[animal.__class__.__name__].remove(animal)
 
+    def give_birth(self, animal_object):
+        # now chnage the population of the cell
+        # decrease the weight of the mother
+        if (self.fauna_objects_dict[animal_object.__class__.__name__]) >= 2:
+            if np.random.random() > animal_object.birth_probablity:
+                # if that random number is bigger than that probablity it should
+                # give birth, or create new baby, or object of animal
+                baby_to_be_birth = animal_object.__class__.__name__()
+                if animal_object.weight < baby_to_be_birth.weight*baby_to_be_birth.parameters['xi']:
+                    # it gives birth only if its weight is more than the the weight to be losed
+                    self.fauna_objects_dict[animal_object.__class__.__name__].add(baby_to_be_birth)
+                    animal_object.weight -= baby_to_be_birth.weight*baby_to_be_birth.parameters['xi']
+                    # that's still wrong becuase it's with the weight of the baby
+        else:
+            pass
+            # dont give birth
+
     def herbivore_eat(self):
         # that should return the amount of food that is going to be
         # eaten by all animals in celll

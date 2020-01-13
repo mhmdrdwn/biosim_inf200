@@ -90,19 +90,6 @@ class Fauna:
         else:
             return 0
 
-    def giving_birth(self):
-        # now chnage the population of the cell
-        # decrease the weight of the mother
-        if np.random.random() > self.birth_probablity:
-            # if that random number is bigger than that probablity it should
-            # give birth
-            self.cell.nu_fauna += 1
-            self.decrease_weight('xi')
-            # that's still wrong becuase it's with the weight of the baby
-        else:
-            pass
-            # dont give birth
-
     @property
     def death_probability(self):
         if self.fitness == 0:
