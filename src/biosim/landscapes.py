@@ -105,7 +105,7 @@ class Landscapes:
                 baby_to_be_birth = animal_object.__class__.__name__()
                 if animal_object.weight < baby_to_be_birth.weight*baby_to_be_birth.parameters['xi']:
                     # it gives birth only if its weight is more than the the weight to be losed
-                    self.fauna_objects_dict[animal_object.__class__.__name__].add(baby_to_be_birth)
+                    self.add_fauna(baby_to_be_birth)
                     animal_object.weight -= baby_to_be_birth.weight*baby_to_be_birth.parameters['xi']
                     # that's still wrong becuase it's with the weight of the baby
         else:
