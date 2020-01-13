@@ -19,6 +19,7 @@ import os
 import os.path
 
 from biosim.simulation import BioSim
+from biosim.landscapes import Landscapes
 from biosim.landscapes import Desert
 from biosim.landscapes import Ocean
 from biosim.landscapes import Mountains
@@ -37,38 +38,40 @@ class TestLandscapes:
         # the sea is surrounding the island, should it be here or
         # simulation class
 
+    def test_consume_fodder(self):
+        h = Herbivores()
+        l = Landscapes()
+        l.consume_fodder()
+        assert 0 < l.available_fodder < l.required_food
+        assert l.available_fodder == 0
+        # the initial amount is f_max
 
 class TestDesert:
     def test_no_fodder(self):
         """No fodder available in the desert"""
         d = Desert()
-        assert d.fooder == 0
+        assert d.available_fodder == 0
 
 
 class TestOcean:
     def test_nu_animals(self):
         o = Ocean()
-        assert o.nu_animals == 0
+        assert o.nu_fauna == 0
 
 
 class TestMountains:
     def test_nu_animals(self):
         m = Mountains()
-        assert m.nu_animals == 0
+        assert m.nu_fauna == 0
 
 
 class TestSavannah:
     def test_yearly_growth(self):
         s = Savannah()
-        assert s.fodder == s.f_max
-        h = Herbivores()
-        h.eat()
-        assert 0 <= s.fodder < s.f_max
-        assert s.fodder == s.f_max - h.F
-        # the initial amount is f_max
-        s.apply_yearly_growth()
-        post_f = s.fodder
-        assert post_f >= s.fooder
+        assert s.available_fodder == s.f_max
+        s.grow_fodder_annual()
+        post_f = s.available_fodder
+        assert post_f >= s.available_fodder
         #assert post_f - pre_f == s.alpha*(s.f_max - pre_f)
         # the growth or the difference between them is given by the fomula
 
@@ -76,12 +79,12 @@ class TestSavannah:
 class TestJungle:
     def test_yearly_growth(self):
         j = Jungle()
-        assert j.fodder == j.f_max
+        assert j.available_fodder == j.f_max
         h = Herbivores()
-        assert j.fodder <= j.f_max
+        assert j.available_fodder <= j.f_max
         #assert j.fodder == j.f_max - j.nu_herbivores*h.F
-        j.apply_yearly_growth()
-        assert j.fodder == j.f_max
+        j.grow_fodder_annual()
+        assert j.available_fodder == j.f_max
         # at the start of eac simulation the fodder will have f_max
         # after a year the fodder will have f_max, no matter how much was eaten
         # still not right
