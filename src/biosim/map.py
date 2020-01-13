@@ -62,7 +62,10 @@ class Map:
                         #cell_with_maximum_fodder = adj_cells[maximum_relevant_fodder_index]
                         maximum_probability_index =  cell_probabilities_list.index(max(cell_probabilities_list))
                         cell_with_maximum_probability = adj_cells[maximum_probability_index]
-                        animal.move()
+                        #then remove animal from the current cell and add it to the distination cell
+
+                        current_cell.remove_fauna()
+                        cell_with_maximum_probability.add_fauna()
 
 
 

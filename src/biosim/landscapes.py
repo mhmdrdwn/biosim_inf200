@@ -89,6 +89,12 @@ class Landscapes:
         #else:
             # animals will turn away from food
 
+    def add_fauna(self, animal):
+        self.fauna_objects_dict[animal.__class__.__name__].append(animal)
+
+    def remove_fauna(self, animal):
+        self.fauna_objects_dict[animal.__class__.__name__].remove(animal)
+
     def herbivore_eat(self):
         # that should return the amount of food that is going to be
         # eaten by all animals in celll
