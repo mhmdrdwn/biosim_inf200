@@ -118,7 +118,6 @@ class Herbivore(Fauna):
             # call that function that will overwrite the default parameters
             self.set_given_parameters(given_parameters)
             # and after that we set the new updated class variable to the attribute
-        self.parameters = Carnivore.parameters
         self.parameters = Herbivore.parameters
         self._weight = gauss(self.parameters['w_birth'],
                              self.parameters['sigma_birth'])
@@ -126,14 +125,18 @@ class Herbivore(Fauna):
     @staticmethod
     def set_given_parameters(given_parameters):
         for parameter in given_parameters:
-            if parameter in Carnivore.parameters:
-                if given_parameters[parameter] > 0:
-                    Carnivore.parameters[parameter] = \
-                        given_parameters[parameter]
-                else:
+            if parameter in Herbivore.parameters:
+                if parameter == 'eta' and given_parameters[parameter] > 1:
+                    raise ValueError('Illegal parameter value, ' +
+                                     str(parameter) + ' can\'t be more than 1')
+                elif given_parameters[parameter] < 0:
                     # protect against negative values
                     raise ValueError('Illegal parameter value, ' +
                                      str(parameter) + ' can\'t be negative')
+                else:
+                    #if given_parameters[parameter] >= 0
+                    Herbivore.parameters[parameter] = \
+                        given_parameters[parameter]
             else:
                 # unknown parameter
                 raise RuntimeError('Unknown parameter, ' + str(parameter) +
@@ -161,16 +164,21 @@ class Carnivore(Fauna):
     @staticmethod
     def set_given_parameters(given_parameters):
         for parameter in given_parameters:
-            if parameter in Carnivore.parameters:
-                if given_parameters[parameter] > 0:
-                    Carnivore.parameters[parameter] = \
-                        given_parameters[parameter]
-                else:
+            if parameter in Herbivore.parameters:
+                if parameter == 'eta' and given_parameters[parameter] > 1:
+                    raise ValueError('Illegal parameter value, eta '
+                                     'can\'t be more than 1')
+                elif given_parameters[parameter] <= 0:
                     # protect against negative values
                     raise ValueError('Illegal parameter value, ' +
-                                     str(parameter) + ' can\'t be negative')
+                                     str(parameter) + ' can\'t be zero or '
+                                                      'negative')
+                else:
+                    #if given_parameters[parameter] >= 0
+                    Carnivore.parameters[parameter] = \
+                        given_parameters[parameter]
             else:
-                # unkwond parameter
+                # unknown parameter
                 raise RuntimeError('Unknown parameter, ' + str(parameter) +
                                    ' can\'t be set')
 
@@ -186,9 +194,11 @@ class Carnivore(Fauna):
 
 
 if __name__ == '__main__':
-    new_params = {'eta': 5.0}
+    new_params = {'eta': 0.1}
     h = Herbivore(new_params)
     f = Fauna()
+    c = Carnivore(new_params)
     print(h)
     print(h.parameters)
+    print(c.parameters)
     print(f.parameters)
