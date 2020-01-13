@@ -103,9 +103,6 @@ class Fauna:
             pass
             # dont give birth
 
-    def appetite(self, species, ):
-        return
-
     @property
     def death_probability(self):
         if self.fitness == 0:

@@ -47,12 +47,8 @@ class Landscapes:
         # all fitnesses is sorted for the animals in species, depends on the
         # parameters whether it should be sorted or reverse sorted
 
-    def calculate_relative_abundance_fodder(self, species):
-        return self.relevant_fodder(species)/((len(self.fauna_objects_dict[species])+1)*species().parameters['F'])
-        # we instantiate object of teh species given and get F from it
-        # maybe there is error here
-
     def relevant_fodder(self, species):
+        #This is f_k
         if species == 'Herbivore':
             return self._available_fodder
             # return amount of relevant fodder for the differnt animals species
@@ -65,26 +61,32 @@ class Landscapes:
             # differnt in the cells, since they travel based on fitness
             # maybe a herbi is higher fitness
 
-    def propensity(self, species, cell):
-        if cell == 'Mountain' or j == 'Ocean':
+    def calculate_relative_abundance_fodder(self, species):
+        return self.relevant_fodder(species)/((len(self.fauna_objects_dict[species])+1)*species().parameters['F'])
+        # we instantiate object of teh species given and get F from it
+        # maybe there is error here
+
+    def propensity_to_which_cell(self, animal_object, distination_cell):
+        if distination_cell == 'Mountain' or j == 'Ocean':
             return 0
-        elif j is None:
-            relevant_fodder = self.calculate_relative_abundance_fodder(species)
-            return math.exp(relevant_fodder*species().parameters['lambda'])
+        else:
+            relevant_fodder = self.calculate_relative_abundance_fodder(animal_object)
+            return math.exp(relevant_fodder*animal_object.parameters['lambda'])
             # need to fix this spcies(), we need an object to be able to access
             # parameters
 
-    def probability(self, species, cell, adj_cells):
+    def probability_to_which_cell(self, animal_object, distination_cell, adj_cells):
         total_propensity = 0
         for cell in adj_cells:
-            total_propensity += self.propensity(species, cell)
-        return self.propensity(species, cell)/total_propensity
+            total_propensity += self.propensity_to_which_cell(animal_object, distination_cell)
+        return self.propensity_to_which_cell(animal_object, distination_cell)/total_propensity
         # this is the rule of probablity
-        if species().parameters['lambda'] == 0:
+
+        #if animal_object.parameters['lambda'] == 0:
             # all possible distination will be cjosen with equal probablity
-        elif species().parameters['lambda'] == 0:
+        #elif animal_object.parameters['lambda'] == 0:
             # animals will go to cell with greater abundance of food
-        else:
+        #else:
             # animals will turn away from food
 
     def herbivore_eat(self):
