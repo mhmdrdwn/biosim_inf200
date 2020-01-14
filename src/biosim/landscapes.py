@@ -10,7 +10,7 @@ import math
 from biosim.fauna import Herbivore, Carnivore
 import operator
 import numpy as np
-
+from random import seed
 
 class Landscapes:
     def __init__(self, fauna_objects_dict):
@@ -22,7 +22,7 @@ class Landscapes:
         # that should be list of dicts
         self.sorted_fauna_fitness = {}
 
-    def save_fitness(self, fauna_objects, species):
+    def save_fitnesses(self, fauna_objects, species):
         # this is to update the current fitness to be able to use in
         # the order later
         # remember also that fitness is goijg to change each time they eat
@@ -34,7 +34,7 @@ class Landscapes:
         self.sorted_fauna_fitness[species] = species_fauna_fitness
 
     def order_by_fitness(self, to_sort_objects, species, reverse=True):
-        self.save_fitness(to_sort_objects, species)
+        self.save_fitnesses(to_sort_objects, species)
         if reverse:
             self.sorted_fauna_fitness[species] = dict(
                 sorted(self.sorted_fauna_fitness[species].items(),
@@ -96,10 +96,12 @@ class Landscapes:
         # animals will turn away from food
 
     def add_fauna(self, animal):
-        self.fauna_objects_dict[animal.__class__.__name__].append(animal)
+        key = animal.__class__.__name__
+        self.fauna_objects_dict[key].append(animal)
 
     def remove_fauna(self, animal):
-        self.fauna_objects_dict[animal.__class__.__name__].remove(animal)
+        key =animal.__class__.__name__
+        self.fauna_objects_dict[key].remove(animal)
 
     def give_birth(self, animal_object):
         # now chnage the population of the cell
@@ -261,30 +263,44 @@ class Ocean(Landscapes):
 
 
 if __name__ == '__main__':
-    h1 = Herbivore()
-    h1.fitness = 10
-    h2 = Herbivore()
-    h2.fitness = 20
-    c1 = Carnivore()
-    c1.fitness = 10
-    c2 = Carnivore()
-    c2.fitness = 20
+    # basic random test, we need advanced tests
+    c_params = {'w_birth': 4.0, 'sigma_birth': 1.7}
+    h_params = {'w_birth': 2.0, 'sigma_birth': 1.5}
+    seed(1)
+    c = Carnivore(c_params)
+    seed(1)
+    h = Herbivore(h_params)
+    print(c.weight)
+    print(h.weight)
+
+    h_params = {'w_birth': 2.0, 'sigma_birth': 1.5, 'phi_age': 0.3, 'phi_weight': 0.5, 'a_half': 40, 'w_half': 10}
+    c_params = {'w_birth': 4.0, 'sigma_birth': 1.7, 'phi_age': 0.4, 'phi_weight': 0.6, 'a_half': 60, 'w_half': 10}
+    seed(1)
+    h1 = Herbivore(h_params)
+    seed(1)
+    h2 = Herbivore(h_params)
+    seed(1)
+    c1 = Carnivore(c_params)
+    seed(1)
+    c2 = Carnivore(c_params)
+    print(h2.fitness)
+    print(c2.fitness)
     animals = {'Carnivore': [c1, c2], 'Herbivore': [h1, h2]}
     s = Savannah(animals)
-    print(s.fauna_objects_dict)
-    print(s.available_fodder)
-    print('####')
+    print('animals in savannah '+str(s.fauna_objects_dict))
+    print('amount of fodder in savannah '+str(s.available_fodder))
     s.grow_fodder()
-    print(s.available_fodder)
-    # s.reduce_fodder(10)
-    print(s.available_fodder)
-    # print(s.herbivore())
-    s.order_by_fitness(animals, 'Herbivore', False)
-    s.order_by_fitness(animals, 'Carnivore')
-    s.herbivore_eat()
+    print('amount of fodder in savannah '+str(s.available_fodder))
+    print('###### Ordering prints ######')
+    #s.order_by_fitness(animals, 'Herbivore', False)
+    #s.order_by_fitness(animals, 'Carnivore')
+    #s.order_by_fitness(animals, 'Herbivore')
+    #print('sorted fitness dict before eating '+str(s.sorted_fauna_fitness))
+    #s.herbivore_eat()
     s.carnivore_eat()
-    print(s.sorted_fauna_fitness)
-    print('###########')
+    print('sorted fitness dict after eating '+str(s.sorted_fauna_fitness))
+    print('###############################################')
+
     j = Jungle(animals)
     print(j.fauna_objects_dict)
     print(j.available_fodder)

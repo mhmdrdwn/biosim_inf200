@@ -25,7 +25,7 @@ class Fauna:
         # Using Gaussian values for initial weight
         # how to do that ????? Normal distribution of weights (what weights??)
         self._weight = None
-        #self._fitness = 0
+        self._fitness = 0
         #self._move_probability = 0
 
     @property
@@ -55,14 +55,6 @@ class Fauna:
             self._fitness = q1 * q2
             # fitness formula
         return self._fitness
-
-    @fitness.setter
-    def fitness(self, value):
-        self._fitness = value
-
-    @fitness.setter
-    def weight(self, value):
-        self._fitness = value
 
     @property
     def move_probability(self):
