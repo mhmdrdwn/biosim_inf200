@@ -72,19 +72,17 @@ class Fauna:
         else:
             return 0
 
+    def give_birth(self, baby):
+        self._weight -= baby.parameters['w_birth'] * baby.parameters['xi']
+        print(self._weight)
+        print(self.weight)
+
     #@property
     def death_probability(self):
         if self.fitness == 0:
             return 1
         else:
             return self.parameters['omega'] * (1 - self.fitness)
-
-    def die(self):
-        # if np.random.random() is more than the probability , then die
-        # del self
-        pass
-        #maybe we ned to delete the object here
-        # delete itself, but we dont need this
 
     def eat(self, amount_to_eat):
         self._weight += self.parameters['beta'] * amount_to_eat

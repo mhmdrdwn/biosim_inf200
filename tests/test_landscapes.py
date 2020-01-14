@@ -63,10 +63,8 @@ class TestLandscapes:
     def test_save_fitness(self, gen_landscape_data):
         s, d, j = gen_landscape_data
         s.save_fitness(s.fauna_objects_dict, 'Herbivore')
-        assert type(s.sorted_fauna_fitness) == dict
         assert len(s.sorted_fauna_fitness) == 1
         assert 'Herbivore' in s.sorted_fauna_fitness.keys()
-        # assert type(s.sorted_fauna_fitness['Herbivore']) == list
         assert len(s.sorted_fauna_fitness['Herbivore']) == 2
         s.save_fitness(s.fauna_objects_dict, 'Carnivore')
         assert len(s.sorted_fauna_fitness) == 2
@@ -82,36 +80,31 @@ class TestLandscapes:
         dict_values = s.sorted_fauna_fitness['Carnivore'].values()
         assert list(dict_values)[0] >= list(dict_values)[1]
 
-
-    def test_add_and_remove_fauna(self):
-        h1 = Herbivore()
-        h2 = Herbivore()
-        c1 = Carnivore()
-        animals = {'Carnivore': [c1], 'Herbivore': [h1, h2]}
-        s = Savannah(animals)
+    def test_add_and_remove_fauna(self, gen_landscape_data):
+        s, d, j = gen_landscape_data
         assert len(s.fauna_objects_dict['Carnivore'] + s.fauna_objects_dict[
-            'Herbivore']) == 3
-        assert len(s.fauna_objects_dict['Herbivore']) == 2
+            'Herbivore']) == 4
+        assert len(d.fauna_objects_dict['Herbivore']) == 2
+        assert len(d.fauna_objects_dict['Carnivore']) == 2
         h3 = Herbivore()
         s.add_fauna(h3)
         assert len(s.fauna_objects_dict['Carnivore'] + s.fauna_objects_dict[
-            'Herbivore']) == 4
-        s.remove_fauna(c1)
+            'Herbivore']) == 5
+        s.remove_fauna(h3)
         assert len(s.fauna_objects_dict['Carnivore'] + s.fauna_objects_dict[
-            'Herbivore']) == 3
-        assert len(s.fauna_objects_dict['Carnivore']) == 0
+            'Herbivore']) == 4
 
-    def test_give_birth(self):
-        h1 = Herbivore()
-        h1.weight = 20
-        h2 = Herbivore()
-        h2.weight = 30
-        c1 = Carnivore()
-        animals = {'Carnivore': [c1], 'Herbivore': [h1, h2]}
-        l = Landscapes(animals)
-        l.give_birth(c1)
-        assert len(l.fauna_objects_dict['Carnivore'] + l.fauna_objects_dict[
-            'Herbivore']) == 3
+    def test_mate(self, gen_landscape_data):
+        s, d, j = gen_landscape_data
+        mate_animal = j.fauna_objects_dict['Carnivore'][0]
+        mate_animal.eat(50)
+        mate_animal.eat(50)
+        # increase the weight of animal
+        weight_pre_birth = mate_animal.weight
+        j.mate(mate_animal)
+        weight_post_birth = mate_animal.weight
+        assert len(j.fauna_objects_dict['Carnivore']) == 3
+        assert weight_post_birth < weight_pre_birth
 
     # here some other tests for other conditions of giving birth should be added after fixing the error
 

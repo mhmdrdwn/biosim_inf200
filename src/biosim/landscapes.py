@@ -12,6 +12,7 @@ import operator
 import numpy as np
 from random import seed
 
+
 class Landscapes:
     def __init__(self, fauna_objects_dict):
         self._available_fodder = 0
@@ -43,7 +44,6 @@ class Landscapes:
             self.sorted_fauna_fitness[species] = dict(
                 sorted(self.sorted_fauna_fitness[species].items(),
                        key=operator.itemgetter(1)))
-        print(self.sorted_fauna_fitness)
         # all fitnesses is sorted for the animals in species, depends on the
         # parameters whether it should be sorted or reverse sorted
 
@@ -104,26 +104,24 @@ class Landscapes:
         key =animal.__class__.__name__
         self.fauna_objects_dict[key].remove(animal)
 
-    def give_birth(self, animal_object):
-        # now chnage the population of the cell
+    def mate(self, fauna_object):
+        # now change the population of the cell
         # decrease the weight of the mother
-        num_fauna = self.fauna_objects_dict[animal_object.__class__.__name__]
-        if len(num_fauna) >= 2:
-            if np.random.random() > animal_object.birth_probablity(num_fauna):
-                # if that random number is bigger than that probablity it should
-                # give birth, or create new baby, or object of animal
-                baby_to_be_birth = animal_object.__class__.__name__()
-                if animal_object.weight < baby_to_be_birth.weight * \
-                        baby_to_be_birth.parameters['xi']:
-                    # it gives birth only if its weight is more than the the weight to be losed
-                    self.add_fauna(baby_to_be_birth)
-                    animal_object.reduce_weight(
-                        baby_to_be_birth.weight * baby_to_be_birth.parameters[
-                            'xi'])
-                    # that's still wrong becuase it's with the weight of the baby
-        else:
-            pass
-            # dont give birth
+        species = fauna_object.__class__
+        num_fauna = len(self.fauna_objects_dict[species.__name__])
+        if np.random.random() > fauna_object.birth_probablity(num_fauna):
+            # if that random number is bigger than that probablity it should
+            # give birth, or create new baby, or object of animal
+            baby = species()
+            if fauna_object.weight < baby.parameters['w_birth'] * baby.parameters['xi']:
+                # it gives birth only if its weight is more than the the
+                # weight to be losed
+                self.add_fauna(baby)
+                fauna_object.give_birth(baby)
+                # that's still wrong becuase it's with the weight of the baby
+            else:
+                pass
+                # dont give birth ?
 
     def herbivore_eat(self):
         # that should return the amount of food that is going to be
