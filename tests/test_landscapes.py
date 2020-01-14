@@ -12,9 +12,10 @@ __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 import pytest
-from biosim.landscapes import Landscape, Desert, Ocean, Mountain, Savannah, Jungle
+from biosim.landscapes import Landscape, Desert, Ocean, Mountain, Savannah, \
+    Jungle
 from biosim.fauna import Herbivore, Carnivore
-#from biosim.map import Map
+# from biosim.map import Map
 from random import seed
 
 """ is it possible now to import just biosim.landscapes as landscapes
@@ -54,14 +55,14 @@ class TestLandscapes:
         c1, c2, h1, h2 = gen_animal_data
         animals = {'Herbivore': [h1, h2], 'Carnivore': [c1, c2]}
         s = Savannah(animals, landscape_params)
-        #o = Ocean()
+        o = Ocean()
         d = Desert(animals)
-        #m = Mountain()
+        m = Mountain()
         j = Jungle(animals, landscape_params)
-        return s, d, j
+        return s, d, j, o, m
 
     def test_save_fitness(self, gen_landscape_data):
-        s, d, j = gen_landscape_data
+        s, d, j, o, m = gen_landscape_data
         s.save_fitness(s.fauna_objects_dict, 'Herbivore')
         assert len(s.sorted_fauna_fitness) == 1
         assert 'Herbivore' in s.sorted_fauna_fitness.keys()
@@ -71,7 +72,7 @@ class TestLandscapes:
         assert 'Carnivore' in s.sorted_fauna_fitness.keys()
 
     def test_sort_fitness(self, gen_landscape_data):
-        s, d, j = gen_landscape_data
+        s, d, j, o, m = gen_landscape_data
         dict_to_sort = s.fauna_objects_dict
         s.sort_by_fitness(dict_to_sort, 'Herbivore', False)
         dict_values = s.sorted_fauna_fitness['Herbivore'].values()
@@ -81,7 +82,7 @@ class TestLandscapes:
         assert list(dict_values)[0] >= list(dict_values)[1]
 
     def test_add_and_remove_fauna(self, gen_landscape_data):
-        s, d, j = gen_landscape_data
+        s, d, j, o, m = gen_landscape_data
         assert len(s.fauna_objects_dict['Carnivore'] + s.fauna_objects_dict[
             'Herbivore']) == 4
         assert len(d.fauna_objects_dict['Herbivore']) == 2
@@ -95,7 +96,7 @@ class TestLandscapes:
             'Herbivore']) == 4
 
     def test_mate(self, gen_landscape_data):
-        s, d, j = gen_landscape_data
+        s, d, j, o, m = gen_landscape_data
         mate_animal = j.fauna_objects_dict['Carnivore'][0]
         mate_animal.eat(50)
         mate_animal.eat(50)
@@ -103,13 +104,13 @@ class TestLandscapes:
         weight_pre_birth = mate_animal.weight
         j.mate(mate_animal)
         weight_post_birth = mate_animal.weight
-        #assert len(j.fauna_objects_dict['Carnivore']) == 3
-        #assert weight_post_birth < weight_pre_birth
+        # assert len(j.fauna_objects_dict['Carnivore']) == 3
+        # assert weight_post_birth < weight_pre_birth
 
     # here some other tests for other conditions of giving birth should be added after fixing the error
 
     def test_feed_herbivore(self, gen_landscape_data):
-        s, d, j = gen_landscape_data
+        s, d, j, o, m = gen_landscape_data
         dict_to_sort = s.fauna_objects_dict
         s.sort_by_fitness(dict_to_sort, 'Herbivore')
         dict_keys = s.sorted_fauna_fitness['Herbivore'].keys()
@@ -138,7 +139,7 @@ class TestLandscapes:
         assert h2_weight_post_eat == h2_weight_pre_eat
 
     def test_feed_carnivore(self, gen_landscape_data):
-        s, d, j = gen_landscape_data
+        s, d, j, o, m = gen_landscape_data
         s.feed_carnivore()
         # its weight remains the same meaning it doesn't eat anything
 
@@ -216,26 +217,29 @@ class TestDesert(TestLandscapes):
 
 class TestOcean(TestLandscapes):
     def test_number_animals(self, gen_landscape_data):
-        s, d, j = gen_landscape_data
-        o.fauna_objects_dict
-        o = Ocean(fauna_objects_dict)
+        s, d, j, o, m = gen_landscape_data
+        assert o.fauna_objects_dict is None
         # it should be changed in the Ocean Class. because when we pass an
         # empty list it is obviouse to get an empty list as a result!!
-        assert o.fauna_objects_dict == {}
+        with pytest.raises(ValueError) as err:
+            Ocean({'Herbivore': [Herbivore()]})
+        assert err.type is ValueError
 
 
 class TestMountains(TestLandscapes):
-    def test_number_animals(self):
-        fauna_objects_dict = {}
-        m = Mountain(fauna_objects_dict)
+    def test_number_animals(self, gen_landscape_data):
+        s, d, j, o, m = gen_landscape_data
+        assert m.fauna_objects_dict is None
         # it should be changed in the Mountain Class. because when we pass an
         # empty list it is obviouse to get an empty list as a result!!
-        assert m.fauna_objects_dict == {}
+        with pytest.raises(ValueError) as err:
+            Mountain({'Herbivore': [Herbivore()]})
+        assert err.type is ValueError
 
 
 class TestSavannah(TestLandscapes):
     def test_grow_fodder_yearly(self, gen_landscape_data):
-        s, d, j = gen_landscape_data
+        s, d, j, o, m = gen_landscape_data
         assert s.available_fodder == s.parameters['f_max']
         assert s.available_fodder == 30
         s.feed_herbivore()
@@ -244,9 +248,16 @@ class TestSavannah(TestLandscapes):
         fodder_post_grow = s.available_fodder
         assert fodder_post_grow > fodder_pre_grow
         assert fodder_post_grow - fodder_pre_grow == \
-               s.parameters['alpha']*(s.parameters['f_max'] -
-                                      fodder_pre_grow)
+               s.parameters['alpha'] * (s.parameters['f_max'] -
+                                        fodder_pre_grow)
         # the growth or the difference between them is given by the formula
+
+    def test_reset_parameters(self, gen_landscape_data):
+        s, d, j, o, m = gen_landscape_data
+        alpha_pre_change = s.parameters['alpha']
+        s.set_given_parameters({'alpha': 0.5})
+        alpha_post_change = s.parameters['alpha']
+        assert alpha_post_change != alpha_pre_change
 
 
 class TestJungle(TestLandscapes):
@@ -261,3 +272,10 @@ class TestJungle(TestLandscapes):
         assert fodder_post_grow == j.parameters['f_max']
         # at the start of each simulation the fodder will have f_max
         # after a year the fodder will have f_max, no matter how much was eaten
+
+    def test_reset_parameters(self, gen_landscape_data):
+        s, d, j, o, m = gen_landscape_data
+        f_max_pre_change = s.parameters['f_max']
+        s.set_given_parameters({'f_max': 400})
+        f_max_post_change = s.parameters['f_max']
+        assert f_max_post_change != f_max_pre_change

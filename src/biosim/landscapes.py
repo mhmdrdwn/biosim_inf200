@@ -261,30 +261,39 @@ class Desert(Landscape):
         # should we move aviable_fodder to the class level
         # That's because it's not changeable, so it's private variable
 
+
 class Mountain(Landscape):
     available_fodder = 0
-    fauna_objects_dict = {}
+    fauna_objects_dict = None
     is_accessible = False
 
     # That's because it's not changeable, so it's private variable, fixed
     # class variabels for all classes
 
-    def __init__(self, fauna_objects_dict):
+    def __init__(self, fauna_objects_dict=None):
+        if fauna_objects_dict is not None:
+            raise ValueError('Animals can\'t be set on Mountains, '
+                             'this parameter has to be empty')
         super().__init__(fauna_objects_dict)
         self.available_fodder = Mountain.available_fodder
+        self.fauna_objects_dict = Mountain.fauna_objects_dict
 
 
 class Ocean(Landscape):
     available_fodder = 0
-    fauna_objects_dict = {}
+    fauna_objects_dict = None
     is_accessible = False
 
     # That's because it's not changeable, so it's private variable
     # those are instance variables becuase they are fixed for all
     # instances of the class, meaning if those value changes, they will
     # chnaged in all instances of the variables
-    def __init__(self, fauna_objects_dict):
+    def __init__(self, fauna_objects_dict=None):
         super().__init__(fauna_objects_dict)
+        if fauna_objects_dict is not None:
+            raise ValueError('Animals can\'t be set on Ocean, '
+                             'this parameter has to be empty')
+        self.available_fodder = Ocean.available_fodder
         self.fauna_objects_list = Ocean.fauna_objects_dict
         # overwrite the object fauna_objects_list to be equals to empty list,
         # is that right?
