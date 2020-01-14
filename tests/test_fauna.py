@@ -154,6 +154,18 @@ class TestFauna:
 
 
 class TestHerbivores:
+    def test_parameters_set(self):
+        c = Carnivore()
+        h = Carnivore()
+        c_default_eta = c.parameters['eta']
+        h_default_beta = h.parameters['beta']
+        c_params = {'eta': 0.4}
+        h_params = {'beta': 0.5}
+        c = Carnivore(c_params)
+        h = Herbivore(h_params)
+        assert c_default_eta != c.parameters['eta']
+        assert h_default_beta != h.parameters['beta']
+
     def test_herbivores_weight(self):
         h = Herbivore()
         pre_weight = h.weight

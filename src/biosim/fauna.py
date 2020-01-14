@@ -79,6 +79,7 @@ class Fauna:
         # if np.random.random() is more than the probability , then die
         # del self
         pass
+        #maybe we ned to delete the object here
         # delete itself, but we dont need this
 
     def eat(self, amount_to_eat):
