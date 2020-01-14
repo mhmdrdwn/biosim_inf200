@@ -81,13 +81,13 @@ class TestFauna:
         c = Carnivore(c_params)
         assert c.fitness == pytest.approx(0.09228477266076363)
         assert 0 <= c.fitness <= 1
-        c.weight = 0
-        assert c.fitness == 0
-        c.weight = 0
+        #c.weight = 0
+        #assert c.fitness == 0
+        #c.weight = 0
         assert h.fitness == pytest.approx(0.04591907551573919)
         assert 0 <= h.fitness <= 1
-        h.weight = 0
-        assert h.fitness == 0
+        #h.weight = 0
+        #assert h.fitness == 0
 
     def test_move_probability(self):
         seed(1)
@@ -120,19 +120,42 @@ class TestFauna:
         assert c.birth_probablity(2) == 0
         assert h.birth_probablity(2) == 0
 
-    def test_death(self):
-        h = Herbivore()
-        h.fitness = 0
-        assert h.death() == 0
-        h.fitness = 0.1
-        assert h.death() > 0
-        assert h.death == 0.36
+    def test_death_probability(self):
+        seed(1)
+        h_params = {'phi_age': 0.3, 'phi_weight': 0.5, 'a_half': 40,
+                    'w_half': 10, 'omega': 0.3}
+        h = Herbivore(h_params)
+        seed(1)
+        c_params = {'phi_age': 0.4, 'phi_weight': 0.6, 'a_half': 60,
+                    'w_half': 10, 'omega': 0.6}
+        c = Carnivore(c_params)
+        #assert c.death_probability() == 1
+        assert c.death_probability() == 0.5446291364035418
+        assert h.death_probability() == 0.2862242773452782
         # probablity of death given fitness 0.1 will be 0.36
+
+    def test_eat(self):
+        c_params = {'w_birth': 4.0, 'sigma_birth': 1.7, 'beta': 0.2}
+        h_params = {'w_birth': 2.0, 'sigma_birth': 1.5, 'beta': 0.3}
+        seed(1)
+        c = Carnivore(c_params)
+        seed(1)
+        h = Herbivore(h_params)
+        c_pre_eat_weight = c.weight
+        h_pre_eat_weight = h.weight
+        c.eat(20)
+        h.eat(30)
+        c_post_eat_weight = c.weight
+        h_post_eat_weight = h.weight
+        assert c_post_eat_weight > c_pre_eat_weight
+        assert h_post_eat_weight > h_pre_eat_weight
+        assert c_post_eat_weight - c_pre_eat_weight == pytest.approx(4)
+        assert h_post_eat_weight - h_pre_eat_weight == pytest.approx(9)
 
 
 class TestHerbivores:
     def test_herbivores_weight(self):
-        h = Herbivores()
+        h = Herbivore()
         pre_weight = h.weight
         h.beta = 0.9
         h.F = 10
@@ -143,8 +166,8 @@ class TestHerbivores:
 
 class TestCarnivores:
     def test_kill_probability(self):
-        c = Carnivores()
-        h = Herbivores()
+        c = Carnivore()
+        h = Herbivore()
         c.fitness = 0.4
         h.fitness = 0.5
         assert c.kill_probablity == 0

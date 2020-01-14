@@ -32,11 +32,6 @@ class Fauna:
     def weight(self):
         return self._weight
 
-    # maybe we dont need setter here
-    @weight.setter
-    def weight(self, value):
-        self._weight = value
-
     def grow_up(self):
         self.age += 1
         self._weight -= self._weight*self.parameters['eta']
@@ -73,12 +68,12 @@ class Fauna:
         else:
             return 0
 
-    @property
+    #@property
     def death_probability(self):
         if self.fitness == 0:
             return 1
         else:
-            return self.weight * (1 - self.fitness)
+            return self.parameters['omega'] * (1 - self.fitness)
 
     def die(self):
         # if np.random.random() is more than the probability , then die
@@ -96,7 +91,7 @@ class Herbivore(Fauna):
     parameters = {'eta': 0.05, 'F': 50.0, 'beta': 0.9, 'w_birth': 8.0,
                   'sigma_birth': 1.5, 'phi_age': 0.2, 'phi_weight': 0.1,
                   'a_half': 40, 'w_half': 10.0,'gamma': 0.8, 'zeta': 3.5,
-                  'xi': 1.2, 'mu': 0.25, 'lambda': 1.0}
+                  'xi': 1.2, 'mu': 0.25, 'lambda': 1.0, 'omega': 0.4}
 
     def __init__(self, given_parameters=None):
         super().__init__()
@@ -134,7 +129,8 @@ class Carnivore(Fauna):
     parameters = {'eta': 0.125, 'F': 10.0, 'beta': 0.75, 'w_birth': 6.0,
                   'sigma_birth': 1.0, 'phi_age': 0.4, 'phi_weight': 0.4,
                   'a_half': 60, 'w_half': 4.0, 'gamma': 0.8, 'zeta': 3.5,
-                  'xi': 1.1, 'mu': 0.4, 'DeltaPhiMax': 10.0, 'lambda': 1.0}
+                  'xi': 1.1, 'mu': 0.4, 'DeltaPhiMax': 10.0, 'lambda': 1.0,
+                  'omega': 0.9}
 
     def __init__(self, given_parameters=None):
         super().__init__()
