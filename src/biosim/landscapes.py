@@ -63,8 +63,8 @@ class Landscapes:
 
     def calculate_relative_abundance_fodder(self, species):
         return self.relevant_fodder(species) / (
-                    (len(self.fauna_objects_dict[species]) + 1) *
-                    species().parameters['F'])
+                (len(self.fauna_objects_dict[species]) + 1) *
+                species().parameters['F'])
         # we instantiate object of teh species given and get F from it
         # maybe there is error here
 
@@ -101,7 +101,7 @@ class Landscapes:
         self.fauna_objects_dict[key].append(animal)
 
     def remove_fauna(self, animal):
-        key =animal.__class__.__name__
+        key = animal.__class__.__name__
         self.fauna_objects_dict[key].remove(animal)
 
     def mate(self, fauna_object):
@@ -113,7 +113,8 @@ class Landscapes:
             # if that random number is bigger than that probablity it should
             # give birth, or create new baby, or object of animal
             baby = species()
-            if fauna_object.weight < baby.parameters['w_birth'] * baby.parameters['xi']:
+            if fauna_object.weight < baby.parameters['w_birth'] * \
+                    baby.parameters['xi']:
                 # it gives birth only if its weight is more than the the
                 # weight to be losed
                 self.add_fauna(baby)
@@ -123,10 +124,10 @@ class Landscapes:
                 pass
                 # dont give birth ?
 
-    def herbivore_eat(self):
+    def feed_herbivore(self):
         # that should return the amount of food that is going to be
         # eaten by all animals in celll
-        self.order_by_fitness(self.fauna_objects_dict, 'Herbivore')
+        self.sort_by_fitness(self.fauna_objects_dict, 'Herbivore')
         # we need to sort animals by fitness prior to the eating, and the
         # animals with highest fitness eats first
         for herbivore in self.sorted_fauna_fitness['Herbivore']:
@@ -152,14 +153,14 @@ class Landscapes:
                 herbivore.eat(amount_to_eat)
                 self._available_fodder -= amount_to_eat
             elif 0 < self._available_fodder < herbivore.parameters['F']:
-                # aniamls eats what is left
+                # animals eat what is left
                 amount_to_eat = self._available_fodder
                 herbivore.eat(amount_to_eat)
                 self._available_fodder = 0
 
-    def carnivore_eat(self):
-        self.order_by_fitness(self.fauna_objects_dict, 'Carnivore')
-        self.order_by_fitness(self.fauna_objects_dict, 'Herbivore', False)
+    def feed_carnivore(self):
+        self.sort_by_fitness(self.fauna_objects_dict, 'Carnivore')
+        self.sort_by_fitness(self.fauna_objects_dict, 'Herbivore', False)
         # reverse order the carnivore by fitness and sort the herbivore
         for carnivore in self.sorted_fauna_fitness['Carnivore']:
             # carbivore with highest fitness will kill the lowest fitness
@@ -170,7 +171,8 @@ class Landscapes:
                 for herbivore in self.sorted_fauna_fitness['Herbivore']:
                     # carnivore will kill herivore as a time
                     # if the
-                    if np.random.random() > carnivore.kill_probablity(herbivore):
+                    if np.random.random() > carnivore.kill_probablity(
+                            herbivore):
                         weight_to_eat = herbivore.weight
                         # del self.sorted_fauna_fitness['Herbivore'][herbivore]
                         # remove it from the dictionary, meaning removing from the cell
@@ -191,33 +193,61 @@ class Landscapes:
 
 class Savannah(Landscapes):
     is_accessible = True
+    parameters = {'f_max': 300.0, 'alpha': 0.3}
 
-    def __init__(self, fauna_objects_dict):
+    def __init__(self, fauna_objects_dict, given_parameters=None):
         super().__init__(fauna_objects_dict)
-        self.alpha = 0.3
-        self.f_max = 300
-        self._available_fodder = self.f_max
+        if given_parameters is not None:
+            self.set_given_parameters(given_parameters)
+        self.parameters = Savannah.parameters
+        self._available_fodder = self.parameters['f_max']
         # aviable fodder equals to f_max at the beginning of
         # instaniating anew object
 
     def grow_fodder(self):
         # annual grow of the fodder
-        self._available_fodder += self.alpha * (self.f_max -
-                                                self._available_fodder)
+        self._available_fodder += self.parameters['alpha'] \
+                                  * (self.parameters['f_max']
+                                     - self._available_fodder)
+
+    @staticmethod
+    def set_given_parameters(given_parameters):
+        for parameter in given_parameters:
+            if parameter in Savannah.parameters:
+                Savannah.parameters[parameter] = \
+                    given_parameters[parameter]
+            else:
+                # unknown parameter
+                raise RuntimeError('Unknown parameter, ' +
+                                   str(parameter) +
+                                   ' can\'t be set')
 
 
 class Jungle(Landscapes):
     is_accessible = True
+    parameters = {'f_max': 300.0}
 
-    def __init__(self, fauna_objects_dict):
+    def __init__(self, fauna_objects_dict, parameters):
         super().__init__(fauna_objects_dict)
-        self.f_max = 800
-        self._available_fodder = self.f_max
+        self.parameters = Jungle.parameters
+        self._available_fodder = self.parameters['f_max']
         # amount of initial fodder aviable should equals to f_max
 
     def grow_fodder(self):
         # annual grow of the fadder
-        self._available_fodder = self.f_max
+        self._available_fodder = self.parameters['f_max']
+
+    @staticmethod
+    def set_given_parameters(given_parameters):
+        for parameter in given_parameters:
+            if parameter in Jungle.parameters:
+                Jungle.parameters[parameter] = \
+                    given_parameters[parameter]
+            else:
+                # unknown parameter
+                raise RuntimeError('Unknown parameter, ' +
+                                   str(parameter) +
+                                   ' can\'t be set')
 
 
 class Desert(Landscapes):
@@ -272,8 +302,10 @@ if __name__ == '__main__':
     print(c.weight)
     print(h.weight)
 
-    h_params = {'w_birth': 2.0, 'sigma_birth': 1.5, 'phi_age': 0.3, 'phi_weight': 0.5, 'a_half': 40, 'w_half': 10}
-    c_params = {'w_birth': 4.0, 'sigma_birth': 1.7, 'phi_age': 0.4, 'phi_weight': 0.6, 'a_half': 60, 'w_half': 10}
+    h_params = {'w_birth': 2.0, 'sigma_birth': 1.5, 'phi_age': 0.3,
+                'phi_weight': 0.5, 'a_half': 40, 'w_half': 10}
+    c_params = {'w_birth': 4.0, 'sigma_birth': 1.7, 'phi_age': 0.4,
+                'phi_weight': 0.6, 'a_half': 60, 'w_half': 10}
     seed(1)
     h1 = Herbivore(h_params)
     seed(1)
@@ -286,18 +318,18 @@ if __name__ == '__main__':
     print(c2.fitness)
     animals = {'Carnivore': [c1, c2], 'Herbivore': [h1, h2]}
     s = Savannah(animals)
-    print('animals in savannah '+str(s.fauna_objects_dict))
-    print('amount of fodder in savannah '+str(s.available_fodder))
+    print('animals in savannah ' + str(s.fauna_objects_dict))
+    print('amount of fodder in savannah ' + str(s.available_fodder))
     s.grow_fodder()
-    print('amount of fodder in savannah '+str(s.available_fodder))
+    print('amount of fodder in savannah ' + str(s.available_fodder))
     print('###### Ordering prints ######')
-    #s.order_by_fitness(animals, 'Herbivore', False)
-    #s.order_by_fitness(animals, 'Carnivore')
-    #s.order_by_fitness(animals, 'Herbivore')
-    #print('sorted fitness dict before eating '+str(s.sorted_fauna_fitness))
-    #s.herbivore_eat()
+    # s.order_by_fitness(animals, 'Herbivore', False)
+    # s.order_by_fitness(animals, 'Carnivore')
+    # s.order_by_fitness(animals, 'Herbivore')
+    # print('sorted fitness dict before eating '+str(s.sorted_fauna_fitness))
+    # s.herbivore_eat()
     s.carnivore_eat()
-    print('sorted fitness dict after eating '+str(s.sorted_fauna_fitness))
+    print('sorted fitness dict after eating ' + str(s.sorted_fauna_fitness))
     print('###############################################')
 
     j = Jungle(animals)
