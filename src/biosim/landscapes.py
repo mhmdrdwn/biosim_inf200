@@ -22,7 +22,7 @@ class Landscapes:
         # that should be list of dicts
         self.sorted_fauna_fitness = {}
 
-    def save_fitnesses(self, fauna_objects, species):
+    def save_fitness(self, fauna_objects, species):
         # this is to update the current fitness to be able to use in
         # the order later
         # remember also that fitness is goijg to change each time they eat
@@ -33,8 +33,8 @@ class Landscapes:
             species_fauna_fitness[fauna] = fauna.fitness
         self.sorted_fauna_fitness[species] = species_fauna_fitness
 
-    def order_by_fitness(self, to_sort_objects, species, reverse=True):
-        self.save_fitnesses(to_sort_objects, species)
+    def sort_by_fitness(self, animal_objects, species, reverse=True):
+        self.save_fitness(animal_objects, species)
         if reverse:
             self.sorted_fauna_fitness[species] = dict(
                 sorted(self.sorted_fauna_fitness[species].items(),
@@ -43,6 +43,7 @@ class Landscapes:
             self.sorted_fauna_fitness[species] = dict(
                 sorted(self.sorted_fauna_fitness[species].items(),
                        key=operator.itemgetter(1)))
+        print(self.sorted_fauna_fitness)
         # all fitnesses is sorted for the animals in species, depends on the
         # parameters whether it should be sorted or reverse sorted
 

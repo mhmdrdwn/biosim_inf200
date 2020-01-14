@@ -11,10 +11,12 @@ the provided modeling.
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
+import pytest
 from biosim.landscapes import Landscapes
 from biosim.landscapes import Desert, Ocean, Mountain, Savannah, Jungle
 from biosim.fauna import Herbivore, Carnivore
 from biosim.map import Map
+from random import seed
 
 """ is it possible now to import just biosim.landscapes as landscapes
 since it's not conflicting with anything here"""
@@ -37,7 +39,51 @@ class TestLandscapes:
     #  assert l.available_fodder == 0
     # the initial amount is f_max
 
-    def test_add_and_remove_animals(self):
+    @pytest.fixture
+    def gen_animal_data(self):
+        seed(1)
+        h1 = Herbivore()
+        h2 = Herbivore()
+        seed(1)
+        c1 = Carnivore()
+        c2 = Carnivore()
+        return c1, c2, h1, h2
+
+    @pytest.fixture
+    def gen_landscape_data(self, gen_animal_data):
+        c1, c2, h1, h2 = gen_animal_data
+        animals = {'Herbivore': [h1, h2], 'Carnivore': [c1, c2]}
+        s = Savannah(animals)
+        # o = Ocean()
+        d = Desert(animals)
+        # m = Mountain()
+        j = Jungle(animals)
+        return s, d, j
+
+    def test_save_fitness(self, gen_landscape_data):
+        s, d, j = gen_landscape_data
+        s.save_fitness(s.fauna_objects_dict, 'Herbivore')
+        assert type(s.sorted_fauna_fitness) == dict
+        assert len(s.sorted_fauna_fitness) == 1
+        assert 'Herbivore' in s.sorted_fauna_fitness.keys()
+        # assert type(s.sorted_fauna_fitness['Herbivore']) == list
+        assert len(s.sorted_fauna_fitness['Herbivore']) == 2
+        s.save_fitness(s.fauna_objects_dict, 'Carnivore')
+        assert len(s.sorted_fauna_fitness) == 2
+        assert 'Carnivore' in s.sorted_fauna_fitness.keys()
+
+    def test_sort_fitness(self, gen_landscape_data):
+        s, d, j = gen_landscape_data
+        dict_to_sort = s.fauna_objects_dict
+        s.sort_by_fitness(dict_to_sort, 'Herbivore', False)
+        dict_values = s.sorted_fauna_fitness['Herbivore'].values()
+        assert list(dict_values)[0] <= list(dict_values)[1]
+        s.sort_by_fitness(dict_to_sort, 'Carnivore')
+        dict_values = s.sorted_fauna_fitness['Carnivore'].values()
+        assert list(dict_values)[0] >= list(dict_values)[1]
+
+
+    def test_add_and_remove_fauna(self):
         h1 = Herbivore()
         h2 = Herbivore()
         c1 = Carnivore()
@@ -125,7 +171,7 @@ class TestLandscapes:
         c2 = Carnivore()
         c2.fitness = 40
         c2_weight_pre_eat = c2.weight
-        animals = {'Carnivore': [c1, c2], 'Herbivore':[]}
+        animals = {'Carnivore': [c1, c2], 'Herbivore': []}
         l = Landscapes(animals)
         l.carnivore_eat()
         c1.parameters['F'] = 20
@@ -142,7 +188,7 @@ class TestLandscapes:
         animals = {'Carnivore': [c1], 'Herbivore': [h1, h2]}
         s = Savannah(animals)
         assert s.relevant_fodder('Herbivore') == s._available_fodder
-        #assert s.relevant_fodder('Carnivore') == 30
+        # assert s.relevant_fodder('Carnivore') == 30
 
     def test_calculate_relative_abundance_fodder(self):
         h1 = Herbivore()
