@@ -126,36 +126,19 @@ class TestLandscapes:
         assert h1_weight_post_eat > h1_weight_pre_eat
         assert h2_weight_post_eat == h2_weight_pre_eat
 
-    def test_herbivore_eat_equal_fitness(self):
-        # test what happen if Herbivores have same fitness
-        h1 = Herbivore()
-        h1.fitness = 10
-        h2 = Herbivore()
-        h2.fitness = 10
-        animals = {'Herbivore': [h1, h2]}
-        s = Savannah(animals)
-        s.herbivore_eat()
-        h1.parameters['F'] = 50
-        h2.parameters['F'] = 50
-        s.f_max = 300
-        # assert s.amount_to_eat == 50 ... how can we test amount to eat?
-        assert s._available_fodder == 200
-
-    def test_herbivore_eat_in_desert(self):
-        # can we move below code lines to the class that we do not need to repeat?
-        # shall we do all methods in Landscapes class for all of his children seperately?
-        h1 = Herbivore()
-        h1.fitness = 10
-        h2 = Herbivore()
-        h2.fitness = 20
-        c1 = Carnivore()
-        c1.fitness = 30
-        animals = {'Carnivore': [c1], 'Herbivore': [h1, h2]}
-        d = Desert(animals)
-        d.herbivore_eat()
-        h1.parameters['F'] = 100
-        h2.parameters['F'] = 50
-        assert d._available_fodder == 0  # it breaks in the code , is there another way to test break?
+    def test_feed_herbivore_in_desert(self, gen_landscape_data):
+        s, d, j = gen_landscape_data
+        h1 = d.fauna_objects_dict['Herbivore'][0]
+        h2 = d.fauna_objects_dict['Herbivore'][1]
+        h1_weight_pre_eat = h1.weight
+        h2_weight_pre_eat = h2.weight
+        assert d.available_fodder == 0
+        d.feed_herbivore()
+        h1_weight_post_eat = h1.weight
+        h2_weight_post_eat = h2.weight
+        assert d.available_fodder == 0
+        assert h1_weight_post_eat == h1_weight_pre_eat
+        assert h2_weight_post_eat == h2_weight_pre_eat
 
     def test_carnivores_eat_no_herbi(self):
         c1 = Carnivore()
