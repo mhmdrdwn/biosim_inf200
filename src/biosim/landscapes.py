@@ -7,12 +7,10 @@ __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 import math
-
-from biosim.fauna import Fauna
-from biosim.fauna import Herbivore
-from biosim.fauna import Carnivore
+from biosim.fauna import Herbivore, Carnivore
 import operator
 import numpy as np
+
 
 class Landscapes:
     def __init__(self, fauna_objects_dict):
@@ -107,7 +105,7 @@ class Landscapes:
                 if animal_object.weight < baby_to_be_birth.weight*baby_to_be_birth.parameters['xi']:
                     # it gives birth only if its weight is more than the the weight to be losed
                     self.add_fauna(baby_to_be_birth)
-                    animal_object.weight -= baby_to_be_birth.weight*baby_to_be_birth.parameters['xi']
+                    animal_object.reduce_weight(baby_to_be_birth.weight*baby_to_be_birth.parameters['xi'])
                     # that's still wrong becuase it's with the weight of the baby
         else:
             pass
@@ -254,7 +252,6 @@ class Ocean(Landscapes):
 
 
 if __name__ == '__main__':
-
     # testing
     h1 = Herbivore()
     h1.fitness = 10

@@ -12,19 +12,8 @@ __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 import pytest
-import pandas
-import glob
-import os
-import os.path
-from decimal import *
-
-from biosim.simulation import BioSim
-from biosim.fauna import Fauna
-from biosim.fauna import Herbivore
-from biosim.fauna import Carnivore
-from biosim.landscapes import Jungle
+from biosim.fauna import Herbivore, Carnivore
 from random import seed
-from random import gauss
 
 
 class TestFauna:
@@ -54,6 +43,23 @@ class TestFauna:
         assert h.weight == 3.9322771297331944
         # initial weight should be a function that is decorated as variable
         # it's following Gaussain distro, the seed 1 will generate that value
+
+    def test_reduce_weight(self):
+        c_params = {'w_birth': 4.0, 'sigma_birth': 1.7}
+        h_params = {'w_birth': 2.0, 'sigma_birth': 1.5}
+        seed(1)
+        c = Carnivore(c_params)
+        seed(1)
+        h = Herbivore(h_params)
+        c_pre_reduce_weight = c.weight
+        h_pre_reduce_weight = h.weight
+        c.reduce_weight(2)
+        h.reduce_weight(2)
+        c_post_reduce_weight = c.weight
+        h_post_reduce_weight = h.weight
+        assert c_pre_reduce_weight - c_post_reduce_weight == 2
+        assert h_pre_reduce_weight - h_post_reduce_weight == 2
+
 
     def test_grow_up(self):
         seed(1)

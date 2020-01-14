@@ -38,6 +38,9 @@ class Fauna:
         # age increase by 1 each year
         # decrease the weight by the factor eta
 
+    def reduce_weight(self, amount_to_reduce):
+        self._weight -= amount_to_reduce
+
     @property
     def fitness(self):
         # this is just to be used in the landscape, not needed actually
