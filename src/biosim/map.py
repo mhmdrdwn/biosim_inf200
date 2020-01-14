@@ -66,7 +66,9 @@ class Map:
                         cell_with_maximum_probability.add_fauna(animal)
 
 
-map_str = """\
+
+if __name__ == '__main__':
+    map_str = """\
                OOOOOOOOOOOOOOOOOOOOO
                OOOOOOOOSMMMMJJJJJJJO
                OSSSSSJJJJMMJJJJJJJOO
@@ -81,19 +83,19 @@ map_str = """\
                OOOSSSSJJJJJJJOOOOOOO
                OOOOOOOOOOOOOOOOOOOOO"""
 
-h1 = Herbivore()
-h1.fitness = 10
-h2 = Herbivore()
-h2.fitness = 20
-c1 = Carnivore()
-c1.fitness = 10
-c2 = Carnivore()
-c2.fitness = 20
-animals = {'Carnivore': [c1, c2], 'Herbivore': [h1, h2]}
+    h1 = Herbivore()
+    h1.fitness = 10
+    h2 = Herbivore()
+    h2.fitness = 20
+    c1 = Carnivore()
+    c1.fitness = 10
+    c2 = Carnivore()
+    c2.fitness = 20
+    animals = {'Carnivore': [c1, c2], 'Herbivore': [h1, h2]}
 
-m = Map(map_str, animals)
-print(m.geogr_string)
-#print(m.char_dict)
-#print(m.create_map_dict())
-#print(m.string_to_np_array())
-print(m.migrate())
+    m = Map(map_str, animals)
+    print(m.geogr_string)
+    #print(m.char_dict)
+    #print(m.create_map_dict())
+    #print(m.string_to_np_array())
+    print(m.migrate())

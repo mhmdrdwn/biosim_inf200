@@ -27,12 +27,13 @@ class Landscapes:
         # the order later
         # remember also that fitness is goijg to change each time they eat
         species_fauna_fitness = {}
-        # saving the data only for the species that we want to save, not for all
+        # saving the data only for the species that we want to save,
+        # not for all
         for fauna in fauna_objects[species]:
             species_fauna_fitness[fauna] = fauna.fitness
         self.sorted_fauna_fitness[species] = species_fauna_fitness
 
-    def order_by_fitness(self, to_sort_objects, species, reverse = True):
+    def order_by_fitness(self, to_sort_objects, species, reverse=True):
         self.save_fitness(to_sort_objects, species)
         if reverse:
             self.sorted_fauna_fitness[species] = dict(
@@ -46,7 +47,7 @@ class Landscapes:
         # parameters whether it should be sorted or reverse sorted
 
     def relevant_fodder(self, species):
-        #This is f_k
+        # This is f_k
         if species == 'Herbivore':
             return self._available_fodder
             # return amount of relevant fodder for the differnt animals species
@@ -60,7 +61,9 @@ class Landscapes:
             # maybe a herbi is higher fitness
 
     def calculate_relative_abundance_fodder(self, species):
-        return self.relevant_fodder(species)/((len(self.fauna_objects_dict[species])+1)*species().parameters['F'])
+        return self.relevant_fodder(species) / (
+                    (len(self.fauna_objects_dict[species]) + 1) *
+                    species().parameters['F'])
         # we instantiate object of teh species given and get F from it
         # maybe there is error here
 
@@ -68,24 +71,29 @@ class Landscapes:
         if distination_cell == 'Mountain' or j == 'Ocean':
             return 0
         else:
-            relevant_fodder = self.calculate_relative_abundance_fodder(animal_object)
-            return math.exp(relevant_fodder*animal_object.parameters['lambda'])
+            relevant_fodder = self.calculate_relative_abundance_fodder(
+                animal_object)
+            return math.exp(
+                relevant_fodder * animal_object.parameters['lambda'])
             # need to fix this spcies(), we need an object to be able to access
             # parameters
 
-    def probability_to_which_cell(self, animal_object, distination_cell, adj_cells):
+    def probability_to_which_cell(self, animal_object, distination_cell,
+                                  adj_cells):
         total_propensity = 0
         for cell in adj_cells:
-            total_propensity += self.propensity_to_which_cell(animal_object, distination_cell)
-        return self.propensity_to_which_cell(animal_object, distination_cell)/total_propensity
+            total_propensity += self.propensity_to_which_cell(animal_object,
+                                                              distination_cell)
+        return self.propensity_to_which_cell(animal_object,
+                                             distination_cell) / total_propensity
         # this is the rule of probablity
 
-        #if animal_object.parameters['lambda'] == 0:
-            # all possible distination will be cjosen with equal probablity
-        #elif animal_object.parameters['lambda'] == 0:
-            # animals will go to cell with greater abundance of food
-        #else:
-            # animals will turn away from food
+        # if animal_object.parameters['lambda'] == 0:
+        # all possible distination will be cjosen with equal probablity
+        # elif animal_object.parameters['lambda'] == 0:
+        # animals will go to cell with greater abundance of food
+        # else:
+        # animals will turn away from food
 
     def add_fauna(self, animal):
         self.fauna_objects_dict[animal.__class__.__name__].append(animal)
@@ -102,10 +110,13 @@ class Landscapes:
                 # if that random number is bigger than that probablity it should
                 # give birth, or create new baby, or object of animal
                 baby_to_be_birth = animal_object.__class__.__name__()
-                if animal_object.weight < baby_to_be_birth.weight*baby_to_be_birth.parameters['xi']:
+                if animal_object.weight < baby_to_be_birth.weight * \
+                        baby_to_be_birth.parameters['xi']:
                     # it gives birth only if its weight is more than the the weight to be losed
                     self.add_fauna(baby_to_be_birth)
-                    animal_object.reduce_weight(baby_to_be_birth.weight*baby_to_be_birth.parameters['xi'])
+                    animal_object.reduce_weight(
+                        baby_to_be_birth.weight * baby_to_be_birth.parameters[
+                            'xi'])
                     # that's still wrong becuase it's with the weight of the baby
         else:
             pass
@@ -148,31 +159,29 @@ class Landscapes:
     def carnivore_eat(self):
         self.order_by_fitness(self.fauna_objects_dict, 'Carnivore')
         self.order_by_fitness(self.fauna_objects_dict, 'Herbivore', False)
-        #reverse order the carnivore by fitness and sort the herbivore
+        # reverse order the carnivore by fitness and sort the herbivore
         for carnivore in self.sorted_fauna_fitness['Carnivore']:
             # carbivore with highest fitness will kill the lowest fitness
             # herbivore first and so on
-            if len(self.sorted_fauna_fitness['Herbivore']) == 0:
-                break
-                #if avaiable food (weight of herbi) is zero ,break the for loop becuase it's
+            if len(self.sorted_fauna_fitness['Herbivore']) > 0:
+                # if avaiable food (weight of herbi) is zero ,break the for loop becuase it's
                 # no longer efficient
-            for herbivore in self.sorted_fauna_fitness['Herbivore']:
-                # carnivore will kill herivore as a time
-                # if the
-                carnivore.calculate_killing_probablity(herbivore.fitness)
-                if np.random.random() > carnivore.killing_probablity:
-                    weight_to_eat = herbivore.weight
-                    #del self.sorted_fauna_fitness['Herbivore'][herbivore]
-                    # remove it from the dictionary, meaning removing from the cell
-                    #herbivore.die()
-                    # we need a good implimenetation for method die in the fauna
-                    if weight_to_eat >= carnivore.parameters['F']:
-                        # that's wrong becuase, the weight to eat is the weight
-                        # of only one meal
-                        carnivore.eat(carnivore.parameters['F'])
-                    elif weight_to_eat < carnivore.parameters['F']:
-                        carnivore.eat(weight_to_eat)
-                        
+                for herbivore in self.sorted_fauna_fitness['Herbivore']:
+                    # carnivore will kill herivore as a time
+                    # if the
+                    if np.random.random() > carnivore.kill_probablity(herbivore):
+                        weight_to_eat = herbivore.weight
+                        # del self.sorted_fauna_fitness['Herbivore'][herbivore]
+                        # remove it from the dictionary, meaning removing from the cell
+                        # herbivore.die()
+                        # we need a good implimenetation for method die in the fauna
+                        if weight_to_eat >= carnivore.parameters['F']:
+                            # that's wrong becuase, the weight to eat is the weight
+                            # of only one meal
+                            carnivore.eat(carnivore.parameters['F'])
+                        elif weight_to_eat < carnivore.parameters['F']:
+                            carnivore.eat(weight_to_eat)
+
     @property
     def available_fodder(self):
         return self._available_fodder
@@ -252,7 +261,6 @@ class Ocean(Landscapes):
 
 
 if __name__ == '__main__':
-    # testing
     h1 = Herbivore()
     h1.fitness = 10
     h2 = Herbivore()
@@ -265,6 +273,7 @@ if __name__ == '__main__':
     s = Savannah(animals)
     print(s.fauna_objects_dict)
     print(s.available_fodder)
+    print('####')
     s.grow_fodder()
     print(s.available_fodder)
     # s.reduce_fodder(10)

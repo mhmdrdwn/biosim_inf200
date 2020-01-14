@@ -16,9 +16,9 @@ from biosim.landscapes import Desert, Ocean, Mountain, Savannah, Jungle
 from biosim.fauna import Herbivore, Carnivore
 from biosim.map import Map
 
-
 """ is it possible now to import just biosim.landscapes as landscapes
 since it's not conflicting with anything here"""
+
 
 # fixtures shall be used for tests
 
@@ -30,13 +30,12 @@ class TestLandscapes:
         # simulation class
 
     # def test_consume_fodder(self):
-      #  h = Herbivore()
-       # l = Landscapes()
-       # l.consume_fodder()
-      #  assert 0 < l.available_fodder < l.required_food
-      #  assert l.available_fodder == 0
-        # the initial amount is f_max
-
+    #  h = Herbivore()
+    # l = Landscapes()
+    # l.consume_fodder()
+    #  assert 0 < l.available_fodder < l.required_food
+    #  assert l.available_fodder == 0
+    # the initial amount is f_max
 
     def test_number_animals(self):
         h1 = Herbivore()
@@ -44,10 +43,12 @@ class TestLandscapes:
         c1 = Carnivore()
         animals = {'Carnivore': [c1], 'Herbivore': [h1, h2]}
         s = Savannah(animals)
-        assert len(s.fauna_objects_dict['Carnivore']+s.fauna_objects_dict['Herbivore']) == 3
+        assert len(s.fauna_objects_dict['Carnivore'] + s.fauna_objects_dict[
+            'Herbivore']) == 3
         h3 = Herbivore()
         s.add_fauna(h3)
-        assert len(s.fauna_objects_dict['Carnivore']+s.fauna_objects_dict['Herbivore']) == 4
+        assert len(s.fauna_objects_dict['Carnivore'] + s.fauna_objects_dict[
+            'Herbivore']) == 4
         s.remove_fauna(c1)
         assert len(s.fauna_objects_dict['Carnivore'] + s.fauna_objects_dict[
             'Herbivore']) == 3
@@ -61,7 +62,9 @@ class TestLandscapes:
         animals = {'Carnivore': [c1], 'Herbivore': [h1, h2]}
         l = Landscapes(animals)
         l.give_birth(c1)
-        assert len(l.fauna_objects_dict['Carnivore']+l.fauna_objects_dict['Herbivore']) == 3
+        assert len(l.fauna_objects_dict['Carnivore'] + l.fauna_objects_dict[
+            'Herbivore']) == 3
+
     # here some other tests for other conditions of giving birth should be added after fixing the error
 
     def test_herbivore_eat(self):
@@ -75,13 +78,13 @@ class TestLandscapes:
         s = Savannah(animals)
         assert h1.parameters['F'] == 50
         s.herbivore_eat()
-        c1.parameters['F'] = 20  #add carnivores to test if the code doesn't include this type and only includes Herbivores type
+        c1.parameters[
+            'F'] = 20  # add carnivores to test if the code doesn't include this type and only includes Herbivores type
         s.f_max = 300
         # assert s.amount_to_eat == 50 ... how can we test amount to eat?
         assert s._available_fodder == 200
         s.herbivore_eat()
         assert s._available_fodder == 100
-
 
     def test_herbivore_eat_equal_fitness(self):
         # test what happen if Herbivores have same fitness
@@ -98,8 +101,6 @@ class TestLandscapes:
         # assert s.amount_to_eat == 50 ... how can we test amount to eat?
         assert s._available_fodder == 200
 
-
-
     def test_herbivore_eat_in_desert(self):
         # can we move below code lines to the class that we do not need to repeat?
         # shall we do all methods in Landscapes class for all of his children seperately?
@@ -114,20 +115,21 @@ class TestLandscapes:
         d.herbivore_eat()
         h1.parameters['F'] = 100
         h2.parameters['F'] = 50
-        assert d._available_fodder == 0   # it breaks in the code , is there another way to test break?
+        assert d._available_fodder == 0  # it breaks in the code , is there another way to test break?
 
     def test_carnivores_eat_no_herbi(self):
         c1 = Carnivore()
         c1.fitness = 30
         c2 = Carnivore()
         c2.fitness = 40
-        animals = {'Carnivore': [c1, c2]}
+        c2_weight_pre_eat = c2.weight
+        animals = {'Carnivore': [c1, c2], 'Herbivore':[]}
         l = Landscapes(animals)
         l.carnivore_eat()
         c1.parameters['F'] = 20
-        assert l.carnivore_eat()==0
-        #assert what variable
-        # it breaks in the code , is there another way to test break?
+        l.carnivore_eat()
+        assert c2.weight == c2_weight_pre_eat
+        # its weight remains the same
 
     def test_relevant_fodder(self):
         h1 = Herbivore()
@@ -148,11 +150,12 @@ class TestLandscapes:
         c1 = Carnivore()
         animals = {'Carnivore': [c1], 'Herbivore': [h1, h2]}
         s = Savannah(animals)
-        assert s.calculate_relative_abundance_fodder('Herbivore')  == 10   # which variable is return?
+        assert s.calculate_relative_abundance_fodder(
+            'Herbivore') == 10  # which variable is return?
         # 300/((2)+1)*10  ==> 10
-        assert  s.calculate_relative_abundance_fodder('Carnivore')  == 0.5   # which variable is return?
+        assert s.calculate_relative_abundance_fodder(
+            'Carnivore') == 0.5  # which variable is return?
         # 50/(1+1)50  ==> 0.5
-
 
     def test_propensity(self):
         h1 = Herbivore()
@@ -182,7 +185,7 @@ class TestLandscapes:
         OOOOOOOOSJJMMJJJJJJJO
         OOOOOOOOOOOOOOOOOOOOO"""
 
-        m= Map(map_str, animals )
+        m = Map(map_str, animals)
         map = m.create_map_dict()
         x = map.shape[1]
         y = map.shape[10]
@@ -190,7 +193,6 @@ class TestLandscapes:
                      map[x, y + 1]]
         l.probability_to_which_cell(animals, 'Jungle',
                                     adj_cells)
-
 
 
 class TestDesert:
@@ -216,7 +218,6 @@ class TestOcean:
         assert o.fauna_objects_dict == {}
 
 
-
 class TestMountains:
     def test_number_animals(self):
         fauna_objects_dict = {}
@@ -236,13 +237,11 @@ class TestSavannah:
         s.alpha = 0.5
         s.grow_fodder()
         assert s._available_fodder > s.f_max  # why s.available_fodder doesnt change? it is equal to initial amount. there is no growth!
-        #post_f - pre_f == s.alpha*(s.f_max - pre_f)
+        # post_f - pre_f == s.alpha*(s.f_max - pre_f)
         # the growth or the difference between them is given by the formula
         s.alpha = 0
         s.grow_fodder()
-        assert s._available_fodder ==  s.f_max  # testing if coeficient is zero
-
-
+        assert s._available_fodder == s.f_max  # testing if coeficient is zero
 
 
 class TestJungle:
@@ -256,5 +255,3 @@ class TestJungle:
         assert j.available_fodder == j.f_max
         # at the start of each simulation the fodder will have f_max
         # after a year the fodder will have f_max, no matter how much was eaten
-
-

@@ -60,7 +60,6 @@ class TestFauna:
         assert c_pre_reduce_weight - c_post_reduce_weight == 2
         assert h_pre_reduce_weight - h_post_reduce_weight == 2
 
-
     def test_grow_up(self):
         seed(1)
         h_params = {'eta': 0.30, 'w_birth': 2.0, 'sigma_birth': 1.5}

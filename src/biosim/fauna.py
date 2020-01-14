@@ -34,7 +34,8 @@ class Fauna:
 
     def grow_up(self):
         self.age += 1
-        self._weight -= self._weight*self.parameters['eta']
+        weight_to_reduce = self._weight*self.parameters['eta']
+        self.reduce_weight(weight_to_reduce)
         # age increase by 1 each year
         # decrease the weight by the factor eta
 
@@ -54,6 +55,14 @@ class Fauna:
             self._fitness = q1 * q2
             # fitness formula
         return self._fitness
+
+    @fitness.setter
+    def fitness(self, value):
+        self._fitness = value
+
+    @fitness.setter
+    def weight(self, value):
+        self._fitness = value
 
     @property
     def move_probability(self):
