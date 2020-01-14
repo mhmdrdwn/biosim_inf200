@@ -30,6 +30,7 @@ since it's not conflicting with anything here"""
 
 # fixtures shall be used for tests
 
+
 class TestLandscapes:
     def test_geogr_map(self):
         pass

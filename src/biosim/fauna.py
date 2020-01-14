@@ -135,7 +135,7 @@ class Carnivore(Fauna):
 
     def __init__(self, given_parameters=None):
         super().__init__()
-        self._killing_probablity = 0
+        self._kill_probablity = None
         if given_parameters is not None:
             # if we have given any subset of new parameters, we are going to
             # call that function that will overwrite the default parameters
@@ -148,7 +148,7 @@ class Carnivore(Fauna):
     @staticmethod
     def set_given_parameters(given_parameters):
         for parameter in given_parameters:
-            if parameter in Herbivore.parameters:
+            if parameter in Carnivore.parameters:
                 if parameter == 'eta' and given_parameters[parameter] > 1:
                     raise ValueError('Illegal parameter value, eta '
                                      'can\'t be more than 1')
@@ -165,16 +165,18 @@ class Carnivore(Fauna):
                 # unknown parameter
                 raise RuntimeError('Unknown parameter, ' + str(parameter) +
                                    ' can\'t be set')
-
-    def calculate_killing_probablity(self, herbivore_fitness):
-        if self.fitness <= herbivore_fitness:
-            self.killing_probablity = 0
-        elif 0 < self.fitness - herbivore_fitness < self.parameters[
+    #@property
+    def kill_probablity(self, herbivore_to_kill):
+        if self.fitness <= herbivore_to_kill.fitness:
+            self._kill_probablity = 0
+        elif 0 < self.fitness - herbivore_to_kill.fitness < self.parameters[
             'DeltaPhiMax']:
-            self.killing_probablity = (self.fitness - herbivore_fitness) / \
-                                      self.parameters['DeltaPhiMax']
+            self._kill_probablity = (self.fitness -
+                                        herbivore_to_kill.fitness) / \
+                                       self.parameters['DeltaPhiMax']
         else:
-            self.killing_probablity = 1
+            self._kill_probablity = 1
+        return self._kill_probablity
 
 
 if __name__ == '__main__':
@@ -200,3 +202,6 @@ if __name__ == '__main__':
     print(c.weight)
     print(h.weight)
     #print(f.parameters)
+    h = Herbivore()
+    print('###')
+    print(h.fitness)

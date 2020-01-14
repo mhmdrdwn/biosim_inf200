@@ -166,40 +166,13 @@ class TestHerbivores:
         assert c_default_eta != c.parameters['eta']
         assert h_default_beta != h.parameters['beta']
 
-    def test_herbivores_weight(self):
-        h = Herbivore()
-        pre_weight = h.weight
-        h.beta = 0.9
-        h.F = 10
-        h.eat()
-        assert h.weight == pre_weight + h.beta * h.F
-        # when the animals eats F fodder, it will have anew weight beta*F
-
 
 class TestCarnivores:
     def test_kill_probability(self):
-        c = Carnivore()
-        h = Herbivore()
-        c.fitness = 0.4
-        h.fitness = 0.5
-        assert c.kill_probablity == 0
-        c.fitness = 0.5
-        h.fitness = 0.4
-        DeltaPhiMax = 10.0
-        assert c.kill_probablity == (c.fitness - h.fitness) / DeltaPhiMax
-        assert c.kill_probablity == 0.01
-        # kill probablity should follow the rules given in carinvores based on
-        # the fitness of herbi and carni
-        c.fitness = 20
-        h.fitness = 9
-        assert c.kill_probablity == 1
-
-    def test_carinvories_weight(self):
-        c = Carnivores()
-        h = Herbivores()
-        pre_weight = h.weight
-        h.beta = 0.75
-        h.F = 50
-        h.eat()
-        assert h.weight == pre_weight + h.beta * h.F
-        # when the animals eats F animals, it will have a new weight beta*F
+        seed(1)
+        h_params = {'phi_age': 0.3, 'phi_weight': 0.5, 'a_half': 40, 'w_half': 10}
+        h = Herbivore(h_params)
+        seed(1)
+        c_params = {'phi_age': 0.4, 'phi_weight': 0.6, 'a_half': 60, 'w_half': 10, 'DeltaPhiMax': 11.0}
+        c = Carnivore(c_params)
+        assert c.kill_probablity(h) == pytest.approx(0.004215063376820403)
