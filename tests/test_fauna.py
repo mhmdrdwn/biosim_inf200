@@ -57,10 +57,10 @@ class TestFauna:
 
     def test_grow_up(self):
         seed(1)
-        h_params = {'eta': 0.3, 'w_birth': 2.0, 'sigma_birth': 1.5}
+        h_params = {'eta': 0.30, 'w_birth': 2.0, 'sigma_birth': 1.5}
         h = Herbivore(h_params)
         seed(1)
-        c_params = {'eta': 0.3, 'w_birth': 4.0, 'sigma_birth': 1.7}
+        c_params = {'eta': 0.30, 'w_birth': 4.0, 'sigma_birth': 1.7}
         c = Carnivore(c_params)
         c_weight_before_grow = c.weight
         h_weight_before_grow = h.weight
@@ -68,56 +68,60 @@ class TestFauna:
         h.grow_up()
         c_weight_after_grow = c.weight
         h_weight_after_grow = h.weight
-        assert c_weight_before_grow - c_weight_after_grow == 1.856974224109286
-        assert h_weight_before_grow - h_weight_after_grow == 1.1796831389199582
+        assert c_weight_before_grow - c_weight_after_grow == pytest.approx(1.856974224109286)
+        assert h_weight_before_grow - h_weight_after_grow == pytest.approx(1.1796831389199582)
         # weight weight by eta factor every year
 
-    #def test_increase_weight(self):
-        #f = Fauna()
-        #f.increase_weight(10, 'carnivores')
-        #f.increase_weight(10, 'carnivores')
-        #assert f.weight_carni == f.beta * f.weight_carni
-        #assert f.weight_herbi == f.beta * f.weight_herbi
-        # weight increases by beta factor when eating
-        # how to test gaussian distribution of weights?
-
     def test_fitness(self):
-        f = Fauna()
-        f.phi_weight = 0.1
-        f.phi_age = 0.2
-        f.a_half = 40
-        # how can we get weight from gaussain ditribution
-        assert f.fitness == 0.1630552263
-        assert 0 <= f.fitness <= 1
-        f.weight = 0
-        assert f.fitness == 0
-        f.weight = 0
-        assert f.fitness == 0
+        seed(1)
+        h_params = {'phi_age': 0.3, 'phi_weight': 0.5, 'a_half': 40, 'w_half': 10}
+        h = Herbivore(h_params)
+        seed(1)
+        c_params = {'phi_age': 0.4, 'phi_weight': 0.6, 'a_half': 60, 'w_half': 10}
+        c = Carnivore(c_params)
+        assert c.fitness == pytest.approx(0.09228477266076363)
+        assert 0 <= c.fitness <= 1
+        c.weight = 0
+        assert c.fitness == 0
+        c.weight = 0
+        assert h.fitness == pytest.approx(0.04591907551573919)
+        assert 0 <= h.fitness <= 1
+        h.weight = 0
+        assert h.fitness == 0
 
-    def test_migration(self):
-        f = Fauna()
-        f.migrate()
+    def test_move_probability(self):
+        seed(1)
+        h_params = {'mu': 0.3, 'phi_age': 0.3, 'phi_weight': 0.5, 'a_half': 40, 'w_half': 10}
+        h = Herbivore(h_params)
+        seed(1)
+        c_params = {'mu': 0.25, 'phi_age': 0.4, 'phi_weight': 0.6, 'a_half': 60, 'w_half': 10}
+        c = Carnivore(c_params)
+        assert c.move_probability == pytest.approx(0.023071193165190906)
+        assert h.move_probability == pytest.approx(0.013775722654721757)
 
-    def test_birth(self):
-        f = Fauna()
-        f.fitness = 0.1630552263
-        f.gamma = 0.2
-        j = Jungle()
-        j.nu_animals = 1
-        assert f.birth == 0
+    def test_birth_probability(self):
+        seed(1)
+        h_params = {'gamma': 0.7, 'phi_age': 0.3, 'phi_weight': 0.5, 'a_half': 40, 'w_half': 10, 'zeta': 1}
+        h = Herbivore(h_params)
+        seed(1)
+        c_params = {'gamma': 0.6, 'phi_age': 0.4, 'phi_weight': 0.6, 'a_half': 60, 'w_half': 10, 'zeta': 1}
+        c = Carnivore(c_params)
+        assert c.birth_probablity(1) == 0
+        assert h.birth_probablity(1) == 0
         # probablity is zero if animals is less than 2
-        j.nu_animals = 2
-        assert f.birth > 0
-        # probablity should be more than 0
-        assert f.birth == 0.03261104526
+        # probablity should be more than 0 if animals >= 2
         # probablity of giving birth if there are two animals in the cell
-        f.weight = 33.00
-        assert f.birth == 0
-        # probablity is zero when weight is less than 33.25
-        # we need to test weights at the birth
+        assert c.birth_probablity(2) == pytest.approx(0.055370863596458174)
+        assert h.birth_probablity(2) == pytest.approx(0.03214335286101743)
+        # probability should be 0 if the weight is less than
+        # zeta(w_birth+sigma_birth)
+        h.parameters['zeta'] = 5
+        c.parameters['zeta'] = 4
+        assert c.birth_probablity(2) == 0
+        assert h.birth_probablity(2) == 0
 
     def test_death(self):
-        h = Herbivores()
+        h = Herbivore()
         h.fitness = 0
         assert h.death() == 0
         h.fitness = 0.1

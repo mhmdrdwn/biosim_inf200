@@ -253,46 +253,48 @@ class Ocean(Landscapes):
         # is that right?
 
 
-# testing
-h1 = Herbivore()
-h1.fitness = 10
-h2 = Herbivore()
-h2.fitness = 20
-c1 = Carnivore()
-c1.fitness = 10
-c2 = Carnivore()
-c2.fitness = 20
-animals = {'Carnivore': [c1, c2], 'Herbivore': [h1, h2]}
-s = Savannah(animals)
-print(s.fauna_objects_dict)
-print(s.available_fodder)
-s.grow_fodder()
-print(s.available_fodder)
-# s.reduce_fodder(10)
-print(s.available_fodder)
-# print(s.herbivore())
-s.order_by_fitness(animals, 'Herbivore', False)
-s.order_by_fitness(animals, 'Carnivore')
-s.herbivore_eat()
-s.carnivore_eat()
-print(s.sorted_fauna_fitness)
-print('###########')
-j = Jungle(animals)
-print(j.fauna_objects_dict)
-print(j.available_fodder)
-j.grow_fodder()
-print(j.available_fodder)
-print('###########')
-o = Ocean(animals)
-print("ocean " + str(o.fauna_objects_list))
-print(o.available_fodder)
-d = Desert(animals)
-# d.grow_fodder_annual()
-print(d.available_fodder)
-print('###########')
-print(d.fauna_objects_dict)
-print(d.available_fodder)
-print('###########')
-m = Mountain(animals)
-print(m.fauna_objects_dict)
-print(m.available_fodder)
+if __name__ == '__main__':
+
+    # testing
+    h1 = Herbivore()
+    h1.fitness = 10
+    h2 = Herbivore()
+    h2.fitness = 20
+    c1 = Carnivore()
+    c1.fitness = 10
+    c2 = Carnivore()
+    c2.fitness = 20
+    animals = {'Carnivore': [c1, c2], 'Herbivore': [h1, h2]}
+    s = Savannah(animals)
+    print(s.fauna_objects_dict)
+    print(s.available_fodder)
+    s.grow_fodder()
+    print(s.available_fodder)
+    # s.reduce_fodder(10)
+    print(s.available_fodder)
+    # print(s.herbivore())
+    s.order_by_fitness(animals, 'Herbivore', False)
+    s.order_by_fitness(animals, 'Carnivore')
+    s.herbivore_eat()
+    s.carnivore_eat()
+    print(s.sorted_fauna_fitness)
+    print('###########')
+    j = Jungle(animals)
+    print(j.fauna_objects_dict)
+    print(j.available_fodder)
+    j.grow_fodder()
+    print(j.available_fodder)
+    print('###########')
+    o = Ocean(animals)
+    print("ocean " + str(o.fauna_objects_list))
+    print(o.available_fodder)
+    d = Desert(animals)
+    # d.grow_fodder_annual()
+    print(d.available_fodder)
+    print('###########')
+    print(d.fauna_objects_dict)
+    print(d.available_fodder)
+    print('###########')
+    m = Mountain(animals)
+    print(m.fauna_objects_dict)
+    print(m.available_fodder)

@@ -13,18 +13,20 @@ from random import seed
 
 
 class Fauna:
-    def __init__(self, given_parameters=None):
+    #this should be a base class
+    def __init__(self):
         """
 
         """
-        self.given_parameters = given_parameters
+        #self.given_parameters = given_parameters
         self.age = 0
         # initial age is zero
-        self.parameters = None
+        # self.parameters = None
         # Using Gaussian values for initial weight
         # how to do that ????? Normal distribution of weights (what weights??)
         self._weight = None
-        self._fitness = 0
+        #self._fitness = 0
+        #self._move_probability = 0
 
     @property
     def weight(self):
@@ -41,45 +43,33 @@ class Fauna:
         # age increase by 1 each year
         # decrease the weight by the factor eta
 
-    # def increase_weight(self, eaten_food):
-    #    # create variable that save the avialable amount of food
-    #    beta = self.parameters['beta']
-    #    print(self._weight)
-    #    self._weight += beta * eaten_food
-
     @property
     def fitness(self):
+        # this is just to be used in the landscape, not needed actually
         if self._weight == 0:
-            return 0
+            self._fitness = 0
         else:
             q1 = 1 / (1 + math.exp((self.parameters['phi_age']) * (
                     self.age - self.parameters['a_half'])))
             q2 = 1 / (1 + math.exp((-1 * (self.parameters['phi_weight']) * (
                     self._weight - self.parameters['w_half']))))
-            return q1 * q2
-
+            self._fitness = q1 * q2
             # fitness formula
-            # do we need docorator here??
-
-    @fitness.setter
-    def fitness(self, value):
-        # this is just to be used in the landscape, not needed actually
-        self._fitness = value
+        return self._fitness
 
     @property
     def move_probability(self):
-        return self.parameters['mu'] * self._fitness
+        return self.parameters['mu'] * self.fitness
         # animal move probablity based on the equation
 
-    @property
+    #@property
     def birth_probablity(self, num_fauna):
         zeta = self.parameters['zeta']
         w_birth = self.parameters['w_birth']
         sigma_birth = self.parameters['sigma_birth']
-        if num_fauna >= 2 and self.weight >= zeta * (w_birth * sigma_birth):
+        if num_fauna >= 2 and self.weight >= zeta * (w_birth + sigma_birth):
             gamma = self.parameters['gamma']
-            fitness = self.fitness
-            return min(1, gamma * fitness * (num_fauna - 1))
+            return min(1, gamma * self.fitness * (num_fauna - 1))
         else:
             return 0
 
@@ -109,7 +99,7 @@ class Herbivore(Fauna):
                   'xi': 1.2, 'mu': 0.25, 'lambda': 1.0}
 
     def __init__(self, given_parameters=None):
-        super().__init__(given_parameters)
+        super().__init__()
         if given_parameters is not None:
             # if we have given any subset of new parameters, we are going to
             # call that function that will overwrite the default parameters
@@ -147,7 +137,7 @@ class Carnivore(Fauna):
                   'xi': 1.1, 'mu': 0.4, 'DeltaPhiMax': 10.0, 'lambda': 1.0}
 
     def __init__(self, given_parameters=None):
-        super().__init__(given_parameters)
+        super().__init__()
         self._killing_probablity = 0
         if given_parameters is not None:
             # if we have given any subset of new parameters, we are going to
@@ -197,11 +187,11 @@ if __name__ == '__main__':
     f = Fauna()
     c = Carnivore(new_params)
     print(h)
-    print(h.parameters)
-    print(h.age)
-    print(h.weight)
-    print(c.weight)
-    print(c.parameters)
+    #print(h.parameters)
+    #print(h.age)
+    #print(h.weight)
+    #print(c.weight)
+    #print(c.parameters)
     print(c.weight)
     print(h.weight)
     c.grow_up()
