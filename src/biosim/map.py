@@ -62,8 +62,8 @@ class Map:
                         cell_with_maximum_probability = adj_cells[maximum_probability_index]
                         #then remove animal from the current cell and add it to the distination cell
 
-                        current_cell.remove_fauna()
-                        cell_with_maximum_probability.add_fauna()
+                        current_cell.remove_fauna(animal)
+                        cell_with_maximum_probability.add_fauna(animal)
 
 
 map_str = """\

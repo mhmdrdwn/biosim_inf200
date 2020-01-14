@@ -9,6 +9,7 @@ __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 from random import gauss
 import math
 import numpy as np
+from random import seed
 
 
 class Fauna:
@@ -18,12 +19,12 @@ class Fauna:
         """
         self.given_parameters = given_parameters
         self.age = 0
-        self.parameters = None
         # initial age is zero
+        self.parameters = None
         # Using Gaussian values for initial weight
         # how to do that ????? Normal distribution of weights (what weights??)
         self._weight = None
-        self.fitness = 0
+        self._fitness = 0
 
     @property
     def weight(self):
@@ -36,12 +37,9 @@ class Fauna:
 
     def grow_up(self):
         self.age += 1
-        self.decrease_weight('eta')
+        self._weight -= self._weight*self.parameters['eta']
         # age increase by 1 each year
         # decrease the weight by the factor eta
-
-    def decrease_weight(self, factor):
-        self._weight -= self._weight * self.parameters[factor]
 
     # def increase_weight(self, eaten_food):
     #    # create variable that save the avialable amount of food
@@ -49,7 +47,7 @@ class Fauna:
     #    print(self._weight)
     #    self._weight += beta * eaten_food
 
-    # @property
+    @property
     def fitness(self):
         if self._weight == 0:
             return 0
@@ -63,26 +61,25 @@ class Fauna:
             # fitness formula
             # do we need docorator here??
 
-    # @fitness.setter
+    @fitness.setter
     def fitness(self, value):
         # this is just to be used in the landscape, not needed actually
         self._fitness = value
 
     @property
     def move_probability(self):
-        return self.parameters['mu'] * self.fitness
-        # just return the probablity based on the equation
+        return self.parameters['mu'] * self._fitness
+        # animal move probablity based on the equation
 
     @property
-    def birth_probablity(self):
-        nu_fauna = self.cell.nu_fauna
+    def birth_probablity(self, num_fauna):
         zeta = self.parameters['zeta']
         w_birth = self.parameters['w_birth']
         sigma_birth = self.parameters['sigma_birth']
-        if nu_fauna >= 2 and self.weight >= zeta * (w_birth * sigma_birth):
+        if num_fauna >= 2 and self.weight >= zeta * (w_birth * sigma_birth):
             gamma = self.parameters['gamma']
             fitness = self.fitness
-            return min(1, gamma * fitness * (nu_fauna - 1))
+            return min(1, gamma * fitness * (num_fauna - 1))
         else:
             return 0
 
@@ -111,8 +108,8 @@ class Herbivore(Fauna):
                   'a_half': 40, 'w_half': 10.0,'gamma': 0.8, 'zeta': 3.5,
                   'xi': 1.2, 'mu': 0.25, 'lambda': 1.0}
 
-    def __init__(self, given_parameters):
-        super().__init__(given_parameters=None)
+    def __init__(self, given_parameters=None):
+        super().__init__(given_parameters)
         if given_parameters is not None:
             # if we have given any subset of new parameters, we are going to
             # call that function that will overwrite the default parameters
@@ -149,8 +146,8 @@ class Carnivore(Fauna):
                   'a_half': 60, 'w_half': 4.0, 'gamma': 0.8, 'zeta': 3.5,
                   'xi': 1.1, 'mu': 0.4, 'DeltaPhiMax': 10.0, 'lambda': 1.0}
 
-    def __init__(self, given_parameters):
-        super().__init__(given_parameters=None)
+    def __init__(self, given_parameters=None):
+        super().__init__(given_parameters)
         self._killing_probablity = 0
         if given_parameters is not None:
             # if we have given any subset of new parameters, we are going to
@@ -194,11 +191,25 @@ class Carnivore(Fauna):
 
 
 if __name__ == '__main__':
+    from random import seed
     new_params = {'eta': 0.1}
     h = Herbivore(new_params)
     f = Fauna()
     c = Carnivore(new_params)
     print(h)
     print(h.parameters)
+    print(h.age)
+    print(h.weight)
+    print(c.weight)
     print(c.parameters)
-    print(f.parameters)
+    print(c.weight)
+    print(h.weight)
+    c.grow_up()
+    h.grow_up()
+    print(c.weight)
+    print(h.weight)
+    c.grow_up()
+    h.grow_up()
+    print(c.weight)
+    print(h.weight)
+    #print(f.parameters)

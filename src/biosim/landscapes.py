@@ -98,8 +98,9 @@ class Landscapes:
     def give_birth(self, animal_object):
         # now chnage the population of the cell
         # decrease the weight of the mother
-        if (self.fauna_objects_dict[animal_object.__class__.__name__]) >= 2:
-            if np.random.random() > animal_object.birth_probablity:
+        num_fauna = self.fauna_objects_dict[animal_object.__class__.__name__]
+        if len(num_fauna) >= 2:
+            if np.random.random() > animal_object.birth_probablity(num_fauna):
                 # if that random number is bigger than that probablity it should
                 # give birth, or create new baby, or object of animal
                 baby_to_be_birth = animal_object.__class__.__name__()
