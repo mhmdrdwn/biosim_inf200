@@ -12,10 +12,9 @@ __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 import pytest
-from biosim.landscapes import Landscapes
-from biosim.landscapes import Desert, Ocean, Mountain, Savannah, Jungle
+from biosim.landscapes import Landscape, Desert, Ocean, Mountain, Savannah, Jungle
 from biosim.fauna import Herbivore, Carnivore
-from biosim.map import Map
+#from biosim.map import Map
 from random import seed
 
 """ is it possible now to import just biosim.landscapes as landscapes
@@ -55,9 +54,9 @@ class TestLandscapes:
         c1, c2, h1, h2 = gen_animal_data
         animals = {'Herbivore': [h1, h2], 'Carnivore': [c1, c2]}
         s = Savannah(animals, landscape_params)
-        # o = Ocean()
+        #o = Ocean()
         d = Desert(animals)
-        # m = Mountain()
+        #m = Mountain()
         j = Jungle(animals, landscape_params)
         return s, d, j
 
@@ -126,8 +125,6 @@ class TestLandscapes:
         assert h1_weight_post_eat > h1_weight_pre_eat
         assert h2_weight_post_eat == h2_weight_pre_eat
 
-    def test_feed_herbivore_in_desert(self, gen_landscape_data):
-        s, d, j = gen_landscape_data
         h1 = d.fauna_objects_dict['Herbivore'][0]
         h2 = d.fauna_objects_dict['Herbivore'][1]
         h1_weight_pre_eat = h1.weight
@@ -140,18 +137,9 @@ class TestLandscapes:
         assert h1_weight_post_eat == h1_weight_pre_eat
         assert h2_weight_post_eat == h2_weight_pre_eat
 
-    def test_carnivores_eat_no_herbi(self):
-        c1 = Carnivore()
-        c1.fitness = 30
-        c2 = Carnivore()
-        c2.fitness = 40
-        c2_weight_pre_eat = c2.weight
-        animals = {'Carnivore': [c1, c2], 'Herbivore': []}
-        l = Landscapes(animals)
-        l.carnivore_eat()
-        c1.parameters['F'] = 20
-        l.carnivore_eat()
-        assert c2.weight == c2_weight_pre_eat
+    def test_feed_carnivore(self, gen_landscape_data):
+        s, d, j = gen_landscape_data
+        s.feed_carnivore()
         # its weight remains the same meaning it doesn't eat anything
 
     def test_relevant_fodder(self):
@@ -218,30 +206,25 @@ class TestLandscapes:
                                     adj_cells)
 
 
-class TestDesert:
+class TestDesert(TestLandscapes):
     # test of is accessible for all of the subclasses should be added.
-    def test_no_fodder(self):
+    def test_no_fodder(self, gen_landscape_data):
         """No fodder available in the desert"""
-        h1 = Herbivore()
-        h1.weight = 20
-        h2 = Herbivore()
-        h2.weight = 30
-        c1 = Carnivore()
-        animals = {'Carnivore': [c1], 'Herbivore': [h1, h2]}
-        d = Desert(animals)
+        s, d, j = gen_landscape_data
         assert d.available_fodder == 0
 
 
-class TestOcean:
-    def test_number_animals(self):
-        fauna_objects_dict = {}
+class TestOcean(TestLandscapes):
+    def test_number_animals(self, gen_landscape_data):
+        s, d, j = gen_landscape_data
+        o.fauna_objects_dict
         o = Ocean(fauna_objects_dict)
         # it should be changed in the Ocean Class. because when we pass an
         # empty list it is obviouse to get an empty list as a result!!
         assert o.fauna_objects_dict == {}
 
 
-class TestMountains:
+class TestMountains(TestLandscapes):
     def test_number_animals(self):
         fauna_objects_dict = {}
         m = Mountain(fauna_objects_dict)
@@ -250,31 +233,31 @@ class TestMountains:
         assert m.fauna_objects_dict == {}
 
 
-class TestSavannah:
-    def test_grow_fodder_yearly(self):
-        h1 = Herbivore()
-        h2 = Herbivore()
-        animals = {'Herbivore': [h1, h2]}
-        s = Savannah(animals)
-        assert s._available_fodder == s.f_max
-        s.alpha = 0.5
+class TestSavannah(TestLandscapes):
+    def test_grow_fodder_yearly(self, gen_landscape_data):
+        s, d, j = gen_landscape_data
+        assert s.available_fodder == s.parameters['f_max']
+        assert s.available_fodder == 30
+        s.feed_herbivore()
+        fodder_pre_grow = s.available_fodder
         s.grow_fodder()
-        assert s._available_fodder > s.f_max  # why s.available_fodder doesnt change? it is equal to initial amount. there is no growth!
-        # post_f - pre_f == s.alpha*(s.f_max - pre_f)
+        fodder_post_grow = s.available_fodder
+        assert fodder_post_grow > fodder_pre_grow
+        assert fodder_post_grow - fodder_pre_grow == \
+               s.parameters['alpha']*(s.parameters['f_max'] -
+                                      fodder_pre_grow)
         # the growth or the difference between them is given by the formula
-        s.alpha = 0
-        s.grow_fodder()
-        assert s._available_fodder == s.f_max  # testing if coeficient is zero
 
 
-class TestJungle:
-    def test_grow_fodder_yearly(self):
-        h1 = Herbivore()
-        h2 = Herbivore()
-        animals = {'Herbivore': [h1, h2]}
-        j = Jungle(animals)
-        assert j.available_fodder == j.f_max
+class TestJungle(TestLandscapes):
+    def test_grow_fodder_yearly(self, gen_landscape_data):
+        s, d, j = gen_landscape_data
+        assert j.available_fodder == j.parameters['f_max']
+        assert j.available_fodder == 30
+        j.feed_herbivore()
+        fodder_pre_grow = s.available_fodder
         j.grow_fodder()
-        assert j.available_fodder == j.f_max
+        fodder_post_grow = s.available_fodder
+        assert fodder_post_grow == j.parameters['f_max']
         # at the start of each simulation the fodder will have f_max
         # after a year the fodder will have f_max, no matter how much was eaten

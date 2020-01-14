@@ -13,7 +13,7 @@ import numpy as np
 from random import seed
 
 
-class Landscapes:
+class Landscape:
     def __init__(self, fauna_objects_dict):
         self._available_fodder = 0
         # those fauna list is given from the map, which was given earlier
@@ -166,7 +166,7 @@ class Landscapes:
             # carbivore with highest fitness will kill the lowest fitness
             # herbivore first and so on
             if len(self.sorted_fauna_fitness['Herbivore']) > 0:
-                # if avaiable food (weight of herbi) is zero ,break the for loop becuase it's
+                # if available food (weight of herbi) is zero ,break the for loop becuase it's
                 # no longer efficient
                 for herbivore in self.sorted_fauna_fitness['Herbivore']:
                     # carnivore will kill herivore as a time
@@ -188,10 +188,9 @@ class Landscapes:
     @property
     def available_fodder(self):
         return self._available_fodder
-    # why that???
 
 
-class Savannah(Landscapes):
+class Savannah(Landscape):
     is_accessible = True
     parameters = {'f_max': 300.0, 'alpha': 0.3}
 
@@ -223,12 +222,14 @@ class Savannah(Landscapes):
                                    ' can\'t be set')
 
 
-class Jungle(Landscapes):
+class Jungle(Landscape):
     is_accessible = True
     parameters = {'f_max': 300.0}
 
-    def __init__(self, fauna_objects_dict, parameters):
+    def __init__(self, fauna_objects_dict, given_parameters=None):
         super().__init__(fauna_objects_dict)
+        if given_parameters is not None:
+            self.set_given_parameters(given_parameters)
         self.parameters = Jungle.parameters
         self._available_fodder = self.parameters['f_max']
         # amount of initial fodder aviable should equals to f_max
@@ -250,7 +251,7 @@ class Jungle(Landscapes):
                                    ' can\'t be set')
 
 
-class Desert(Landscapes):
+class Desert(Landscape):
     is_accessible = True
     available_fodder = 0
 
@@ -258,11 +259,9 @@ class Desert(Landscapes):
         super().__init__(fauna_objects_list)
         self._available_fodder = Desert.available_fodder
         # should we move aviable_fodder to the class level
-
         # That's because it's not changeable, so it's private variable
 
-
-class Mountain(Landscapes):
+class Mountain(Landscape):
     available_fodder = 0
     fauna_objects_dict = {}
     is_accessible = False
@@ -275,7 +274,7 @@ class Mountain(Landscapes):
         self.available_fodder = Mountain.available_fodder
 
 
-class Ocean(Landscapes):
+class Ocean(Landscape):
     available_fodder = 0
     fauna_objects_dict = {}
     is_accessible = False

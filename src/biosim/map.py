@@ -43,6 +43,9 @@ class Map:
         # convert string to numpy array with the same diemsions
         return given_char_array
 
+    def adj_cells(self):
+        pass
+
     def migrate(self):
         map = self.create_map_dict()
         rows = map.shape[0]
