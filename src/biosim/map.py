@@ -6,20 +6,34 @@
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
-from biosim.landscapes import *
+from biosim.fauna import Herbivore, Carnivore
+from biosim.landscapes import Desert, Ocean, Mountain, Savannah, Jungle
 import numpy as np
+
+
 # that's wrong
 
 
 class Map:
-    def __init__(self, geogr_string, fauna_objects):
+    def __init__(self, geogr_string, all_fauna):
         self.geogr_string = geogr_string
-        self.landscape_char_dict = {'O': Ocean, 'S': Savannah, 'M': Mountain,
-                          'J': Jungle, 'D': Desert}
-        self.fauna_objects = fauna_objects
-        #self.landscape_array = np.array()
+        self.all_fauna = all_fauna
 
-    def create_map_dict(self):
+    def create_cell(self, cell_letter):
+        # Those animals are just initial for all cells, letr we need to add all_fauna
+        h1 = Herbivore()
+        h2 = Herbivore()
+        c1 = Carnivore()
+        c2 = Carnivore()
+        animals = {'Herbivore': [h1, h2], 'Carnivore': [c1, c2]}
+        landscape_cells = {'O': Ocean(),
+                           'S': Savannah(animals),
+                           'M': Mountain(),
+                           'J': Jungle(animals),
+                           'D': Desert(animals)}
+        return landscape_cells[cell_letter]
+
+    def create_map(self):
         given_geogr_array = self.string_to_np_array()
         # for element in geogr_array:
         landscape_array = np.empty(given_geogr_array.shape, dtype=object)
@@ -28,9 +42,9 @@ class Map:
             for j in np.arange(given_geogr_array.shape[1]):
                 # iterate through the given character array and build
                 # object of landscapes for each character
-                landscape_class = self.landscape_char_dict[given_geogr_array[i][j]]
                 # we saved here the landscape class and instantiate the object
-                landscape_array[i][j] = landscape_class(self.fauna_objects)
+                cell_letter = given_geogr_array[i][j]
+                landscape_array[i][j] = self.create_cell(cell_letter)
                 # all object are saved inside the numpy array in output
                 # animals list should be given as arguments to the
                 # object of landscape
@@ -38,64 +52,55 @@ class Map:
 
     def string_to_np_array(self):
         geogr_string_clean = self.geogr_string.replace(' ', '')
-        given_char_array = np.array([[j for j in i] for i in
-                               geogr_string_clean.splitlines()])
+        char_array = np.array([[j for j in i] for i in geogr_string_clean.splitlines()])
         # convert string to numpy array with the same diemsions
-        return given_char_array
+        return char_array
+
+    @staticmethod
+    def adj_cells(map, x, y):
+        rows = map.shape[0]
+        cols = map.shape[1]
+        adj_cells_list = []
+        if x > 0:
+            adj_cells_list.append(map[x - 1, y])
+        if x + 1 < rows:
+            adj_cells_list.append(map[x + 1, y])
+        if y > 0:
+            adj_cells_list.append(map[x, y - 1])
+        if y + 1 < cols:
+            adj_cells_list.append(map[x, y + 1])
+        return adj_cells_list
+
+    @staticmethod
+    def total_adj_propensity(cells, animal):
+        total_propensity = 0
+        for cell in cells:
+            total_propensity += cell.propensity(animal)
+        return total_propensity
 
     def migrate(self):
-        map = self.create_map_dict()
+        map = self.create_map()
         rows = map.shape[0]
         cols = map.shape[1]
         for x in range(0, rows):
             for y in range(0, cols):
                 current_cell = map[x, y]
-                for animal in current_cell.fauna_objects_dict:
-                    if np.random.random() > animal.move_probability:
-                        adj_cells = [map[x-1, y], map[x+1, y], map[x, y-1], map[x, y+1]]
-                        cell_probabilities_list = [current_cell.probability_to_which_cell(
-                            animal, cell, adj_cells) for cell in adj_cells]
-                        # get the adjacent cells for all the current cells and calculate the relevant abundance of fodder
-                        #relative_fodder_abundance =[i.propensity() for i in adj_cells]
-                        #the cell with relevant abundance of fodder will make the animal move to it
-                        #maximum_relevant_fodder_index =  relative_fodder_abundance.index(max(relative_fodder_abundance))
-                        #cell_with_maximum_fodder = adj_cells[maximum_relevant_fodder_index]
-                        maximum_probability_index =  cell_probabilities_list.index(max(cell_probabilities_list))
-                        cell_with_maximum_probability = adj_cells[maximum_probability_index]
-                        #then remove animal from the current cell and add it to the distination cell
+                self.move_animals(current_cell, map, x, y)
 
-                        current_cell.remove_fauna()
-                        cell_with_maximum_probability.add_fauna()
-
-
-map_str = """\
-               OOOOOOOOOOOOOOOOOOOOO
-               OOOOOOOOSMMMMJJJJJJJO
-               OSSSSSJJJJMMJJJJJJJOO
-               OSSSSSSSSSMMJJJJJJOOO
-               OSSSSSJJJJJJJJJJJJOOO
-               OSSSSSJJJDDJJJSJJJOOO
-               OSSJJJJJDDDJJJSSSSOOO
-               OOSSSSJJJDDJJJSOOOOOO
-               OSSSJJJJJDDJJJJJJJOOO
-               OSSSSJJJJDDJJJJOOOOOO
-               OOSSSSJJJJJJJJOOOOOOO
-               OOOSSSSJJJJJJJOOOOOOO
-               OOOOOOOOOOOOOOOOOOOOO"""
-
-h1 = Herbivore()
-h1.fitness = 10
-h2 = Herbivore()
-h2.fitness = 20
-c1 = Carnivore()
-c1.fitness = 10
-c2 = Carnivore()
-c2.fitness = 20
-animals = {'Carnivore': [c1, c2], 'Herbivore': [h1, h2]}
-
-m = Map(map_str, animals)
-print(m.geogr_string)
-#print(m.char_dict)
-#print(m.create_map_dict())
-#print(m.string_to_np_array())
-print(m.migrate())
+    def move_animals(self, current_cell, map, x, y):
+        for species in current_cell.in_cell_fauna:
+            for animal in species:
+                if np.random.random() > animal.move_probability:
+                    adj_cells_list = self.adj_cells(map, x, y)
+                    cell_probabilities_list = [cell.probability_of_cell(animal)
+                                               for cell in adj_cells_list]
+                    # get the adjacent cells for all the current cells and calculate the relevant abundance of fodder
+                    # relative_fodder_abundance =[i.propensity() for i in adj_cells]
+                    # the cell with relevant abundance of fodder will make the animal move to it
+                    maximum_probability_index = cell_probabilities_list.index(
+                        max(cell_probabilities_list))
+                    cell_with_maximum_probability = adj_cells_list[
+                        maximum_probability_index]
+                    # then remove animal from the current cell and add it to the distination cell
+                    current_cell.remove_fauna(animal)
+                    cell_with_maximum_probability.add_fauna(animal)

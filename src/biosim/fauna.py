@@ -6,141 +6,177 @@
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
-from random import seed
 from random import gauss
-# from biosim.landscapes import *
-# That's is wrong, we can't import *
 import math
 import numpy as np
+from random import seed
 
 
 class Fauna:
+    #this should be a base class
+    parameters = {}
     def __init__(self):
         """
 
         """
-        # parameters dictionary, still need a better implimentation of it
-        # cell is an object of landscape where we instantiate a new animal
+        #self.given_parameters = given_parameters
         self.age = 0
-        self.parameters = None
         # initial age is zero
+        # self.parameters = None
         # Using Gaussian values for initial weight
         # how to do that ????? Normal distribution of weights (what weights??)
         self._weight = None
-        self.fitness = 0
+        self._fitness = 0
+        #self._move_probability = 0
 
     @property
     def weight(self):
         return self._weight
 
-    # maybe we dont need setter here
-    @weight.setter
-    def weight(self, value):
-        self._weight = value
-
     def grow_up(self):
         self.age += 1
-        self.decrease_weight('eta')
+        weight_to_reduce = self._weight*self.parameters['eta']
+        self.reduce_weight(weight_to_reduce)
         # age increase by 1 each year
         # decrease the weight by the factor eta
 
-    def decrease_weight(self, factor):
-        self._weight -= self._weight * self.parameters[factor]
+    def reduce_weight(self, amount_to_reduce):
+        self._weight -= amount_to_reduce
 
-    #def increase_weight(self, eaten_food):
-    #    # create variable that save the avialable amount of food
-    #    beta = self.parameters['beta']
-    #    print(self._weight)
-    #    self._weight += beta * eaten_food
-
-    #@property
+    @property
     def fitness(self):
+        # this is just to be used in the landscape, not needed actually
         if self._weight == 0:
-            return 0
+            self._fitness = 0
         else:
             q1 = 1 / (1 + math.exp((self.parameters['phi_age']) * (
                     self.age - self.parameters['a_half'])))
             q2 = 1 / (1 + math.exp((-1 * (self.parameters['phi_weight']) * (
                     self._weight - self.parameters['w_half']))))
-            return q1 * q2
-
+            self._fitness = q1 * q2
             # fitness formula
-            # do we need docorator here??
-
-    #@fitness.setter
-    def fitness(self, value):
-        # this is just to be used in the landscape, not needed actually
-        self._fitness = value
+        return self._fitness
 
     @property
     def move_probability(self):
         return self.parameters['mu'] * self.fitness
-        # just return the probablity based on the equation
+        # animal move probablity based on the equation
 
-    @property
-    def birth_probablity(self):
-        nu_fauna = self.cell.nu_fauna
+    #@property
+    def birth_probablity(self, num_fauna):
         zeta = self.parameters['zeta']
         w_birth = self.parameters['w_birth']
         sigma_birth = self.parameters['sigma_birth']
-        if nu_fauna >= 2 and self.weight >= zeta * (w_birth * sigma_birth):
+        if num_fauna >= 2 and self.weight >= zeta * (w_birth + sigma_birth):
             gamma = self.parameters['gamma']
-            fitness = self.fitness
-            return min(1, gamma * fitness * (nu_fauna - 1))
+            return min(1, gamma * self.fitness * (num_fauna - 1))
         else:
             return 0
 
-    @property
+    def give_birth(self, baby):
+        self._weight -= baby.parameters['w_birth'] * baby.parameters['xi']
+        print(self._weight)
+        print(self.weight)
+
+    #@property
     def death_probability(self):
         if self.fitness == 0:
             return 1
         else:
-            return self.weight * (1 - self.fitness)
-
-    def die(self):
-        # if np.random.random() is more than the probability , then die
-        #del self
-        pass
-        # delete itself, but we dont need this
+            return self.parameters['omega'] * (1 - self.fitness)
 
     def eat(self, amount_to_eat):
-        self._weight += self.parameters['beta']*amount_to_eat
+        self._weight += self.parameters['beta'] * amount_to_eat
         # the same behaviour for both carni and herbi, just the difference
         # is in the amount to eat
 
 
 class Herbivore(Fauna):
-    def __init__(self):
-        seed(1)
+    parameters = {'eta': 0.05, 'F': 10.0, 'beta': 0.9, 'w_birth': 8.0,
+                  'sigma_birth': 1.5, 'phi_age': 0.2, 'phi_weight': 0.1,
+                  'a_half': 40, 'w_half': 10.0,'gamma': 0.8, 'zeta': 3.5,
+                  'xi': 1.2, 'mu': 0.25, 'lambda': 1.0, 'omega': 0.4}
+
+    def __init__(self, given_parameters=None):
         super().__init__()
-        self.parameters = {'eta': 0.05, 'F': 50.0, 'beta': 0.9,
-                           'w_birth': 8.0, 'sigma_birth': 1.5,
-                           'phi_age': 0.2, 'phi_weight': 0.1,
-                           'a_half': 40, 'w_half': 10.0,
-                           'gamma': 0.8, 'zeta': 3.5, 'xi': 1.2,
-                           'mu': 0.25, 'lambda': 1.0}
+        if given_parameters is not None:
+            # if we have given any subset of new parameters, we are going to
+            # call that function that will overwrite the default parameters
+            self.set_given_parameters(given_parameters)
+            # and after that we set the new updated class variable to the attribute
+        self.parameters = Herbivore.parameters
         self._weight = gauss(self.parameters['w_birth'],
                              self.parameters['sigma_birth'])
+
+    @staticmethod
+    def set_given_parameters(given_parameters):
+        for parameter in given_parameters:
+            if parameter in Herbivore.parameters:
+                if parameter == 'eta' and given_parameters[parameter] > 1:
+                    raise ValueError('Illegal parameter value, ' +
+                                     str(parameter) + ' can\'t be more than 1')
+                elif given_parameters[parameter] < 0:
+                    # protect against negative values
+                    raise ValueError('Illegal parameter value, ' +
+                                     str(parameter) + ' can\'t be negative')
+                else:
+                    #if given_parameters[parameter] >= 0
+                    Herbivore.parameters[parameter] = \
+                        given_parameters[parameter]
+            else:
+                # unknown parameter
+                raise RuntimeError('Unknown parameter, ' + str(parameter) +
+                                   ' can\'t be set')
 
 
 class Carnivore(Fauna):
-    def __init__(self):
-        seed(1)
+    parameters = {'eta': 0.125, 'F': 50.0, 'beta': 0.75, 'w_birth': 6.0,
+                  'sigma_birth': 1.0, 'phi_age': 0.4, 'phi_weight': 0.4,
+                  'a_half': 60, 'w_half': 4.0, 'gamma': 0.8, 'zeta': 3.5,
+                  'xi': 1.1, 'mu': 0.4, 'DeltaPhiMax': 10.0, 'lambda': 1.0,
+                  'omega': 0.9}
+
+    def __init__(self, given_parameters=None):
         super().__init__()
-        self._killing_probablity = 0
-        self.parameters = {'eta': 0.125, 'F': 10.0, 'beta': 0.75,
-                           'w_birth': 6.0, 'sigma_birth': 1.0,
-                           'phi_age': 0.4, 'phi_weight': 0.4,
-                           'a_half': 60, 'w_half': 4.0,
-                           'gamma': 0.8, 'zeta': 3.5, 'xi': 1.1,
-                           'mu': 0.4, 'DeltaPhiMax': 10.0, 'lambda': 1.0}
+        self._kill_probablity = None
+        if given_parameters is not None:
+            # if we have given any subset of new parameters, we are going to
+            # call that function that will overwrite the default parameters
+            self.set_given_parameters(given_parameters)
+            # and after that we set the new updated class variable to the attribute
+        self.parameters = Carnivore.parameters
         self._weight = gauss(self.parameters['w_birth'],
                              self.parameters['sigma_birth'])
 
-    def calculate_killing_probablity(self, herbivore_fitness):
-        if self.fitness <= herbivore_fitness:
-            self.killing_probablity = 0
-        elif 0 < self.fitness - herbivore_fitness < self.parameters['DeltaPhiMax']:
-            self.killing_probablity = (self.fitness - herbivore_fitness) / self.parameters['DeltaPhiMax']
+    @staticmethod
+    def set_given_parameters(given_parameters):
+        for parameter in given_parameters:
+            if parameter in Carnivore.parameters:
+                if parameter == 'eta' and given_parameters[parameter] > 1:
+                    raise ValueError('Illegal parameter value, eta '
+                                     'can\'t be more than 1')
+                elif given_parameters[parameter] <= 0:
+                    # protect against negative values
+                    raise ValueError('Illegal parameter value, ' +
+                                     str(parameter) + ' can\'t be zero or '
+                                                      'negative')
+                else:
+                    #if given_parameters[parameter] >= 0
+                    Carnivore.parameters[parameter] = \
+                        given_parameters[parameter]
+            else:
+                # unknown parameter
+                raise RuntimeError('Unknown parameter, ' + str(parameter) +
+                                   ' can\'t be set')
+    #@property
+    def kill_probablity(self, herbivore_to_kill):
+        if self.fitness <= herbivore_to_kill.fitness:
+            self._kill_probablity = 0
+        elif 0 < self.fitness - herbivore_to_kill.fitness < self.parameters[
+            'DeltaPhiMax']:
+            self._kill_probablity = (self.fitness -
+                                        herbivore_to_kill.fitness) / \
+                                       self.parameters['DeltaPhiMax']
         else:
-            self.killing_probablity = 1
+            self._kill_probablity = 1
+        return self._kill_probablity
