@@ -9,16 +9,18 @@ __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 from biosim.fauna import Herbivore, Carnivore
 from biosim.landscapes import Desert, Ocean, Mountain, Savannah, Jungle
 import numpy as np
+
+
 # that's wrong
 
 
 class Map:
     def __init__(self, geogr_string):
         self.geogr_string = geogr_string
-        #self.all_fauna = all_fauna
+        # self.all_fauna = all_fauna
 
     def create_cell(self, cell_letter):
-        #Those animals are just initial for all cells, letr we need to add all_fauna
+        # Those animals are just initial for all cells, letr we need to add all_fauna
         h1 = Herbivore()
         h2 = Herbivore()
         c1 = Carnivore()
@@ -50,12 +52,29 @@ class Map:
 
     def string_to_np_array(self):
         geogr_string_clean = self.geogr_string.replace(' ', '')
-        given_char_array = np.array([[j for j in i] for i in
-                               geogr_string_clean.splitlines()])
+        char_array = np.array([[j for j in i] for i in geogr_string_clean.splitlines()])
         # convert string to numpy array with the same diemsions
-        return given_char_array
+        return char_array
 
-    def adj_cells(self):
+    def adj_cells(self, map, x, y):
+        rows = map.shape[0]
+        cols = map.shape[1]
+        adj_cells_list = []
+        if x > 0:
+            adj_cells_list.append(map[x - 1, y])
+        if x + 1 < rows:
+            adj_cells_list.append(map[x + 1, y])
+        if y > 0:
+            adj_cells_list.append(map[x, y - 1])
+        if y + 1 < cols:
+            adj_cells_list.append(map[x, y + 1])
+        return adj_cells_list
+
+
+    def total_adj_propensity(self):
+        pass
+
+    def probability_of_cell(self):
         pass
 
     def migrate(self):
@@ -67,19 +86,22 @@ class Map:
                 current_cell = map[x, y]
                 for animal in current_cell.fauna_objects_dict:
                     if np.random.random() > animal.move_probability:
-                        adj_cells = [map[x-1, y], map[x+1, y], map[x, y-1], map[x, y+1]]
-                        cell_probabilities_list = [current_cell.probability_to_which_cell(
-                            animal, cell, adj_cells) for cell in adj_cells]
+                        adj_cells = [map[x - 1, y], map[x + 1, y],
+                                     map[x, y - 1], map[x, y + 1]]
+                        cell_probabilities_list = [
+                            current_cell.probability_to_which_cell(
+                                animal, cell, adj_cells) for cell in adj_cells]
                         # get the adjacent cells for all the current cells and calculate the relevant abundance of fodder
-                        #relative_fodder_abundance =[i.propensity() for i in adj_cells]
-                        #the cell with relevant abundance of fodder will make the animal move to it
-                        maximum_probability_index =  cell_probabilities_list.index(max(cell_probabilities_list))
-                        cell_with_maximum_probability = adj_cells[maximum_probability_index]
-                        #then remove animal from the current cell and add it to the distination cell
+                        # relative_fodder_abundance =[i.propensity() for i in adj_cells]
+                        # the cell with relevant abundance of fodder will make the animal move to it
+                        maximum_probability_index = cell_probabilities_list.index(
+                            max(cell_probabilities_list))
+                        cell_with_maximum_probability = adj_cells[
+                            maximum_probability_index]
+                        # then remove animal from the current cell and add it to the distination cell
 
                         current_cell.remove_fauna(animal)
                         cell_with_maximum_probability.add_fauna(animal)
-
 
 
 if __name__ == '__main__':
@@ -106,8 +128,8 @@ if __name__ == '__main__':
 
     m = Map(map_str)
     print(m.string_to_np_array())
-    #print(m.geogr_string)
-    #print(m.char_dict)
+    # print(m.geogr_string)
+    # print(m.char_dict)
     print(m.create_map())
-    #print(m.string_to_np_array())
-    #print(m.migrate())
+    # print(m.string_to_np_array())
+    # print(m.migrate())

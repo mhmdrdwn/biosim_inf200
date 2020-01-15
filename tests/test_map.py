@@ -49,28 +49,33 @@ class TestMap:
         pass
 
     def test_string_to_np_array(self):
-        map_str = """  OOOOOOOOOOOOOOOOOOOOO
-                       OOOOOOOOSMMMMJJJJJJJO
-                       OOOOOOOOOOOOOOOOOOOOO"""
+        map_str = """  OSMSOOOOOOOOOOOOOOOOO
+                       OMSOOOOOSMMMMJJJJJJJJ
+                       OOOOOOOOOOOOOOOOOOOSO"""
         m = Map(map_str)
         assert m.string_to_np_array()[0][0] == 'O'
         assert m.string_to_np_array()[1][10] == 'M'
-        assert m.string_to_np_array()[2][20] == 'O'
+        assert m.string_to_np_array()[1][20] == 'J'
         assert type(m.string_to_np_array()).__name__ == 'ndarray'
 
     def test_create_map(self):
-        map_str = """  OSOOOOOOOOOOOOOOOOOOO
-                       OOOOOOOOSMMMMJJJJJJJO
-                       OOOOOOOOOOOOOOOOOOOOO"""
+        map_str = """  OSMSOOOOOOOOOOOOOOOOO
+                       OMSOOOOOSMMMMJJJJJJJJ
+                       OOOOOOOOOOOOOOOOOOOSO"""
         m = Map(map_str)
         assert isinstance(m.create_map()[0][0], Ocean)
         assert isinstance(m.create_map()[1][10], Mountain)
-        assert isinstance(m.create_map()[2][20], Ocean)
+        assert isinstance(m.create_map()[1][20], Jungle)
         assert isinstance(m.create_map()[0][1], Savannah)
 
+    def test_adj_cells(self):
+        map_str = """  OSMSOOOOOOOOOOOOOOOOO
+                       OMSOOOOOSMMMMJJJJJJJJ
+                       OOOOOOOOOOOOOOOOOOOSO"""
+        m = Map(map_str)
+        map_arr = m.string_to_np_array()
+        assert all(j in m.adj_cells(map_arr, 0, 0) for j in ['O', 'S'])
+        assert all(j in m.adj_cells(map_arr, 1, 0) for j in ['M', 'O', 'O'])
+        assert all(j in m.adj_cells(map_arr, 2, 20) for j in ['S', 'J'])
+
 # def test_migrate(self):
-
-
-
-
-
