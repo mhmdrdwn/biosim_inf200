@@ -190,14 +190,14 @@ class TestMountains(TestLandscapes):
 
 
 class TestSavannah(TestLandscapes):
-    def test_grow_fodder_yearly(self, gen_landscape_data):
-        s, d, j, o, m = gen_landscape_data
-        assert s.available_fodder == s.parameters['f_max']
-        assert s.available_fodder == 30
+    def test_grow_herb_fodder(self, gen_landscape_data):
+        s = gen_landscape_data['s']
+        assert s.available_fodder['Herbivore'] == s.parameters['f_max']
+        assert s.available_fodder['Herbivore'] == 10
         s.feed_herbivore()
-        fodder_pre_grow = s.available_fodder
-        s.grow_fodder()
-        fodder_post_grow = s.available_fodder
+        fodder_pre_grow = s.available_fodder['Herbivore']
+        s.grow_herb_fodder()
+        fodder_post_grow = s.available_fodder['Herbivore']
         assert fodder_post_grow > fodder_pre_grow
         assert fodder_post_grow - fodder_pre_grow == \
                s.parameters['alpha'] * (s.parameters['f_max'] -
@@ -205,31 +205,23 @@ class TestSavannah(TestLandscapes):
         # the growth or the difference between them is given by the formula
 
     def test_reset_parameters(self, gen_landscape_data):
-        s, d, j, o, m = gen_landscape_data
+        s = gen_landscape_data['s']
         alpha_pre_change = s.parameters['alpha']
         s.set_given_parameters({'alpha': 0.5})
         alpha_post_change = s.parameters['alpha']
         assert alpha_post_change != alpha_pre_change
 
-    def test_grow_herbi_fodder(self, gen_landscape_data):
-        s = gen_landscape_data['s']
-        s.feed_herbivore()
-        fodder_pre_grow = s.available_fodder['Herbivore']
-        s.grow_herbi_fodder()
-        fodder_post_grow = s.available_fodder['Herbivore']
-        assert fodder_pre_grow < s.parameters['f_max']
-        assert fodder_post_grow == s.parameters['f_max']
-        assert fodder_post_grow == 10
 
 class TestJungle(TestLandscapes):
-    def test_grow_fodder_yearly(self, gen_landscape_data):
-        s, d, j = gen_landscape_data
-        assert j.available_fodder == j.parameters['f_max']
-        assert j.available_fodder == 30
+    def test_grow_herb_fodder(self, gen_landscape_data):
+        j = gen_landscape_data['j']
+        assert j.available_fodder['Herbivore'] == j.parameters['f_max']
+        assert j.available_fodder['Herbivore'] == 10
         j.feed_herbivore()
-        fodder_pre_grow = s.available_fodder
-        j.grow_fodder()
-        fodder_post_grow = s.available_fodder
+        fodder_pre_grow = j.available_fodder['Herbivore']
+        j.grow_herb_fodder()
+        fodder_post_grow = j.available_fodder['Herbivore']
+        assert fodder_pre_grow < fodder_post_grow
         assert fodder_post_grow == j.parameters['f_max']
         # at the start of each simulation the fodder will have f_max
         # after a year the fodder will have f_max, no matter how much was eaten
