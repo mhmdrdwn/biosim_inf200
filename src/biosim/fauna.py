@@ -92,7 +92,7 @@ class Fauna:
 
 
 class Herbivore(Fauna):
-    parameters = {'eta': 0.05, 'F': 50.0, 'beta': 0.9, 'w_birth': 8.0,
+    parameters = {'eta': 0.05, 'F': 10.0, 'beta': 0.9, 'w_birth': 8.0,
                   'sigma_birth': 1.5, 'phi_age': 0.2, 'phi_weight': 0.1,
                   'a_half': 40, 'w_half': 10.0,'gamma': 0.8, 'zeta': 3.5,
                   'xi': 1.2, 'mu': 0.25, 'lambda': 1.0, 'omega': 0.4}
@@ -130,7 +130,7 @@ class Herbivore(Fauna):
 
 
 class Carnivore(Fauna):
-    parameters = {'eta': 0.125, 'F': 10.0, 'beta': 0.75, 'w_birth': 6.0,
+    parameters = {'eta': 0.125, 'F': 50.0, 'beta': 0.75, 'w_birth': 6.0,
                   'sigma_birth': 1.0, 'phi_age': 0.4, 'phi_weight': 0.4,
                   'a_half': 60, 'w_half': 4.0, 'gamma': 0.8, 'zeta': 3.5,
                   'xi': 1.1, 'mu': 0.4, 'DeltaPhiMax': 10.0, 'lambda': 1.0,

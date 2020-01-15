@@ -133,9 +133,11 @@ class TestLandscapes:
 
     def test_relative_abundance_fodder(self, gen_landscape_data):
         s = gen_landscape_data['s']
-        assert s.relative_abundance_fodder(Herbivore) == 1
-        assert s.relative_abundance_fodder('Carnivore') == pytest.approx(
-            1.206386732566971)
+        herbi_object = s.fauna_objects_dict['Herbivore'][0]
+        carni_object = s.fauna_objects_dict['Carnivore'][0]
+        assert s.relative_abundance_fodder(herbi_object) == 1
+        assert s.relative_abundance_fodder(carni_object) == pytest.approx(
+            0.134042970285219)
 
     def test_propensity(self):
         h1 = Herbivore()

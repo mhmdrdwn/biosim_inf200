@@ -61,11 +61,11 @@ class Landscape:
             # differnt in the cells, since they travel based on fitness
             # maybe a herbi is higher fitness
 
-    def relative_abundance_fodder(self, species_class):
-        key = species_class.__name__
+    def relative_abundance_fodder(self, animal):
+        key = animal.__class__.__name__
         return self.relevant_fodder(key) / (
                 (len(self.fauna_objects_dict[key]) + 1) *
-                species_class().parameters['F'])
+                animal.parameters['F'])
         # we instantiate object of teh species given and get F from it
         # maybe there is error here
 
@@ -73,7 +73,7 @@ class Landscape:
         if distination_cell == 'Mountain' or j == 'Ocean':
             return 0
         else:
-            relevant_fodder = self.calculate_relative_abundance_fodder(
+            relevant_fodder = self.relative_abundance_fodder(
                 animal_object)
             return math.exp(
                 relevant_fodder * animal_object.parameters['lambda'])
