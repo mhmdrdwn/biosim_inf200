@@ -122,22 +122,24 @@ class TestLandscapes:
 
     def test_relevant_fodder(self, gen_landscape_data):
         s, d, j = (gen_landscape_data[i] for i in ('s', 'd', 'j'))
-        animal_1 = d.fauna_objects_dict['Herbivore'][0]
-        animal_2 = d.fauna_objects_dict['Herbivore'][1]
-        assert s.relevant_fodder(animal_1, j) == j.available_fodder
-        assert s.relevant_fodder(animal_1, d) == 0
-        total_weight_herbivore = animal_1.weight + animal_2.weight
-        assert s.relevant_fodder('Carnivore', d) == total_weight_herbivore
-        assert s.relevant_fodder('Carnivore', d) == pytest.approx(
+        herb = d.in_cell_fauna['Herbivore'][0]
+        carn = d.in_cell_fauna['Carnivore'][0]
+        assert s.relevant_fodder(herb, j) == j.available_fodder['Herbivore']
+        assert s.relevant_fodder(herb, d) == d.available_fodder['Herbivore']
+        assert s.relevant_fodder(herb, d) == 0
+        assert s.relevant_fodder(carn, d) == s.available_fodder['Carnivore']
+        assert s.relevant_fodder(carn, d) == pytest.approx(
             20.10644554278285)
 
     def test_relative_abundance_fodder(self, gen_landscape_data):
-        s = gen_landscape_data['s']
-        herbi_animal = s.in_cell_fauna['Herbivore'][0]
-        carni_animal = s.in_cell_fauna['Carnivore'][0]
-        assert s.relative_abundance_fodder(herbi_animal) == 1
-        assert s.relative_abundance_fodder(carni_animal) == pytest.approx(
+        s, o, d = (gen_landscape_data[i] for i in ('s', 'o', 'd'))
+        herb = s.in_cell_fauna['Herbivore'][0]
+        carn = s.in_cell_fauna['Carnivore'][0]
+        assert s.relative_abundance_fodder(herb, d) == 0
+        assert s.relative_abundance_fodder(herb, o) == 0
+        assert s.relative_abundance_fodder(carn, d) == pytest.approx(
             0.134042970285219)
+        assert s.relative_abundance_fodder(carn, o) == 0
 
     def test_propensity(self, gen_landscape_data):
         s, o, d, m, j = (gen_landscape_data[i]
@@ -153,6 +155,7 @@ class TestLandscapes:
             1.1434419526158457)
         assert s.propensity(carni_animal, j) == pytest.approx(
             1.1434419526158457)
+
 
 class TestDesert(TestLandscapes):
     # test of is accessible for all of the subclasses should be added.

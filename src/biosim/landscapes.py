@@ -25,7 +25,6 @@ class Landscape:
         # that should be list of dicts
         self.sorted_fauna_fitness = {}
 
-
     def save_fitness(self, fauna_objects, species):
         # this is to update the current fitness to be able to use in
         # the order later
@@ -53,21 +52,14 @@ class Landscape:
     def relevant_fodder(self, animal, cell):
         # This is f_k
         species = animal.__class__.__name__
-        if species == 'Herbivore':
-            return cell.available_fodder['Herbivore']
-            # return amount of relevant fodder for the differnt animals species
-        elif species == 'Carnivore':
-            total_herbi_weight = 0
-            for herbivore in cell.in_cell_fauna['Herbivore']:
-                total_herbi_weight += herbivore.weight
-            return total_herbi_weight
-            # remember each time a carni move, number of herbi is
-            # differnt in the cells, since they travel based on fitness
-            # maybe a herbi is higher fitness
+        return cell.available_fodder[species]
+        # remember each time a carni move, number of herbi is
+        # differnt in the cells, since they travel based on fitness
+        # maybe a herbi is higher fitness
 
     def relative_abundance_fodder(self, animal, dist_cell):
         key = animal.__class__.__name__
-        return self.relevant_fodder(key, dist_cell) / (
+        return self.relevant_fodder(animal, dist_cell) / (
                 (len(self.in_cell_fauna[key]) + 1) *
                 animal.parameters['F'])
         # we instantiate object of teh species given and get F from it
@@ -144,7 +136,6 @@ class Landscape:
                 herbivore.eat(amount_to_eat)
                 self.available_fodder['Herbivore'] = 0
 
-
     def feed_carnivore(self):
         self.sort_by_fitness(self.in_cell_fauna, 'Carnivore')
         self.sort_by_fitness(self.in_cell_fauna, 'Herbivore', False)
@@ -192,8 +183,9 @@ class Savannah(Landscape):
     def grow_fodder(self):
         # annual grow of the fodder
         self.available_fodder['Herbivore'] += self.parameters['alpha'] \
-                                  * (self.parameters['f_max']
-                                     - self.available_fodder['Herbivore'])
+                                              * (self.parameters['f_max']
+                                                 - self.available_fodder[
+                                                     'Herbivore'])
 
     @staticmethod
     def set_given_parameters(given_parameters):
@@ -218,7 +210,8 @@ class Jungle(Landscape):
             self.set_given_parameters(given_parameters)
         self.parameters = Jungle.parameters
         self.available_fodder['Herbivore'] = self.parameters['f_max']
-        total_herb_weight = sum(i.weight for i in self.in_cell_fauna['Herbivore'])
+        total_herb_weight = sum(
+            i.weight for i in self.in_cell_fauna['Herbivore'])
         self.available_fodder['Carnivore'] = total_herb_weight
         # amount of initial fodder aviable should equals to f_max
 
@@ -241,14 +234,17 @@ class Jungle(Landscape):
 
 class Desert(Landscape):
     is_accessible = True
+    available_fodder = {'Herbivore': 0}
 
     def __init__(self, in_cell_fauna):
         super().__init__(in_cell_fauna)
 
         self.in_cell_fauna = in_cell_fauna
-        self.available_fodder['Herbivore'] = 0
-        total_herb_weight = sum(i.weight for i in self.in_cell_fauna['Herbivore'])
+        # self.available_fodder['Herbivore'] = 0
+        total_herb_weight = sum(
+            i.weight for i in self.in_cell_fauna['Herbivore'])
         self.available_fodder['Carnivore'] = total_herb_weight
+        self.available_fodder['Herbivore'] = Desert.available_fodder['Herbivore']
         # should we move aviable_fodder to the class level
         # That's because it's not changeable, so it's private variable
 
@@ -291,7 +287,6 @@ class Ocean(Landscape):
 
 
 if __name__ == '__main__':
-
     h1 = Herbivore()
     h2 = Herbivore()
     c1 = Carnivore()
