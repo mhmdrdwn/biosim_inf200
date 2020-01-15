@@ -227,8 +227,8 @@ class TestJungle(TestLandscapes):
         # after a year the fodder will have f_max, no matter how much was eaten
 
     def test_reset_parameters(self, gen_landscape_data):
-        s, d, j, o, m = gen_landscape_data
-        f_max_pre_change = s.parameters['f_max']
-        s.set_given_parameters({'f_max': 400})
-        f_max_post_change = s.parameters['f_max']
+        j= gen_landscape_data['j']
+        f_max_pre_change = j.parameters['f_max']
+        j.set_given_parameters({'f_max': 400})
+        f_max_post_change = j.parameters['f_max']
         assert f_max_post_change != f_max_pre_change
