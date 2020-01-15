@@ -149,17 +149,30 @@ class TestLandscapes:
                          for i in ('s', 'o', 'd', 'm', 'j'))
         herb = s.in_cell_fauna['Herbivore'][0]
         carn = s.in_cell_fauna['Carnivore'][0]
+        assert s.propensity(herb) == pytest.approx(1.3956124250860895)
+        assert s.propensity(carn) == pytest.approx(1.1434419526158457)
         assert m.propensity(herb) == 0
         assert o.propensity(carn) == 0
         assert j.propensity(herb) == pytest.approx(1.3956124250860895)
-        assert d.propensity(herb) == math.exp(0)
+        assert d.propensity(herb) == math.exp(0) == 1
         assert d.propensity(carn) == pytest.approx(1.1434419526158457)
         assert j.propensity(carn) == pytest.approx(1.1434419526158457)
 
-    def test_probability_cell(self, gen_landscape_data):
+    def test_probability_of_cell(self, gen_landscape_data):
         s, o, d, m, j = (gen_landscape_data[i]
                          for i in ('s', 'o', 'd', 'm', 'j'))
-        #s.prob
+
+        adj_cells = [d, d, o, j]
+        herb = j.in_cell_fauna['Herbivore'][0]
+        carn = j.in_cell_fauna['Carnivore'][0]
+        total_propensity_carn = sum(i.propensity(carn) for i in adj_cells)
+        assert s.probability_of_cell(carn, total_propensity_carn) == \
+               pytest.approx(0.33333333333333337)
+        total_propensity_herb = sum(i.propensity(herb) for i in adj_cells)
+        assert s.probability_of_cell(herb, total_propensity_herb) == \
+               pytest.approx(0.41100462902526524)
+
+
 class TestDesert(TestLandscapes):
     # test of is accessible for all of the subclasses should be added.
     def test_no_fodder(self, gen_landscape_data):
@@ -231,7 +244,7 @@ class TestJungle(TestLandscapes):
         # after a year the fodder will have f_max, no matter how much was eaten
 
     def test_reset_parameters(self, gen_landscape_data):
-        j= gen_landscape_data['j']
+        j = gen_landscape_data['j']
         f_max_pre_change = j.parameters['f_max']
         j.set_given_parameters({'f_max': 400})
         f_max_post_change = j.parameters['f_max']

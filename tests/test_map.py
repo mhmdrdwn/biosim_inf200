@@ -78,4 +78,12 @@ class TestMap:
         assert all(j in m.adj_cells(map_arr, 1, 0) for j in ['M', 'O', 'O'])
         assert all(j in m.adj_cells(map_arr, 2, 20) for j in ['S', 'J'])
 
+    def test_total_propensity(self):
+        map_str = """  OSMSOOOOOOOOOOOOOOOOO
+                       OMSOOOOOSMMMMJJJJJJJJ
+                       OOOOOOOOOOOOOOOOOOOSO"""
+        m = Map(map_str)
+        map_arr = m.string_to_np_array()
+        adjacent_cells = m.adj_cells(map_arr, 1, 0)
+
 # def test_migrate(self):

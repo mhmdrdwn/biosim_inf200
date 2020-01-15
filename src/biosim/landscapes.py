@@ -64,20 +64,16 @@ class Landscape:
         # maybe there is error here
 
     def propensity(self, animal):
-        if isinstance(self, (Mountain, Ocean)):
+        if isinstance(self, Mountain) or isinstance(self, Ocean):
             return 0
         else:
             relevant_abun_fodder = \
                 self.relative_abundance_fodder(animal)
-            return math.exp(relevant_abun_fodder * animal.parameters['lambda'])
-            # need to fix this spcies(), we need an object to be able to access
-            # parameters
+            return math.exp(relevant_abun_fodder *
+                            animal.parameters['lambda'])
 
-    #def probability_of_cell(self, animal, cell, adj_cells):
-        #total_propensity = 0
-        #for adj_cell in adj_cells:
-        #    total_propensity += self.propensity(animal, adj_cell)
-        #return self.propensity(animal, cell) / total_propensity
+    def probability_of_cell(self, animal, total_propensity):
+        return self.propensity(animal) / total_propensity
         # this is the rule of probablity
 
         # if animal_object.parameters['lambda'] == 0:

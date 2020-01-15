@@ -15,9 +15,9 @@ import numpy as np
 
 
 class Map:
-    def __init__(self, geogr_string):
+    def __init__(self, geogr_string, all_fauna):
         self.geogr_string = geogr_string
-        # self.all_fauna = all_fauna
+        self.all_fauna = all_fauna
 
     def create_cell(self, cell_letter):
         # Those animals are just initial for all cells, letr we need to add all_fauna
@@ -56,7 +56,8 @@ class Map:
         # convert string to numpy array with the same diemsions
         return char_array
 
-    def adj_cells(self, map, x, y):
+    @staticmethod
+    def adj_cells(map, x, y):
         rows = map.shape[0]
         cols = map.shape[1]
         adj_cells_list = []
@@ -70,21 +71,22 @@ class Map:
             adj_cells_list.append(map[x, y + 1])
         return adj_cells_list
 
-
-    def total_adj_propensity(self):
-        pass
-
-    def probability_of_cell(self):
-        pass
+    @staticmethod
+    def total_adj_propensity(cells, animal):
+        total_propensity = 0
+        for cell in cells:
+            total_propensity += cell.propensity(animal)
+        return total_propensity
 
     def migrate(self):
-        map = self.create_map_dict()
+        map = self.create_map()
         rows = map.shape[0]
         cols = map.shape[1]
         for x in range(0, rows):
             for y in range(0, cols):
                 current_cell = map[x, y]
-                for animal in current_cell.fauna_objects_dict:
+
+                for animal in current_cell.in_cell_fauna:
                     if np.random.random() > animal.move_probability:
                         adj_cells = [map[x - 1, y], map[x + 1, y],
                                      map[x, y - 1], map[x, y + 1]]
@@ -99,37 +101,6 @@ class Map:
                         cell_with_maximum_probability = adj_cells[
                             maximum_probability_index]
                         # then remove animal from the current cell and add it to the distination cell
-
                         current_cell.remove_fauna(animal)
                         cell_with_maximum_probability.add_fauna(animal)
 
-
-if __name__ == '__main__':
-    map_str = """\
-               OOOOOOOOOOOOOOOOOOOOO
-               OOOOOOOOSMMMMJJJJJJJO
-               OSSSSSJJJJMMJJJJJJJOO
-               OSSSSSSSSSMMJJJJJJOOO
-               OSSSSSJJJJJJJJJJJJOOO
-               OSSSSSJJJDDJJJSJJJOOO
-               OSSJJJJJDDDJJJSSSSOOO
-               OOSSSSJJJDDJJJSOOOOOO
-               OSSSJJJJJDDJJJJJJJOOO
-               OSSSSJJJJDDJJJJOOOOOO
-               OOSSSSJJJJJJJJOOOOOOO
-               OOOSSSSJJJJJJJOOOOOOO
-               OOOOOOOOOOOOOOOOOOOOO"""
-
-    h1 = Herbivore()
-    h2 = Herbivore()
-    c1 = Carnivore()
-    c2 = Carnivore()
-    animals = {'Carnivore': [c1, c2], 'Herbivore': [h1, h2]}
-
-    m = Map(map_str)
-    print(m.string_to_np_array())
-    # print(m.geogr_string)
-    # print(m.char_dict)
-    print(m.create_map())
-    # print(m.string_to_np_array())
-    # print(m.migrate())
