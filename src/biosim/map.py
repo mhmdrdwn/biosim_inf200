@@ -6,7 +6,8 @@
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
-from biosim.landscapes import *
+from biosim.fauna import Herbivore, Carnivore
+from biosim.landscapes import Desert, Ocean, Mountain, Savannah, Jungle
 import numpy as np
 # that's wrong
 
@@ -14,12 +15,14 @@ import numpy as np
 class Map:
     def __init__(self, geogr_string, fauna_objects):
         self.geogr_string = geogr_string
-        self.landscape_char_dict = {'O': Ocean, 'S': Savannah, 'M': Mountain,
-                          'J': Jungle, 'D': Desert}
+        self.landscape_cells = {'O': Ocean,
+                                'S': Savannah,
+                                'M': Mountain,
+                                'J': Jungle,
+                                'D': Desert}
         self.fauna_objects = fauna_objects
-        #self.landscape_array = np.array()
 
-    def create_map_dict(self):
+    def create_map(self):
         given_geogr_array = self.string_to_np_array()
         # for element in geogr_array:
         landscape_array = np.empty(given_geogr_array.shape, dtype=object)
@@ -30,7 +33,7 @@ class Map:
                 # object of landscapes for each character
                 landscape_class = self.landscape_char_dict[given_geogr_array[i][j]]
                 # we saved here the landscape class and instantiate the object
-                landscape_array[i][j] = landscape_class(self.fauna_objects)
+                landscape_array[i][j] = landscape_class()
                 # all object are saved inside the numpy array in output
                 # animals list should be given as arguments to the
                 # object of landscape
@@ -104,18 +107,15 @@ if __name__ == '__main__':
                OOOOOOOOOOOOOOOOOOOOO"""
 
     h1 = Herbivore()
-    h1.fitness = 10
     h2 = Herbivore()
-    h2.fitness = 20
     c1 = Carnivore()
-    c1.fitness = 10
     c2 = Carnivore()
-    c2.fitness = 20
     animals = {'Carnivore': [c1, c2], 'Herbivore': [h1, h2]}
 
     m = Map(map_str, animals)
-    print(m.geogr_string)
+    print(m.string_to_np_array())
+    #print(m.geogr_string)
     #print(m.char_dict)
     #print(m.create_map_dict())
     #print(m.string_to_np_array())
-    print(m.migrate())
+    #print(m.migrate())

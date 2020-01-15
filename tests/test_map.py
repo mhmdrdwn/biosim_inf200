@@ -11,14 +11,10 @@ the provided modeling.
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
-import pytest
-import pandas
-import glob
-import os
-import os.path
+from random import seed
 
-from biosim.simulation import BioSim
-from biosim.landscapes import Landscapes
+import pytest
+
 from biosim.landscapes import Desert, Ocean, Mountain, Savannah, Jungle
 from biosim.fauna import Herbivore, Carnivore
 from biosim.map import Map
@@ -26,23 +22,41 @@ import numpy as np
 
 
 class TestMap:
-    def test_string_to_np_array(self):
+    @pytest.fixture
+    def gen_animal_data(self):
+        seed(1)
+        h1 = Herbivore()
+        h2 = Herbivore()
+        seed(1)
+        c1 = Carnivore()
+        c2 = Carnivore()
+        return c1, c2, h1, h2
+
+    @pytest.fixture
+    def gen_landscape_data(self, gen_animal_data):
+        landscape_params = {'f_max': 10.0}
+        c1, c2, h1, h2 = gen_animal_data
+        animals = {'Herbivore': [h1, h2], 'Carnivore': [c1, c2]}
+        landscapes_dict = {'s': Savannah(animals, landscape_params),
+                           'o': Ocean(),
+                           'd': Desert(animals),
+                           'm': Mountain(),
+                           'j': Jungle(animals, landscape_params)}
+        return landscapes_dict
+
+    @pytest.fixture
+    def gen_map_data(self, gen_landscape_data):
+        pass
+
+    def test_string_to_np_array(self, gen_animal_data):
         map_str = """  OOOOOOOOOOOOOOOOOOOOO
                        OOOOOOOOSMMMMJJJJJJJO
                        OOOOOOOOOOOOOOOOOOOOO"""
-        h1 = Herbivore()
-        h1.fitness = 10
-        h2 = Herbivore()
-        h2.fitness = 20
-        c1 = Carnivore()
-        c1.fitness = 10
-        c2 = Carnivore()
-        c2.fitness = 20
-        animals = {'Carnivore': [c1, c2], 'Herbivore': [h1, h2]}
-        m = Map(map_str, animals)
+        m = Map(map_str, gen_animal_data)
         assert m.string_to_np_array()[0][0] == 'O'
         assert m.string_to_np_array()[1][10] == 'M'
         assert m.string_to_np_array()[2][20] == 'O'
+        assert type(m.string_to_np_array()).__name__ == 'ndarray'
 
 # def test_migrate(self):
 
