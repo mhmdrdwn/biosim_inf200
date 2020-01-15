@@ -12,33 +12,12 @@ __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 import pytest
-from biosim.landscapes import Landscape, Desert, Ocean, Mountain, Savannah, \
-    Jungle
+from biosim.landscapes import Desert, Ocean, Mountain, Savannah, Jungle
 from biosim.fauna import Herbivore, Carnivore
-# from biosim.map import Map
 from random import seed
-
-""" is it possible now to import just biosim.landscapes as landscapes
-since it's not conflicting with anything here"""
-
-
-# fixtures shall be used for tests
 
 
 class TestLandscapes:
-    def test_geogr_map(self):
-        pass
-        # the sea is surrounding the island, should it be here or
-        # simulation class
-
-    # def test_consume_fodder(self):
-    #  h = Herbivore()
-    # l = Landscapes()
-    # l.consume_fodder()
-    #  assert 0 < l.available_fodder < l.required_food
-    #  assert l.available_fodder == 0
-    # the initial amount is f_max
-
     @pytest.fixture
     def gen_animal_data(self):
         seed(1)
@@ -107,8 +86,6 @@ class TestLandscapes:
         # assert len(j.fauna_objects_dict['Carnivore']) == 3
         # assert weight_post_birth < weight_pre_birth
 
-    # here some other tests for other conditions of giving birth should be added after fixing the error
-
     def test_feed_herbivore(self, gen_landscape_data):
         s, d, j, o, m = gen_landscape_data
         dict_to_sort = s.fauna_objects_dict
@@ -143,16 +120,13 @@ class TestLandscapes:
         s.feed_carnivore()
         # its weight remains the same meaning it doesn't eat anything
 
-    def test_relevant_fodder(self):
-        h1 = Herbivore()
-        h1.weight = 10
-        h2 = Herbivore()
-        h2.weight = 20
-        c1 = Carnivore()
-        animals = {'Carnivore': [c1], 'Herbivore': [h1, h2]}
-        s = Savannah(animals)
-        assert s.relevant_fodder('Herbivore') == s._available_fodder
-        # assert s.relevant_fodder('Carnivore') == 30
+    def test_relevant_fodder(self, gen_landscape_data):
+        s, d, j, o, m = gen_landscape_data
+        assert s.relevant_fodder('Herbivore') == s.available_fodder
+        first_animal_weight = s.fauna_objects_dict['Herbivore'][0].weight
+        second_animal_weight = s.fauna_objects_dict['Herbivore'][1].weight
+        total_weight_herbivore = first_animal_weight + second_animal_weight
+        assert s.relevant_fodder('Carnivore') == total_weight_herbivore
 
     def test_calculate_relative_abundance_fodder(self):
         h1 = Herbivore()
