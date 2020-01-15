@@ -160,14 +160,16 @@ class TestDesert(TestLandscapes):
     # test of is accessible for all of the subclasses should be added.
     def test_no_fodder(self, gen_landscape_data):
         """No fodder available in the desert"""
-        s, d, j = gen_landscape_data
-        assert d.available_fodder == 0
+        o = gen_landscape_data['o']
+        assert o.available_fodder['Herbivore'] == 0
+        assert o.available_fodder['Carnivore'] == 0
 
 
 class TestOcean(TestLandscapes):
     def test_number_animals(self, gen_landscape_data):
-        s, d, j, o, m = gen_landscape_data
-        assert o.fauna_objects_dict is None
+        o = gen_landscape_data['o']
+        assert len(o.in_cell_fauna['Carnivore']) == 0
+        assert len(o.in_cell_fauna['Herbivore']) == 0
         # it should be changed in the Ocean Class. because when we pass an
         # empty list it is obviouse to get an empty list as a result!!
         with pytest.raises(ValueError) as err:
@@ -177,8 +179,9 @@ class TestOcean(TestLandscapes):
 
 class TestMountains(TestLandscapes):
     def test_number_animals(self, gen_landscape_data):
-        s, d, j, o, m = gen_landscape_data
-        assert m.fauna_objects_dict is None
+        m = gen_landscape_data['m']
+        assert len(m.in_cell_fauna['Carnivore']) == 0
+        assert len(m.in_cell_fauna['Herbivore']) == 0
         # it should be changed in the Mountain Class. because when we pass an
         # empty list it is obviouse to get an empty list as a result!!
         with pytest.raises(ValueError) as err:
@@ -208,6 +211,15 @@ class TestSavannah(TestLandscapes):
         alpha_post_change = s.parameters['alpha']
         assert alpha_post_change != alpha_pre_change
 
+    def test_grow_herbi_fodder(self, gen_landscape_data):
+        s = gen_landscape_data['s']
+        s.feed_herbivore()
+        fodder_pre_grow = s.available_fodder['Herbivore']
+        s.grow_herbi_fodder()
+        fodder_post_grow = s.available_fodder['Herbivore']
+        assert fodder_pre_grow < s.parameters['f_max']
+        assert fodder_post_grow == s.parameters['f_max']
+        assert fodder_post_grow == 10
 
 class TestJungle(TestLandscapes):
     def test_grow_fodder_yearly(self, gen_landscape_data):

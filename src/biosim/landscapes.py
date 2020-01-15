@@ -178,7 +178,7 @@ class Savannah(Landscape):
         # aviable fodder equals to f_max at the beginning of
         # instaniating anew object
 
-    def grow_fodder(self):
+    def grow_herb_fodder(self):
         # annual grow of the fodder
         self.available_fodder['Herbivore'] += self.parameters['alpha'] \
                                               * (self.parameters['f_max']
@@ -249,7 +249,7 @@ class Desert(Landscape):
 
 class Mountain(Landscape):
     available_fodder = {'Herbivore': 0, 'Carnivore': 0}
-    in_cell_fauna = {'Hernivore': [], 'Carnivore': []}
+    in_cell_fauna = {'Herbivore': [], 'Carnivore': []}
     is_accessible = False
 
     # That's because it's not changeable, so it's private variable, fixed
@@ -266,7 +266,7 @@ class Mountain(Landscape):
 
 class Ocean(Landscape):
     available_fodder = {'Herbivore': 0, 'Carnivore': 0}
-    in_cell_fauna = {'Hernivore': [], 'Carnivore': []}
+    in_cell_fauna = {'Herbivore': [], 'Carnivore': []}
     is_accessible = False
 
     # That's because it's not changeable, so it's private variable
