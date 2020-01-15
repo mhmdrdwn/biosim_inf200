@@ -7,10 +7,8 @@ __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 import math
-from biosim.fauna import Herbivore, Carnivore
 import operator
 import numpy as np
-from random import seed
 
 
 class Landscape:
@@ -69,8 +67,8 @@ class Landscape:
         if dist_cell.__class__.__name__ in ['Mountain', 'Ocean']:
             return 0
         else:
-            relevant_fodder = self.relative_abundance_fodder(animal, dist_cell)
-            return math.exp(relevant_fodder * animal.parameters['lambda'])
+            relevant_abun_fodder = self.relative_abundance_fodder(animal, dist_cell)
+            return math.exp(relevant_abun_fodder * animal.parameters['lambda'])
             # need to fix this spcies(), we need an object to be able to access
             # parameters
 
@@ -285,14 +283,3 @@ class Ocean(Landscape):
         # overwrite the object fauna_objects_list to be equals to empty list,
         # is that right?
 
-
-if __name__ == '__main__':
-    h1 = Herbivore()
-    h2 = Herbivore()
-    c1 = Carnivore()
-    c2 = Carnivore()
-    animals = {'Carnivore': [c1, c2], 'Herbivore': [h1, h2]}
-    s = Savannah(animals)
-    print(s.available_fodder)
-    o = Ocean()
-    print(o)

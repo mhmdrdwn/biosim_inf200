@@ -11,6 +11,8 @@ the provided modeling.
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
+import math
+
 import pytest
 from biosim.landscapes import Desert, Ocean, Mountain, Savannah, Jungle
 from biosim.fauna import Herbivore, Carnivore
@@ -144,17 +146,14 @@ class TestLandscapes:
     def test_propensity(self, gen_landscape_data):
         s, o, d, m, j = (gen_landscape_data[i]
                          for i in ('s', 'o', 'd', 'm', 'j'))
-        herbi_animal = s.fauna_objects_dict['Herbivore'][0]
-        carni_animal = s.fauna_objects_dict['Carnivore'][0]
-        assert s.propensity(herbi_animal, m) == 0
-        assert s.propensity(carni_animal, o) == 0
-        assert s.propensity(herbi_animal, j) == pytest.approx(
-            2.718281828459045)
-        assert s.propensity(herbi_animal, d) == 0
-        assert s.propensity(carni_animal, d) == pytest.approx(
-            1.1434419526158457)
-        assert s.propensity(carni_animal, j) == pytest.approx(
-            1.1434419526158457)
+        herb = s.in_cell_fauna['Herbivore'][0]
+        carn = s.in_cell_fauna['Carnivore'][0]
+        assert s.propensity(herb, m) == 0
+        assert s.propensity(carn, o) == 0
+        assert s.propensity(herb, j) == pytest.approx(1.3956124250860895)
+        assert s.propensity(herb, d) == math.exp(0)
+        assert s.propensity(carn, d) == pytest.approx(1.1434419526158457)
+        assert s.propensity(carn, j) == pytest.approx(1.1434419526158457)
 
 
 class TestDesert(TestLandscapes):
