@@ -14,14 +14,17 @@ from random import seed
 
 
 class Landscape:
-    def __init__(self, fauna_objects_dict):
-        self._available_fodder = 0
+    available_fodder = {}
+    parameters = {}
+
+    def __init__(self, in_cell_fauna):
         # those fauna list is given from the map, which was given earlier
         # from the simulation as initial animals and we append it to when
         # migration and birthing
-        self.fauna_objects_dict = fauna_objects_dict
+        self.in_cell_fauna = in_cell_fauna
         # that should be list of dicts
         self.sorted_fauna_fitness = {}
+
 
     def save_fitness(self, fauna_objects, species):
         # this is to update the current fitness to be able to use in
@@ -47,68 +50,51 @@ class Landscape:
         # all fitnesses is sorted for the animals in species, depends on the
         # parameters whether it should be sorted or reverse sorted
 
-    def relevant_fodder(self, species):
+    def relevant_fodder(self, animal, cell):
         # This is f_k
+        species = animal.__class__.__name__
         if species == 'Herbivore':
-            return self._available_fodder
+            return cell.available_fodder['Herbivore']
             # return amount of relevant fodder for the differnt animals species
         elif species == 'Carnivore':
             total_herbi_weight = 0
-            for herbivore in self.fauna_objects_dict['Herbivore']:
+            for herbivore in cell.in_cell_fauna['Herbivore']:
                 total_herbi_weight += herbivore.weight
             return total_herbi_weight
             # remember each time a carni move, number of herbi is
             # differnt in the cells, since they travel based on fitness
             # maybe a herbi is higher fitness
 
-    def relative_abundance_fodder(self, animal):
+    def relative_abundance_fodder(self, animal, dist_cell):
         key = animal.__class__.__name__
-        return self.relevant_fodder(key) / (
-                (len(self.fauna_objects_dict[key]) + 1) *
+        return self.relevant_fodder(key, dist_cell) / (
+                (len(self.in_cell_fauna[key]) + 1) *
                 animal.parameters['F'])
         # we instantiate object of teh species given and get F from it
         # maybe there is error here
 
-    def propensity_to_which_cell(self, animal, distination_cell):
-        distination_landscape = distination_cell.__class__
-        if distination_landscape.__name__ in ['Mountain', 'Ocean']:
+    def propensity(self, animal, dist_cell):
+        if dist_cell.__class__.__name__ in ['Mountain', 'Ocean']:
             return 0
         else:
-            relevant_fodder = self.relative_abundance_fodder(animal)
+            relevant_fodder = self.relative_abundance_fodder(animal, dist_cell)
             return math.exp(relevant_fodder * animal.parameters['lambda'])
             # need to fix this spcies(), we need an object to be able to access
             # parameters
 
-    def probability_to_which_cell(self, animal_object, distination_cell,
-                                  adj_cells):
-        total_propensity = 0
-        for cell in adj_cells:
-            total_propensity += self.propensity_to_which_cell(animal_object,
-                                                              distination_cell)
-        return self.propensity_to_which_cell(animal_object,
-                                             distination_cell) / total_propensity
-        # this is the rule of probablity
-
-        # if animal_object.parameters['lambda'] == 0:
-        # all possible distination will be cjosen with equal probablity
-        # elif animal_object.parameters['lambda'] == 0:
-        # animals will go to cell with greater abundance of food
-        # else:
-        # animals will turn away from food
-
     def add_fauna(self, animal):
         key = animal.__class__.__name__
-        self.fauna_objects_dict[key].append(animal)
+        self.in_cell_fauna[key].append(animal)
 
     def remove_fauna(self, animal):
         key = animal.__class__.__name__
-        self.fauna_objects_dict[key].remove(animal)
+        self.in_cell_fauna[key].remove(animal)
 
     def mate(self, fauna_object):
         # now change the population of the cell
         # decrease the weight of the mother
         species = fauna_object.__class__
-        num_fauna = len(self.fauna_objects_dict[species.__name__])
+        num_fauna = len(self.in_cell_fauna[species.__name__])
         if np.random.random() > fauna_object.birth_probablity(num_fauna):
             # if that random number is bigger than that probablity it should
             # give birth, or create new baby, or object of animal
@@ -127,7 +113,7 @@ class Landscape:
     def feed_herbivore(self):
         # that should return the amount of food that is going to be
         # eaten by all animals in celll
-        self.sort_by_fitness(self.fauna_objects_dict, 'Herbivore')
+        self.sort_by_fitness(self.in_cell_fauna, 'Herbivore')
         # we need to sort animals by fitness prior to the eating, and the
         # animals with highest fitness eats first
         for herbivore in self.sorted_fauna_fitness['Herbivore']:
@@ -137,8 +123,8 @@ class Landscape:
             # eat method is amethod in Fauna class
             # change the amount of avialable fadder in landscape after animal eats
             # eaten_food = 0
-
-            if self._available_fodder == 0:
+            herb_available_fodder = self.available_fodder['Herbivore']
+            if herb_available_fodder == 0:
                 break
                 # break the for-loop to save computation cost becuase it's no
                 # longer effective to iterate through it and they will not
@@ -147,20 +133,21 @@ class Landscape:
                 # self._available_fodder = 0
                 # last else statment is not required, so we can remove it and add
                 # it to the elif
-            elif self._available_fodder >= herbivore.parameters['F']:
+            elif herb_available_fodder >= herbivore.parameters['F']:
                 # animals eat what he required
                 amount_to_eat = herbivore.parameters['F']
                 herbivore.eat(amount_to_eat)
-                self._available_fodder -= amount_to_eat
-            elif 0 < self._available_fodder < herbivore.parameters['F']:
+                self.available_fodder['Herbivore'] -= amount_to_eat
+            elif 0 < herb_available_fodder < herbivore.parameters['F']:
                 # animals eat what is left
-                amount_to_eat = self._available_fodder
+                amount_to_eat = self.available_fodder['Herbivore']
                 herbivore.eat(amount_to_eat)
-                self._available_fodder = 0
+                self.available_fodder['Herbivore'] = 0
+
 
     def feed_carnivore(self):
-        self.sort_by_fitness(self.fauna_objects_dict, 'Carnivore')
-        self.sort_by_fitness(self.fauna_objects_dict, 'Herbivore', False)
+        self.sort_by_fitness(self.in_cell_fauna, 'Carnivore')
+        self.sort_by_fitness(self.in_cell_fauna, 'Herbivore', False)
         # reverse order the carnivore by fitness and sort the herbivore
         for carnivore in self.sorted_fauna_fitness['Carnivore']:
             # carbivore with highest fitness will kill the lowest fitness
@@ -185,29 +172,28 @@ class Landscape:
                         elif weight_to_eat < carnivore.parameters['F']:
                             carnivore.eat(weight_to_eat)
 
-    @property
-    def available_fodder(self):
-        return self._available_fodder
-
 
 class Savannah(Landscape):
     is_accessible = True
     parameters = {'f_max': 300.0, 'alpha': 0.3}
 
-    def __init__(self, fauna_objects_dict, given_parameters=None):
-        super().__init__(fauna_objects_dict)
+    def __init__(self, in_cell_fauna, given_parameters=None):
+        super().__init__(in_cell_fauna)
         if given_parameters is not None:
             self.set_given_parameters(given_parameters)
         self.parameters = Savannah.parameters
-        self._available_fodder = self.parameters['f_max']
+        self.available_fodder['Herbivore'] = self.parameters['f_max']
+        total_herb_weight = sum(i.weight for i in
+                                self.in_cell_fauna['Herbivore'])
+        self.available_fodder['Carnivore'] = total_herb_weight
         # aviable fodder equals to f_max at the beginning of
         # instaniating anew object
 
     def grow_fodder(self):
         # annual grow of the fodder
-        self._available_fodder += self.parameters['alpha'] \
+        self.available_fodder['Herbivore'] += self.parameters['alpha'] \
                                   * (self.parameters['f_max']
-                                     - self._available_fodder)
+                                     - self.available_fodder['Herbivore'])
 
     @staticmethod
     def set_given_parameters(given_parameters):
@@ -231,12 +217,14 @@ class Jungle(Landscape):
         if given_parameters is not None:
             self.set_given_parameters(given_parameters)
         self.parameters = Jungle.parameters
-        self._available_fodder = self.parameters['f_max']
+        self.available_fodder['Herbivore'] = self.parameters['f_max']
+        total_herb_weight = sum(i.weight for i in self.in_cell_fauna['Herbivore'])
+        self.available_fodder['Carnivore'] = total_herb_weight
         # amount of initial fodder aviable should equals to f_max
 
-    def grow_fodder(self):
+    def grow_herb_fodder(self):
         # annual grow of the fadder
-        self._available_fodder = self.parameters['f_max']
+        self.available_fodder['Herbivore'] = self.parameters['f_max']
 
     @staticmethod
     def set_given_parameters(given_parameters):
@@ -253,18 +241,21 @@ class Jungle(Landscape):
 
 class Desert(Landscape):
     is_accessible = True
-    available_fodder = 0
 
-    def __init__(self, fauna_objects_list):
-        super().__init__(fauna_objects_list)
-        self._available_fodder = Desert.available_fodder
+    def __init__(self, in_cell_fauna):
+        super().__init__(in_cell_fauna)
+
+        self.in_cell_fauna = in_cell_fauna
+        self.available_fodder['Herbivore'] = 0
+        total_herb_weight = sum(i.weight for i in self.in_cell_fauna['Herbivore'])
+        self.available_fodder['Carnivore'] = total_herb_weight
         # should we move aviable_fodder to the class level
         # That's because it's not changeable, so it's private variable
 
 
 class Mountain(Landscape):
-    available_fodder = 0
-    fauna_objects_dict = None
+    available_fodder = {'Herbivore': 0, 'Carnivore': 0}
+    in_cell_fauna = {'Hernivore': [], 'Carnivore': []}
     is_accessible = False
 
     # That's because it's not changeable, so it's private variable, fixed
@@ -276,86 +267,37 @@ class Mountain(Landscape):
                              'this parameter has to be empty')
         super().__init__(fauna_objects_dict)
         self.available_fodder = Mountain.available_fodder
-        self.fauna_objects_dict = Mountain.fauna_objects_dict
+        self.in_cell_fauna = Mountain.in_cell_fauna
 
 
 class Ocean(Landscape):
-    available_fodder = 0
-    fauna_objects_dict = None
+    available_fodder = {'Herbivore': 0, 'Carnivore': 0}
+    in_cell_fauna = {'Hernivore': [], 'Carnivore': []}
     is_accessible = False
 
     # That's because it's not changeable, so it's private variable
     # those are instance variables becuase they are fixed for all
     # instances of the class, meaning if those value changes, they will
     # chnaged in all instances of the variables
-    def __init__(self, fauna_objects_dict=None):
-        super().__init__(fauna_objects_dict)
-        if fauna_objects_dict is not None:
+    def __init__(self, in_cell_fauna=None):
+        super().__init__(in_cell_fauna)
+        if in_cell_fauna is not None:
             raise ValueError('Animals can\'t be set on Ocean, '
                              'this parameter has to be empty')
         self.available_fodder = Ocean.available_fodder
-        self.fauna_objects_list = Ocean.fauna_objects_dict
+        self.in_cell_fauna = Ocean.in_cell_fauna
         # overwrite the object fauna_objects_list to be equals to empty list,
         # is that right?
 
 
 if __name__ == '__main__':
-    # basic random test, we need advanced tests
-    c_params = {'w_birth': 4.0, 'sigma_birth': 1.7}
-    h_params = {'w_birth': 2.0, 'sigma_birth': 1.5}
-    seed(1)
-    c = Carnivore(c_params)
-    seed(1)
-    h = Herbivore(h_params)
-    print(c.weight)
-    print(h.weight)
 
-    h_params = {'w_birth': 2.0, 'sigma_birth': 1.5, 'phi_age': 0.3,
-                'phi_weight': 0.5, 'a_half': 40, 'w_half': 10}
-    c_params = {'w_birth': 4.0, 'sigma_birth': 1.7, 'phi_age': 0.4,
-                'phi_weight': 0.6, 'a_half': 60, 'w_half': 10}
-    seed(1)
-    h1 = Herbivore(h_params)
-    seed(1)
-    h2 = Herbivore(h_params)
-    seed(1)
-    c1 = Carnivore(c_params)
-    seed(1)
-    c2 = Carnivore(c_params)
-    print(h2.fitness)
-    print(c2.fitness)
+    h1 = Herbivore()
+    h2 = Herbivore()
+    c1 = Carnivore()
+    c2 = Carnivore()
     animals = {'Carnivore': [c1, c2], 'Herbivore': [h1, h2]}
     s = Savannah(animals)
-    print('animals in savannah ' + str(s.fauna_objects_dict))
-    print('amount of fodder in savannah ' + str(s.available_fodder))
-    s.grow_fodder()
-    print('amount of fodder in savannah ' + str(s.available_fodder))
-    print('###### Ordering prints ######')
-    # s.order_by_fitness(animals, 'Herbivore', False)
-    # s.order_by_fitness(animals, 'Carnivore')
-    # s.order_by_fitness(animals, 'Herbivore')
-    # print('sorted fitness dict before eating '+str(s.sorted_fauna_fitness))
-    # s.herbivore_eat()
-    s.carnivore_eat()
-    print('sorted fitness dict after eating ' + str(s.sorted_fauna_fitness))
-    print('###############################################')
-
-    j = Jungle(animals)
-    print(j.fauna_objects_dict)
-    print(j.available_fodder)
-    j.grow_fodder()
-    print(j.available_fodder)
-    print('###########')
-    o = Ocean(animals)
-    print("ocean " + str(o.fauna_objects_list))
-    print(o.available_fodder)
-    d = Desert(animals)
-    # d.grow_fodder_annual()
-    print(d.available_fodder)
-    print('###########')
-    print(d.fauna_objects_dict)
-    print(d.available_fodder)
-    print('###########')
-    m = Mountain(animals)
-    print(m.fauna_objects_dict)
-    print(m.available_fodder)
+    print(s.available_fodder)
+    o = Ocean()
+    print(o)

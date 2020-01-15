@@ -46,6 +46,23 @@ class Map:
     def adj_cells(self):
         pass
 
+    def probability_to_certain_cell(self, animal_object, distination_cell,
+                                  adj_cells):
+        total_propensity = 0
+        for cell in adj_cells:
+            total_propensity += self.propensity(animal_object,
+                                                              distination_cell)
+        return self.propensity(animal_object,
+                                             distination_cell) / total_propensity
+        # this is the rule of probablity
+
+        # if animal_object.parameters['lambda'] == 0:
+        # all possible distination will be cjosen with equal probablity
+        # elif animal_object.parameters['lambda'] == 0:
+        # animals will go to cell with greater abundance of food
+        # else:
+        # animals will turn away from food
+
     def migrate(self):
         map = self.create_map_dict()
         rows = map.shape[0]

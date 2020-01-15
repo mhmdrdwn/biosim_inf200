@@ -30,7 +30,7 @@ class TestLandscapes:
 
     @pytest.fixture
     def gen_landscape_data(self, gen_animal_data):
-        landscape_params = {'f_max': 30.0}
+        landscape_params = {'f_max': 10.0}
         c1, c2, h1, h2 = gen_animal_data
         animals = {'Herbivore': [h1, h2], 'Carnivore': [c1, c2]}
         landscapes_dict = {'s': Savannah(animals, landscape_params),
@@ -42,17 +42,17 @@ class TestLandscapes:
 
     def test_save_fitness(self, gen_landscape_data):
         s = gen_landscape_data['s']
-        s.save_fitness(s.fauna_objects_dict, 'Herbivore')
+        s.save_fitness(s.in_cell_fauna, 'Herbivore')
         assert len(s.sorted_fauna_fitness) == 1
         assert 'Herbivore' in s.sorted_fauna_fitness.keys()
         assert len(s.sorted_fauna_fitness['Herbivore']) == 2
-        s.save_fitness(s.fauna_objects_dict, 'Carnivore')
+        s.save_fitness(s.in_cell_fauna, 'Carnivore')
         assert len(s.sorted_fauna_fitness) == 2
         assert 'Carnivore' in s.sorted_fauna_fitness.keys()
 
     def test_sort_fitness(self, gen_landscape_data):
         s = gen_landscape_data['s']
-        dict_to_sort = s.fauna_objects_dict
+        dict_to_sort = s.in_cell_fauna
         s.sort_by_fitness(dict_to_sort, 'Herbivore', False)
         dict_values = s.sorted_fauna_fitness['Herbivore'].values()
         assert list(dict_values)[0] <= list(dict_values)[1]
@@ -62,21 +62,21 @@ class TestLandscapes:
 
     def test_add_and_remove_fauna(self, gen_landscape_data):
         s, d = (gen_landscape_data[i] for i in ('s', 'd'))
-        assert len(s.fauna_objects_dict['Carnivore'] + s.fauna_objects_dict[
+        assert len(s.in_cell_fauna['Carnivore'] + s.in_cell_fauna[
             'Herbivore']) == 4
-        assert len(d.fauna_objects_dict['Herbivore']) == 2
-        assert len(d.fauna_objects_dict['Carnivore']) == 2
+        assert len(d.in_cell_fauna['Herbivore']) == 2
+        assert len(d.in_cell_fauna['Carnivore']) == 2
         h3 = Herbivore()
         s.add_fauna(h3)
-        assert len(s.fauna_objects_dict['Carnivore'] + s.fauna_objects_dict[
+        assert len(s.in_cell_fauna['Carnivore'] + s.in_cell_fauna[
             'Herbivore']) == 5
         s.remove_fauna(h3)
-        assert len(s.fauna_objects_dict['Carnivore'] + s.fauna_objects_dict[
+        assert len(s.in_cell_fauna['Carnivore'] + s.in_cell_fauna[
             'Herbivore']) == 4
 
     def test_mate(self, gen_landscape_data):
         j = gen_landscape_data['j']
-        mate_animal = j.fauna_objects_dict['Carnivore'][0]
+        mate_animal = j.in_cell_fauna['Carnivore'][0]
         mate_animal.eat(50)
         mate_animal.eat(50)
         # increase the weight of animal
@@ -88,30 +88,30 @@ class TestLandscapes:
 
     def test_feed_herbivore(self, gen_landscape_data):
         s, d = (gen_landscape_data[i] for i in ('s', 'd'))
-        dict_to_sort = s.fauna_objects_dict
+        dict_to_sort = s.in_cell_fauna
         s.sort_by_fitness(dict_to_sort, 'Herbivore')
         dict_keys = s.sorted_fauna_fitness['Herbivore'].keys()
         h1_higher_fitness = list(dict_keys)[0]
         h2_lower_fitness = list(dict_keys)[1]
         h1_weight_pre_eat = h1_higher_fitness.weight
         h2_weight_pre_eat = h2_lower_fitness.weight
-        assert s.available_fodder > 0
+        assert s.available_fodder['Herbivore'] > 0
         s.feed_herbivore()
-        assert s.available_fodder == 0
+        assert s.available_fodder['Herbivore'] == 0
         h1_weight_post_eat = h1_higher_fitness.weight
         h2_weight_post_eat = h2_lower_fitness.weight
         assert h1_weight_post_eat > h1_weight_pre_eat
         assert h2_weight_post_eat == h2_weight_pre_eat
 
-        h1 = d.fauna_objects_dict['Herbivore'][0]
-        h2 = d.fauna_objects_dict['Herbivore'][1]
+        h1 = d.in_cell_fauna['Herbivore'][0]
+        h2 = d.in_cell_fauna['Herbivore'][1]
         h1_weight_pre_eat = h1.weight
         h2_weight_pre_eat = h2.weight
-        assert d.available_fodder == 0
+        assert d.available_fodder['Herbivore'] == 0
         d.feed_herbivore()
         h1_weight_post_eat = h1.weight
         h2_weight_post_eat = h2.weight
-        assert d.available_fodder == 0
+        assert d.available_fodder['Herbivore'] == 0
         assert h1_weight_post_eat == h1_weight_pre_eat
         assert h2_weight_post_eat == h2_weight_pre_eat
 
@@ -121,20 +121,20 @@ class TestLandscapes:
         # its weight remains the same meaning it doesn't eat anything
 
     def test_relevant_fodder(self, gen_landscape_data):
-        s = gen_landscape_data['s']
-        assert s.relevant_fodder('Herbivore') == s.available_fodder
-        assert s.relevant_fodder('Herbivore') == 30
-        first_animal_weight = s.fauna_objects_dict['Herbivore'][0].weight
-        second_animal_weight = s.fauna_objects_dict['Herbivore'][1].weight
-        total_weight_herbivore = first_animal_weight + second_animal_weight
-        assert s.relevant_fodder('Carnivore') == total_weight_herbivore
-        assert s.relevant_fodder('Carnivore') == pytest.approx(
+        s, d, j = (gen_landscape_data[i] for i in ('s', 'd', 'j'))
+        animal_1 = d.fauna_objects_dict['Herbivore'][0]
+        animal_2 = d.fauna_objects_dict['Herbivore'][1]
+        assert s.relevant_fodder(animal_1, j) == j.available_fodder
+        assert s.relevant_fodder(animal_1, d) == 0
+        total_weight_herbivore = animal_1.weight + animal_2.weight
+        assert s.relevant_fodder('Carnivore', d) == total_weight_herbivore
+        assert s.relevant_fodder('Carnivore', d) == pytest.approx(
             20.10644554278285)
 
     def test_relative_abundance_fodder(self, gen_landscape_data):
         s = gen_landscape_data['s']
-        herbi_animal = s.fauna_objects_dict['Herbivore'][0]
-        carni_animal = s.fauna_objects_dict['Carnivore'][0]
+        herbi_animal = s.in_cell_fauna['Herbivore'][0]
+        carni_animal = s.in_cell_fauna['Carnivore'][0]
         assert s.relative_abundance_fodder(herbi_animal) == 1
         assert s.relative_abundance_fodder(carni_animal) == pytest.approx(
             0.134042970285219)
@@ -144,37 +144,15 @@ class TestLandscapes:
                          for i in ('s', 'o', 'd', 'm', 'j'))
         herbi_animal = s.fauna_objects_dict['Herbivore'][0]
         carni_animal = s.fauna_objects_dict['Carnivore'][0]
-        assert s.propensity_to_which_cell(herbi_animal, m) == 0
-        assert s.propensity_to_which_cell(carni_animal, o) == 0
-        assert s.propensity_to_which_cell(herbi_animal, j) == pytest.approx(
+        assert s.propensity(herbi_animal, m) == 0
+        assert s.propensity(carni_animal, o) == 0
+        assert s.propensity(herbi_animal, j) == pytest.approx(
             2.718281828459045)
-        assert s.propensity_to_which_cell(herbi_animal, d) == pytest.approx(
-            2.718281828459045)
-        assert s.propensity_to_which_cell(carni_animal, j) == pytest.approx(
+        assert s.propensity(herbi_animal, d) == 0
+        assert s.propensity(carni_animal, d) == pytest.approx(
             1.1434419526158457)
-
-    def test_probability(self):
-        h1 = Herbivore()
-        h1.weight = 20
-        h2 = Herbivore()
-        h2.weight = 30
-        c1 = Carnivore()
-        animals = {'Carnivore': [c1], 'Herbivore': [h1, h2]}
-        l = Landscapes(animals)
-        map_str = """
-        OOOOOOOOOOOOOOOOOOOOO
-        OOOOOOOOSJJMMJJJJJJJO
-        OOOOOOOOOOOOOOOOOOOOO"""
-
-        m = Map(map_str, animals)
-        map = m.create_map_dict()
-        x = map.shape[1]
-        y = map.shape[10]
-        adj_cells = [map[x - 1, y], map[x + 1, y], map[x, y - 1],
-                     map[x, y + 1]]
-        l.probability_to_which_cell(animals, 'Jungle',
-                                    adj_cells)
-
+        assert s.propensity(carni_animal, j) == pytest.approx(
+            1.1434419526158457)
 
 class TestDesert(TestLandscapes):
     # test of is accessible for all of the subclasses should be added.
