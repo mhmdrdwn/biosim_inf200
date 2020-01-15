@@ -133,26 +133,25 @@ class TestLandscapes:
 
     def test_relative_abundance_fodder(self, gen_landscape_data):
         s = gen_landscape_data['s']
-        herbi_object = s.fauna_objects_dict['Herbivore'][0]
-        carni_object = s.fauna_objects_dict['Carnivore'][0]
-        assert s.relative_abundance_fodder(herbi_object) == 1
-        assert s.relative_abundance_fodder(carni_object) == pytest.approx(
+        herbi_animal = s.fauna_objects_dict['Herbivore'][0]
+        carni_animal = s.fauna_objects_dict['Carnivore'][0]
+        assert s.relative_abundance_fodder(herbi_animal) == 1
+        assert s.relative_abundance_fodder(carni_animal) == pytest.approx(
             0.134042970285219)
 
-    def test_propensity(self):
-        h1 = Herbivore()
-        h1.weight = 20
-        h2 = Herbivore()
-        h2.weight = 30
-        c1 = Carnivore()
-        animals = {'Carnivore': [c1], 'Herbivore': [h1, h2]}
-        l = Landscapes(animals)
-        assert l.propensity_to_which_cell(Herbivore, 'Mountain') == 0
-        assert l.propensity_to_which_cell(Carnivore, 'Ocean') == 0
-
-        assert l.propensity_to_which_cell(Carnivore, 'Jungle') == 1.6487212707
-        assert l.propensity_to_which_cell(Herbivore, 'Desert') == 1
-        assert l.propensity_to_which_cell(Herbivore, 'Jungle') == 381229223140
+    def test_propensity(self, gen_landscape_data):
+        s, o, d, m, j = (gen_landscape_data[i]
+                         for i in ('s', 'o', 'd', 'm', 'j'))
+        herbi_animal = s.fauna_objects_dict['Herbivore'][0]
+        carni_animal = s.fauna_objects_dict['Carnivore'][0]
+        assert s.propensity_to_which_cell(herbi_animal, m) == 0
+        assert s.propensity_to_which_cell(carni_animal, o) == 0
+        assert s.propensity_to_which_cell(herbi_animal, j) == pytest.approx(
+            2.718281828459045)
+        assert s.propensity_to_which_cell(herbi_animal, d) == pytest.approx(
+            2.718281828459045)
+        assert s.propensity_to_which_cell(carni_animal, j) == pytest.approx(
+            1.1434419526158457)
 
     def test_probability(self):
         h1 = Herbivore()

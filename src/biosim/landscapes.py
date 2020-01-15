@@ -69,14 +69,13 @@ class Landscape:
         # we instantiate object of teh species given and get F from it
         # maybe there is error here
 
-    def propensity_to_which_cell(self, animal_object, distination_cell):
-        if distination_cell == 'Mountain' or j == 'Ocean':
+    def propensity_to_which_cell(self, animal, distination_cell):
+        distination_landscape = distination_cell.__class__
+        if distination_landscape.__name__ in ['Mountain', 'Ocean']:
             return 0
         else:
-            relevant_fodder = self.relative_abundance_fodder(
-                animal_object)
-            return math.exp(
-                relevant_fodder * animal_object.parameters['lambda'])
+            relevant_fodder = self.relative_abundance_fodder(animal)
+            return math.exp(relevant_fodder * animal.parameters['lambda'])
             # need to fix this spcies(), we need an object to be able to access
             # parameters
 
