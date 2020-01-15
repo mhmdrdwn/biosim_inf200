@@ -126,36 +126,40 @@ class TestLandscapes:
         s, d, j = (gen_landscape_data[i] for i in ('s', 'd', 'j'))
         herb = d.in_cell_fauna['Herbivore'][0]
         carn = d.in_cell_fauna['Carnivore'][0]
-        assert s.relevant_fodder(herb, j) == j.available_fodder['Herbivore']
-        assert s.relevant_fodder(herb, d) == d.available_fodder['Herbivore']
-        assert s.relevant_fodder(herb, d) == 0
-        assert s.relevant_fodder(carn, d) == s.available_fodder['Carnivore']
-        assert s.relevant_fodder(carn, d) == pytest.approx(
+        assert j.relevant_fodder(herb) == j.available_fodder['Herbivore']
+        assert d.relevant_fodder(herb) == d.available_fodder['Herbivore']
+        assert d.relevant_fodder(herb) == 0
+        assert d.relevant_fodder(carn) == s.available_fodder['Carnivore']
+        assert d.relevant_fodder(carn) == pytest.approx(
             20.10644554278285)
 
     def test_relative_abundance_fodder(self, gen_landscape_data):
         s, o, d = (gen_landscape_data[i] for i in ('s', 'o', 'd'))
         herb = s.in_cell_fauna['Herbivore'][0]
         carn = s.in_cell_fauna['Carnivore'][0]
-        assert s.relative_abundance_fodder(herb, d) == 0
-        assert s.relative_abundance_fodder(herb, o) == 0
-        assert s.relative_abundance_fodder(carn, d) == pytest.approx(
-            0.134042970285219)
-        assert s.relative_abundance_fodder(carn, o) == 0
+        assert d.relative_abundance_fodder(herb) == 0
+        assert s.relative_abundance_fodder(herb) == \
+               pytest.approx(0.3333333333333333)
+        assert o.relative_abundance_fodder(herb) == 0
+        assert d.relative_abundance_fodder(carn) == \
+               pytest.approx(0.134042970285219)
 
     def test_propensity(self, gen_landscape_data):
         s, o, d, m, j = (gen_landscape_data[i]
                          for i in ('s', 'o', 'd', 'm', 'j'))
         herb = s.in_cell_fauna['Herbivore'][0]
         carn = s.in_cell_fauna['Carnivore'][0]
-        assert s.propensity(herb, m) == 0
-        assert s.propensity(carn, o) == 0
-        assert s.propensity(herb, j) == pytest.approx(1.3956124250860895)
-        assert s.propensity(herb, d) == math.exp(0)
-        assert s.propensity(carn, d) == pytest.approx(1.1434419526158457)
-        assert s.propensity(carn, j) == pytest.approx(1.1434419526158457)
+        assert m.propensity(herb) == 0
+        assert o.propensity(carn) == 0
+        assert j.propensity(herb) == pytest.approx(1.3956124250860895)
+        assert d.propensity(herb) == math.exp(0)
+        assert d.propensity(carn) == pytest.approx(1.1434419526158457)
+        assert j.propensity(carn) == pytest.approx(1.1434419526158457)
 
-
+    def test_probability_cell(self, gen_landscape_data):
+        s, o, d, m, j = (gen_landscape_data[i]
+                         for i in ('s', 'o', 'd', 'm', 'j'))
+        #s.prob
 class TestDesert(TestLandscapes):
     # test of is accessible for all of the subclasses should be added.
     def test_no_fodder(self, gen_landscape_data):

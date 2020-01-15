@@ -47,30 +47,45 @@ class Landscape:
         # all fitnesses is sorted for the animals in species, depends on the
         # parameters whether it should be sorted or reverse sorted
 
-    def relevant_fodder(self, animal, cell):
+    def relevant_fodder(self, animal):
         # This is f_k
         species = animal.__class__.__name__
-        return cell.available_fodder[species]
+        return self.available_fodder[species]
         # remember each time a carni move, number of herbi is
         # differnt in the cells, since they travel based on fitness
         # maybe a herbi is higher fitness
 
-    def relative_abundance_fodder(self, animal, dist_cell):
-        key = animal.__class__.__name__
-        return self.relevant_fodder(animal, dist_cell) / (
-                (len(self.in_cell_fauna[key]) + 1) *
+    def relative_abundance_fodder(self, animal):
+        species = animal.__class__.__name__
+        return self.relevant_fodder(animal) / (
+                (len(self.in_cell_fauna[species]) + 1) *
                 animal.parameters['F'])
         # we instantiate object of teh species given and get F from it
         # maybe there is error here
 
-    def propensity(self, animal, dist_cell):
-        if dist_cell.__class__.__name__ in ['Mountain', 'Ocean']:
+    def propensity(self, animal):
+        if isinstance(self, (Mountain, Ocean)):
             return 0
         else:
-            relevant_abun_fodder = self.relative_abundance_fodder(animal, dist_cell)
+            relevant_abun_fodder = \
+                self.relative_abundance_fodder(animal)
             return math.exp(relevant_abun_fodder * animal.parameters['lambda'])
             # need to fix this spcies(), we need an object to be able to access
             # parameters
+
+    #def probability_of_cell(self, animal, cell, adj_cells):
+        #total_propensity = 0
+        #for adj_cell in adj_cells:
+        #    total_propensity += self.propensity(animal, adj_cell)
+        #return self.propensity(animal, cell) / total_propensity
+        # this is the rule of probablity
+
+        # if animal_object.parameters['lambda'] == 0:
+        # all possible distination will be cjosen with equal probablity
+        # elif animal_object.parameters['lambda'] == 0:
+        # animals will go to cell with greater abundance of food
+        # else:
+        # animals will turn away from food
 
     def add_fauna(self, animal):
         key = animal.__class__.__name__
@@ -80,21 +95,21 @@ class Landscape:
         key = animal.__class__.__name__
         self.in_cell_fauna[key].remove(animal)
 
-    def mate(self, fauna_object):
+    def mate(self, animal):
         # now change the population of the cell
         # decrease the weight of the mother
-        species = fauna_object.__class__
+        species = animal.__class__
         num_fauna = len(self.in_cell_fauna[species.__name__])
-        if np.random.random() > fauna_object.birth_probablity(num_fauna):
+        if np.random.random() > animal.birth_probablity(num_fauna):
             # if that random number is bigger than that probablity it should
             # give birth, or create new baby, or object of animal
             baby = species()
-            if fauna_object.weight < baby.parameters['w_birth'] * \
+            if animal.weight < baby.parameters['w_birth'] * \
                     baby.parameters['xi']:
                 # it gives birth only if its weight is more than the the
                 # weight to be losed
                 self.add_fauna(baby)
-                fauna_object.give_birth(baby)
+                animal.give_birth(baby)
                 # that's still wrong becuase it's with the weight of the baby
             else:
                 pass
