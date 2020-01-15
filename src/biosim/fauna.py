@@ -14,6 +14,7 @@ from random import seed
 
 class Fauna:
     #this should be a base class
+    parameters = {}
     def __init__(self):
         """
 

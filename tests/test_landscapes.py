@@ -33,15 +33,15 @@ class TestLandscapes:
         landscape_params = {'f_max': 30.0}
         c1, c2, h1, h2 = gen_animal_data
         animals = {'Herbivore': [h1, h2], 'Carnivore': [c1, c2]}
-        s = Savannah(animals, landscape_params)
-        o = Ocean()
-        d = Desert(animals)
-        m = Mountain()
-        j = Jungle(animals, landscape_params)
-        return s, d, j, o, m
+        landscapes_dict = {'s': Savannah(animals, landscape_params),
+                           'o': Ocean(),
+                           'd': Desert(animals),
+                           'm': Mountain(),
+                           'j': Jungle(animals, landscape_params)}
+        return landscapes_dict
 
     def test_save_fitness(self, gen_landscape_data):
-        s, d, j, o, m = gen_landscape_data
+        s = gen_landscape_data['s']
         s.save_fitness(s.fauna_objects_dict, 'Herbivore')
         assert len(s.sorted_fauna_fitness) == 1
         assert 'Herbivore' in s.sorted_fauna_fitness.keys()
@@ -51,7 +51,7 @@ class TestLandscapes:
         assert 'Carnivore' in s.sorted_fauna_fitness.keys()
 
     def test_sort_fitness(self, gen_landscape_data):
-        s, d, j, o, m = gen_landscape_data
+        s = gen_landscape_data['s']
         dict_to_sort = s.fauna_objects_dict
         s.sort_by_fitness(dict_to_sort, 'Herbivore', False)
         dict_values = s.sorted_fauna_fitness['Herbivore'].values()
@@ -61,7 +61,7 @@ class TestLandscapes:
         assert list(dict_values)[0] >= list(dict_values)[1]
 
     def test_add_and_remove_fauna(self, gen_landscape_data):
-        s, d, j, o, m = gen_landscape_data
+        s, d = (gen_landscape_data[i] for i in ('s', 'd'))
         assert len(s.fauna_objects_dict['Carnivore'] + s.fauna_objects_dict[
             'Herbivore']) == 4
         assert len(d.fauna_objects_dict['Herbivore']) == 2
@@ -75,7 +75,7 @@ class TestLandscapes:
             'Herbivore']) == 4
 
     def test_mate(self, gen_landscape_data):
-        s, d, j, o, m = gen_landscape_data
+        j = gen_landscape_data['j']
         mate_animal = j.fauna_objects_dict['Carnivore'][0]
         mate_animal.eat(50)
         mate_animal.eat(50)
@@ -87,7 +87,7 @@ class TestLandscapes:
         # assert weight_post_birth < weight_pre_birth
 
     def test_feed_herbivore(self, gen_landscape_data):
-        s, d, j, o, m = gen_landscape_data
+        s, d = (gen_landscape_data[i] for i in ('s', 'd'))
         dict_to_sort = s.fauna_objects_dict
         s.sort_by_fitness(dict_to_sort, 'Herbivore')
         dict_keys = s.sorted_fauna_fitness['Herbivore'].keys()
@@ -116,32 +116,26 @@ class TestLandscapes:
         assert h2_weight_post_eat == h2_weight_pre_eat
 
     def test_feed_carnivore(self, gen_landscape_data):
-        s, d, j, o, m = gen_landscape_data
+        s, d = (gen_landscape_data[i] for i in ('s', 'd'))
         s.feed_carnivore()
         # its weight remains the same meaning it doesn't eat anything
 
     def test_relevant_fodder(self, gen_landscape_data):
-        s, d, j, o, m = gen_landscape_data
+        s = gen_landscape_data['s']
         assert s.relevant_fodder('Herbivore') == s.available_fodder
+        assert s.relevant_fodder('Herbivore') == 30
         first_animal_weight = s.fauna_objects_dict['Herbivore'][0].weight
         second_animal_weight = s.fauna_objects_dict['Herbivore'][1].weight
         total_weight_herbivore = first_animal_weight + second_animal_weight
         assert s.relevant_fodder('Carnivore') == total_weight_herbivore
+        assert s.relevant_fodder('Carnivore') == pytest.approx(
+            20.10644554278285)
 
-    def test_calculate_relative_abundance_fodder(self):
-        h1 = Herbivore()
-        h1.weight = 20
-        h2 = Herbivore()
-        h2.weight = 30
-        c1 = Carnivore()
-        animals = {'Carnivore': [c1], 'Herbivore': [h1, h2]}
-        s = Savannah(animals)
-        assert s.calculate_relative_abundance_fodder(
-            'Herbivore') == 10  # which variable is return?
-        # 300/((2)+1)*10  ==> 10
-        assert s.calculate_relative_abundance_fodder(
-            'Carnivore') == 0.5  # which variable is return?
-        # 50/(1+1)50  ==> 0.5
+    def test_relative_abundance_fodder(self, gen_landscape_data):
+        s = gen_landscape_data['s']
+        assert s.relative_abundance_fodder(Herbivore) == 1
+        assert s.relative_abundance_fodder('Carnivore') == pytest.approx(
+            1.206386732566971)
 
     def test_propensity(self):
         h1 = Herbivore()
