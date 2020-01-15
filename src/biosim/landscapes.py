@@ -34,15 +34,15 @@ class Landscape:
             species_fauna_fitness[fauna] = fauna.fitness
         self.sorted_fauna_fitness[species] = species_fauna_fitness
 
-    def sort_by_fitness(self, animal_objects, species, reverse=True):
-        self.save_fitness(animal_objects, species)
+    def sort_by_fitness(self, animal_objects, species_to_sort, reverse=True):
+        self.save_fitness(animal_objects, species_to_sort)
         if reverse:
-            self.sorted_fauna_fitness[species] = dict(
-                sorted(self.sorted_fauna_fitness[species].items(),
+            self.sorted_fauna_fitness[species_to_sort] = dict(
+                sorted(self.sorted_fauna_fitness[species_to_sort].items(),
                        key=operator.itemgetter(1), reverse=True))
         else:
-            self.sorted_fauna_fitness[species] = dict(
-                sorted(self.sorted_fauna_fitness[species].items(),
+            self.sorted_fauna_fitness[species_to_sort] = dict(
+                sorted(self.sorted_fauna_fitness[species_to_sort].items(),
                        key=operator.itemgetter(1)))
         # all fitnesses is sorted for the animals in species, depends on the
         # parameters whether it should be sorted or reverse sorted
