@@ -48,15 +48,25 @@ class TestMap:
     def gen_map_data(self, gen_landscape_data):
         pass
 
-    def test_string_to_np_array(self, gen_animal_data):
+    def test_string_to_np_array(self):
         map_str = """  OOOOOOOOOOOOOOOOOOOOO
                        OOOOOOOOSMMMMJJJJJJJO
                        OOOOOOOOOOOOOOOOOOOOO"""
-        m = Map(map_str, gen_animal_data)
+        m = Map(map_str)
         assert m.string_to_np_array()[0][0] == 'O'
         assert m.string_to_np_array()[1][10] == 'M'
         assert m.string_to_np_array()[2][20] == 'O'
         assert type(m.string_to_np_array()).__name__ == 'ndarray'
+
+    def test_create_map(self):
+        map_str = """  OSOOOOOOOOOOOOOOOOOOO
+                       OOOOOOOOSMMMMJJJJJJJO
+                       OOOOOOOOOOOOOOOOOOOOO"""
+        m = Map(map_str)
+        assert isinstance(m.create_map()[0][0], Ocean)
+        assert isinstance(m.create_map()[1][10], Mountain)
+        assert isinstance(m.create_map()[2][20], Ocean)
+        assert isinstance(m.create_map()[0][1], Savannah)
 
 # def test_migrate(self):
 
