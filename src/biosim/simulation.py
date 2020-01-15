@@ -8,9 +8,24 @@ __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 import numpy as np
 import pandas as pd
-import itertools
-from biosim.landscapes import *
-#that's wrong
+import matplotlib.colors as color
+import matplotlib.pyplot as plt
+import subprocess
+import os
+from biosim.map import *
+import textwrap
+
+
+# update these variables to point to  ffmpeg and convert binaries
+_FFMPEG_BINARY = 'ffmpeg'
+_CONVERT_BINARY = 'magick'
+
+# update this to the directory and file-name beginning
+# for the graphics files
+_DEFAULT_IMG_BASE = os.path.join('..', 'data')
+_DEFAULT_GRAPHICS_NAME = 'bio'
+_DEFAULT_MOVIE_FORMAT = 'mp4'   # alternatives: mp4, gif
+
 
 class BioSim:
     def __init__(
@@ -21,7 +36,7 @@ class BioSim:
             ymax_animals=None,
             cmax_animals=None,
             img_base=None,
-            img_fmt="png",
+            img_fmt='png'
     ):
         """
         :param island_map: Multi-line string specifying island geography
@@ -46,9 +61,18 @@ class BioSim:
         where img_no are consecutive image numbers starting from 0.
         img_base should contain a path and beginning of a file name.
         """
+        fauna_objects = {}
+        self._system = Map(island_map, fauna_objects)
+
         self.island_map = island_map
         self.ini_pop = ini_pop
         np.random.seed(seed)
+        self.cell_color = {'O': color.to_rgb('blue'),
+                         'M': color.to_rgb('brown'),
+                         'J': color.to_rgb('darkgreen'),
+                         'S': color.to_rgb('green'),
+                         'D': color.to_rgb('cream')}
+
         self.ymax_animals = ymax_animals
         if self.ymax_animals is None:
             self.ymax_animals = len(ini_pop[0]['pop'])
@@ -66,6 +90,18 @@ class BioSim:
                                      'M': {}}
         self.last_year = 0
         self.sorted_ = []
+
+
+        self._year = 0
+        self._final_year = None
+        self._img_ctr = 0
+
+        # the following will be initialized by _setup_graphics
+        self._fig = None
+        self._map_ax = None
+        self._img_axis = None
+        self._mean_ax = None
+        self._mean_line = None
 
     def set_animal_parameters(self, species, params):
         """
@@ -99,10 +135,25 @@ class BioSim:
         """
         if img_years is None:
             img_years = vis_years
-        for i in range(num_years):
-            # update the last year
-            self.last_year += vis_years
-            '{}_{:05d}.{}'.format(self.img_base, i, self.img_fmt)
+
+        self._final_year = self._year + num_years
+        self._setup_graphics()
+
+        while self._year < self._final_year:
+            if self._year % vis_years == 0:
+                self._update_graphics()
+
+            if self._year % img_years == 0:
+                self._save_graphics()
+
+            for i in range(num_years):
+                # update the last year
+                self.last_year += vis_years
+                '{}_{:05d}.{}'.format(self.img_base, i, self.img_fmt)
+
+            self._year += 1
+
+
 
     def add_population(self, population):
         """
@@ -110,12 +161,10 @@ class BioSim:
 
         :param population: List of dictionaries specifying population
         """
-        # loc = population[0]['loc']
-        # for element in self.ini_pop:
-        #    if element['loc'] == loc:
-        #        for item in population[0]['pop']:
-        #            element['pop'].append(item)
         self.ini_pop.append(population[0])
+
+
+
 
     def sort(self):
         def key_func(x):
@@ -163,26 +212,126 @@ class BioSim:
         print(len(cell_list))
         return pd.DataFrame(df_dict)
 
-    def make_movie(self):
-        """Create MPEG4 movie from visualization images saved."""
+
+    def make_movie(self, movie_fmt=_DEFAULT_MOVIE_FORMAT):
+        """
+        Creates MPEG4 movie from visualization images saved.
+        .. :note:
+            Requires ffmpeg
+        The movie is stored as img_base + movie_fmt
+        """
+
+        if self.img_base is None:
+            raise RuntimeError("No filename defined.")
+
+        if movie_fmt == 'mp4':
+            try:
+                # Parameters chosen according to http://trac.ffmpeg.org/wiki/Encode/H.264,
+                # section "Compatibility"
+                subprocess.check_call([_FFMPEG_BINARY,
+                                       '-i', '{}_%05d.png'.format(self.img_base),
+                                       '-y',
+                                       '-profile:v', 'baseline',
+                                       '-level', '3.0',
+                                       '-pix_fmt', 'yuv420p',
+                                       '{}.{}'.format(self.img_base,
+                                                      movie_fmt)])
+            except subprocess.CalledProcessError as err:
+                raise RuntimeError('ERROR: ffmpeg failed with: {}'.format(err))
+        elif movie_fmt == 'gif':
+            try:
+                subprocess.check_call([_CONVERT_BINARY,
+                                       '-delay', '1',
+                                       '-loop', '0',
+                                       '{}_*.png'.format(self.img_base),
+                                       '{}.{}'.format(self.img_base,
+                                                      movie_fmt)])
+            except subprocess.CalledProcessError as err:
+                raise RuntimeError('ERROR: convert failed with: {}'.format(err))
+        else:
+            raise ValueError('Unknown movie format: ' + movie_fmt)
 
 
-# importing pandas as pd
+    def _setup_graphics(self):
+        """Creates subplots."""
 
-# list of name, degree, score
-nme = ["aparna", "pankaj", "sudhir", "Geeku"]
-deg = ["MBA", "BCA", "M.Tech", "MBA"]
-scr = [90, 40, 80, 98]
+        # create new figure window
+        if self._fig is None:
+            self._fig = plt.figure()
 
-# dictionary of lists
-dict = {'name': nme, 'degree': deg, 'score': scr}
+        # Add left subplot for images created with imshow().
+        # We cannot create the actual ImageAxis object before we know
+        # the size of the image, so we delay its creation.
+        if self._map_ax is None:
+            self._map_ax = self._fig.add_subplot(1, 2, 1)
+            self._img_axis = None
 
-df = pd.DataFrame(dict)
+        # Add right subplot for line graph of mean.
+        if self._mean_ax is None:
+            self._mean_ax = self._fig.add_subplot(1, 2, 2)
+            self._mean_ax.set_ylim(0, 0.02)
 
-# saving the dataframe
-df.to_csv('file1.csv')
+        # needs updating on subsequent calls to simulate()
+        self._mean_ax.set_xlim(0, self._final_year + 1)
 
-import textwrap
+        if self._mean_line is None:
+            mean_plot = self._mean_ax.plot(np.arange(0, self._final_year),
+                                           np.full(self._final_year, np.nan))
+            self._mean_line = mean_plot[0]
+        else:
+            xdata, ydata = self._mean_line.get_data()
+            xnew = np.arange(xdata[-1] + 1, self._final_year)
+            if len(xnew) > 0:
+                ynew = np.full(xnew.shape, np.nan)
+                self._mean_line.set_data(np.hstack((xdata, xnew)),
+                                         np.hstack((ydata, ynew)))
+
+
+    def _update_system_map(self, sys_map):
+
+        '''Update the 2D-view of the system.
+        distribution per cell is represented as a
+        2D heat map.
+        '''
+
+        if self._img_axis is not None:
+            self._img_axis.set_data(sys_map)
+        else:
+            self._img_axis = self._map_ax.imshow(sys_map,
+                                                 interpolation='nearest',
+                                                 vmin=0, vmax=1)
+            plt.colorbar(self._img_axis, ax=self._map_ax,
+                         orientation='horizontal')
+
+
+    def _update_mean_graph(self, mean):
+        ydata = self._mean_line.get_ydata()
+        ydata[self._year] = mean
+        self._mean_line.set_ydata(ydata)
+
+
+    def _update_graphics(self):
+        """Updates graphics with current data."""
+
+        self._update_system_map(self._system.get_status())
+        self._update_mean_graph(self._system.mean_value())
+        plt.pause(1e-6)
+
+        self._fig.suptitle('Year: {}'.format(self._year + 1), x=0.105)  # x value should be change
+
+    def _save_graphics(self):
+        """Saves graphics to file if file name given."""
+
+        if self.img_base is None:
+            return
+
+        plt.savefig('{base}_{num:05d}.{type}'.format(base=self.img_base,
+                                                     num=self._img_ctr,
+                                                     type=self.img_fmt))
+        self._img_ctr += 1
+
+
+
 
 geogr = """\
             OOOOOOOOOOOOOOOOOOOOO
