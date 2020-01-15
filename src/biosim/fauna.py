@@ -180,31 +180,3 @@ class Carnivore(Fauna):
         else:
             self._kill_probablity = 1
         return self._kill_probablity
-
-
-if __name__ == '__main__':
-    from random import seed
-    new_params = {'eta': 0.1}
-    h = Herbivore(new_params)
-    f = Fauna()
-    c = Carnivore(new_params)
-    print(h)
-    #print(h.parameters)
-    #print(h.age)
-    #print(h.weight)
-    #print(c.weight)
-    #print(c.parameters)
-    print(c.weight)
-    print(h.weight)
-    c.grow_up()
-    h.grow_up()
-    print(c.weight)
-    print(h.weight)
-    c.grow_up()
-    h.grow_up()
-    print(c.weight)
-    print(h.weight)
-    #print(f.parameters)
-    h = Herbivore()
-    print('###')
-    print(h.fitness)

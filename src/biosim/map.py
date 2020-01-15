@@ -88,18 +88,19 @@ class Map:
                 self.move_animals(current_cell, map, x, y)
 
     def move_animals(self, current_cell, map, x, y):
-        for animal in current_cell.in_cell_fauna:
-            if np.random.random() > animal.move_probability:
-                adj_cells_list = self.adj_cells(map, x, y)
-                cell_probabilities_list = [cell.probability_of_cell(animal)
-                                           for cell in adj_cells_list]
-                # get the adjacent cells for all the current cells and calculate the relevant abundance of fodder
-                # relative_fodder_abundance =[i.propensity() for i in adj_cells]
-                # the cell with relevant abundance of fodder will make the animal move to it
-                maximum_probability_index = cell_probabilities_list.index(
-                    max(cell_probabilities_list))
-                cell_with_maximum_probability = adj_cells_list[
-                    maximum_probability_index]
-                # then remove animal from the current cell and add it to the distination cell
-                current_cell.remove_fauna(animal)
-                cell_with_maximum_probability.add_fauna(animal)
+        for species in current_cell.in_cell_fauna:
+            for animal in species:
+                if np.random.random() > animal.move_probability:
+                    adj_cells_list = self.adj_cells(map, x, y)
+                    cell_probabilities_list = [cell.probability_of_cell(animal)
+                                               for cell in adj_cells_list]
+                    # get the adjacent cells for all the current cells and calculate the relevant abundance of fodder
+                    # relative_fodder_abundance =[i.propensity() for i in adj_cells]
+                    # the cell with relevant abundance of fodder will make the animal move to it
+                    maximum_probability_index = cell_probabilities_list.index(
+                        max(cell_probabilities_list))
+                    cell_with_maximum_probability = adj_cells_list[
+                        maximum_probability_index]
+                    # then remove animal from the current cell and add it to the distination cell
+                    current_cell.remove_fauna(animal)
+                    cell_with_maximum_probability.add_fauna(animal)
