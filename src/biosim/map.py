@@ -15,23 +15,23 @@ import numpy as np
 
 
 class Map:
-    def __init__(self, geogr_string, all_fauna):
+    def __init__(self, geogr_string):
         self.geogr_string = geogr_string
-        self.all_fauna = all_fauna
-
-    def create_cell(self, cell_letter):
+        #self.all_fauna = all_fauna
         # Those animals are just initial for all cells, letr we need to add all_fauna
         h1 = Herbivore()
         h2 = Herbivore()
         c1 = Carnivore()
         c2 = Carnivore()
         animals = {'Herbivore': [h1, h2], 'Carnivore': [c1, c2]}
-        landscape_cells = {'O': Ocean(),
-                           'S': Savannah(animals),
-                           'M': Mountain(),
-                           'J': Jungle(animals),
-                           'D': Desert(animals)}
-        return landscape_cells[cell_letter]
+        self.landscape_cells = {'O': Ocean(),
+                                'S': Savannah(animals),
+                                'M': Mountain(),
+                                'J': Jungle(animals),
+                                'D': Desert(animals)}
+
+    def create_cell(self, cell_letter):
+        return self.landscape_cells[cell_letter]
 
     def create_map(self):
         given_geogr_array = self.string_to_np_array()

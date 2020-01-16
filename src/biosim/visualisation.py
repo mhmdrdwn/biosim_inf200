@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 class VisualizeMovie:
     def __init__(self):
-
+        pass
 
     def visual_movie(self):
         """
