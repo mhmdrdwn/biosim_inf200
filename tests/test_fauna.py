@@ -48,9 +48,9 @@ class TestFauna:
                     'omega': 0.3
                     }
         seed(1)
-        c = Carnivore(c_params)
+        c = Carnivore(params=c_params)
         seed(1)
-        h = Herbivore(h_params)
+        h = Herbivore(params=h_params)
         return c, h
 
     def test_age(self, gen_animal_data):

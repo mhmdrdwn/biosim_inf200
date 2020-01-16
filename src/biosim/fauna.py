@@ -16,27 +16,44 @@ class Fauna:
     # this should be a base class
     parameters = {}
 
-    def __init__(self, age=0):
+    def __init__(self, age=None, weight=None):
         """
 
         """
-        if not isinstance(age, (int, float)):
-            raise ValueError('Age of animal can\'t be set to ' + str(age) +
-                             'it has to be integer or float')
-        self.age = age
-        # initial age is zero
-        # self.parameters = None
-        # Using Gaussian values for initial weight
-        # how to do that ????? Normal distribution of weights (what weights??)
-        self._weight = gauss(self.parameters['w_birth'],
-                             self.parameters['sigma_birth'])
+        #self.age = None
+        #self._weight = None
+
+        if age is None:
+            self.set_default_attribute('age')
+        else:
+            self.protect_against_non_valid_attribute('Age', age)
+            self.age = age
+
+        if weight is None:
+            self.set_default_attribute('weight')
+        else:
+            self.protect_against_non_valid_attribute('Weight', weight)
+            self._weight = weight
+
         self._fitness = 0
-        # self._move_probability = 0
+
+    @staticmethod
+    def protect_against_non_valid_attribute(attribute_name, attribute):
+        if not isinstance(attribute, (int, float)):
+            raise ValueError(attribute_name + ' of animal can\'t be set to '
+                             + attribute_name +
+                             ', it has to be integer or float')
+
+    def set_default_attribute(self, attribute_name):
+        # default attributes are the birth weight and birth age
+        if attribute_name is 'weight':
+            self._weight = gauss(self.parameters['w_birth'],
+                                 self.parameters['sigma_birth'])
+        if attribute_name is 'age':
+            self.age = 0
 
     @property
     def weight(self):
-        #self._weight = gauss(self.parameters['w_birth'],
-        #                     self.parameters['sigma_birth'])
         return self._weight
 
     def grow_up(self):
@@ -103,15 +120,14 @@ class Herbivore(Fauna):
                   'a_half': 40, 'w_half': 10.0, 'gamma': 0.8, 'zeta': 3.5,
                   'xi': 1.2, 'mu': 0.25, 'lambda': 1.0, 'omega': 0.4}
 
-    def __init__(self, given_parameters=None):
-        super().__init__()
-        if given_parameters is not None:
+    def __init__(self, age=None, weight=None, params=None):
+        super().__init__(age, weight)
+        if params is not None:
             # if we have given any subset of new parameters, we are going to
             # call that function that will overwrite the default parameters
-            self.set_given_parameters(given_parameters)
+            self.set_given_parameters(params)
             # and after that we set the new updated class variable to the attribute
         self.parameters = Herbivore.parameters
-
 
     @staticmethod
     def set_given_parameters(given_parameters):
@@ -141,16 +157,15 @@ class Carnivore(Fauna):
                   'xi': 1.1, 'mu': 0.4, 'DeltaPhiMax': 10.0, 'lambda': 1.0,
                   'omega': 0.9}
 
-    def __init__(self, given_parameters=None):
-        super().__init__()
+    def __init__(self, age=None, weight=None, params=None):
+        super().__init__(age, weight)
         self._kill_probablity = None
-        if given_parameters is not None:
+        if params is not None:
             # if we have given any subset of new parameters, we are going to
             # call that function that will overwrite the default parameters
-            self.set_given_parameters(given_parameters)
+            self.set_given_parameters(params)
             # and after that we set the new updated class variable to the attribute
         self.parameters = Carnivore.parameters
-
 
     @staticmethod
     def set_given_parameters(given_parameters):
@@ -185,3 +200,9 @@ class Carnivore(Fauna):
         else:
             self._kill_probablity = 1
         return self._kill_probablity
+
+
+if __name__ == '__main__':
+    c = Carnivore()
+    print(c.age)
+    print(c.weight)
