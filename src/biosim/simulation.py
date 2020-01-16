@@ -8,6 +8,7 @@ __email__ = ""
 
 from biosim.fauna import Herbivore, Carnivore
 from biosim.landscapes import Ocean, Savannah, Desert, Jungle, Mountain
+from biosim.map import Map
 import pandas as pd
 
 
@@ -94,6 +95,11 @@ class BioSim:
         Add a population to the island
         :param population: List of dictionaries specifying population
         """
+        for animal in population:
+            Map.all_fauna.append(animal)
+        # make amethod inside the map that will take this arguments and add
+        # it to the spicified cell
+
 
     @property
     def year(self):
@@ -193,6 +199,10 @@ if __name__ == '__main__':
     #biosim.set_animal_parameters("Carnivore", {"zeta": 7777777, "xi": 1.8})
     biosim.set_landscape_parameters("S", {"f_max": 777})
     print(s.parameters)
+    biosim.add_population(ini_carns)
+    print(Map.all_fauna)
+    biosim.add_population(ini_carns)
+    print(Map.all_fauna)
     #c2 = Carnivore()
     #h2 = Herbivore()
     #print('c2' + str(c2.parameters))

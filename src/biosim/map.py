@@ -15,6 +15,7 @@ import numpy as np
 
 
 class Map:
+    all_fauna = []
     def __init__(self, geogr_string):
         self.geogr_string = geogr_string
         #self.all_fauna = all_fauna
@@ -104,3 +105,6 @@ class Map:
                     # then remove animal from the current cell and add it to the distination cell
                     current_cell.remove_fauna(animal)
                     cell_with_maximum_probability.add_fauna(animal)
+
+    def add_animals_population(self, population):
+        print(population)

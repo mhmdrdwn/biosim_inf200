@@ -14,6 +14,7 @@ __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 from random import seed
 from biosim.fauna import Carnivore, Herbivore
 from biosim.landscapes import Savannah, Desert, Ocean, Mountain, Jungle
+from biosim.map import Map
 from biosim.simulation import BioSim
 import pytest
 import textwrap
@@ -113,14 +114,24 @@ class TestSimulation:
         assert s.parameters['f_max'] == 300
         biosim.set_landscape_parameters("S", {"f_max": 700})
         assert s.parameters['f_max'] == 700
-        #assert c_pre_change_xi == 1.1
-        #assert h_pre_change_xi == 1.2
-        #assert c1.parameters['xi'] == 1.8
-        #assert c2.parameters['xi'] == 1.8
-        #assert h2.parameters['xi'] == 1.2
         with pytest.raises(ValueError) as err:
             biosim.set_landscape_parameters('O', {'f_max': 1.8})
         assert err.type is ValueError
         with pytest.raises(TypeError) as err:
             biosim.set_landscape_parameters('P', {'f_max': 1.8})
         assert err.type is TypeError
+
+    def test_add_population(self, gen_simulation_data):
+        biosim = gen_simulation_data
+        carns = [
+            {
+                "loc": (40, 40),
+                "pop": [
+                    {"species": "Carnivore", "age": 5, "weight": 20}
+                    for _ in range(5)
+                ],
+            }
+        ]
+        assert len(Map.all_fauna) == 0
+        biosim.add_population(carns)
+        assert len(Map.all_fauna) == 1
