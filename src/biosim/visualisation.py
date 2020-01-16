@@ -21,7 +21,7 @@ class VisualizeMovie:
         This is a small demo script running a ranvis simulation and generating a movie.
         """
         b = biosim
-        sim = DVSim((10, 15), 0.1, 12345, '../BIOSIM')
+        sim = BioSim((10, 15), 0.1, 12345, '../BIOSIM')
         sim.simulate(100, 1, 5)
         sim.make_movie('mp4')
         sim.make_movie('gif')

@@ -10,6 +10,19 @@ from biosim.fauna import Herbivore, Carnivore
 from biosim.landscapes import Ocean, Savannah, Desert, Jungle, Mountain
 from biosim.map import Map
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+# update these variables to point to your ffmpeg and convert binaries
+_FFMPEG_BINARY = 'ffmpeg'
+_CONVERT_BINARY = 'magick'
+
+# update this to the directory and file-name beginning
+# for the graphics files
+_DEFAULT_GRAPHICS_DIR = os.path.join('..', 'data')
+_DEFAULT_GRAPHICS_NAME = 'dv'
+_DEFAULT_MOVIE_FORMAT = 'mp4'   # alternatives: mp4, gif
 
 
 class BioSim:
@@ -41,7 +54,20 @@ class BioSim:
         where img_no are consecutive image numbers starting from 0.
         img_base should contain a path and beginning of a file name.
         """
-        self.island_map = island_map
+        np.random.seed(seed)
+        self._system = map(island_map, ini_pop)
+        if ymax_animals is None:
+            self.ymax_animals = len(ini_pop[0]['pop'])
+        else:
+            self.ymax_animals = ymax_animals
+        if cmax_animals is None:
+            self.cmax_animals = None
+            # need to add the color pallete here
+        else:
+            self.cmax_animals = cmax_animals
+
+        self.img_fmt = img_fmt
+
         self.landscapes = {'O': Ocean,
                            'S': Savannah,
                            'M': Mountain,
@@ -49,6 +75,9 @@ class BioSim:
                            'D': Desert}
         self.landscapes_with_changable_parameters = [Savannah, Jungle]
         self.animal_species = ['Carnivore', 'Herbivore']
+
+        self._step = 0
+        self._final_step = None
 
     def set_animal_parameters(self, species, params):
         """
@@ -89,6 +118,22 @@ class BioSim:
         :param img_years: years between visualizations saved to files (default: vis_years)
         Image files will be numbered consecutively.
         """
+        if img_years is None:
+            img_years = vis_years
+
+        self._final_step = self._step + num_years
+        self._setup_graphics()
+
+        while self._step < self._final_step:
+
+            if self._step % vis_years == 0:
+                self._update_graphics()
+
+            if self._step % img_years == 0:
+                self._save_graphics()
+
+            self._system.update()
+            self._step += 1
 
     def add_population(self, population):
         """
@@ -99,6 +144,47 @@ class BioSim:
             Map.all_fauna.append(animal)
         # make amethod inside the map that will take this arguments and add
         # it to the spicified cell
+
+
+
+    def make_movie(self, movie_fmt=_DEFAULT_MOVIE_FORMAT):
+        """
+        Creates MPEG4 movie from visualization images saved.
+        .. :note:
+            Requires ffmpeg
+        The movie is stored as img_base + movie_fmt
+        """
+
+        if self._img_base is None:
+            raise RuntimeError("No filename defined.")
+
+        if movie_fmt == 'mp4':
+            try:
+                # Parameters chosen according to http://trac.ffmpeg.org/wiki/Encode/H.264,
+                # section "Compatibility"
+                subprocess.check_call([_FFMPEG_BINARY,
+                                       '-i', '{}_%05d.png'.format(self._img_base),
+                                       '-y',
+                                       '-profile:v', 'baseline',
+                                       '-level', '3.0',
+                                       '-pix_fmt', 'yuv420p',
+                                       '{}.{}'.format(self._img_base,
+                                                      movie_fmt)])
+            except subprocess.CalledProcessError as err:
+                raise RuntimeError('ERROR: ffmpeg failed with: {}'.format(err))
+        elif movie_fmt == 'gif':
+            try:
+                subprocess.check_call([_CONVERT_BINARY,
+                                       '-delay', '1',
+                                       '-loop', '0',
+                                       '{}_*.png'.format(self._img_base),
+                                       '{}.{}'.format(self._img_base,
+                                                      movie_fmt)])
+            except subprocess.CalledProcessError as err:
+                raise RuntimeError('ERROR: convert failed with: {}'.format(err))
+        else:
+            raise ValueError('Unknown movie format: ' + movie_fmt)
+
 
 
     @property
@@ -192,18 +278,18 @@ if __name__ == '__main__':
     animals = {'Herbivore': [h1, h2], 'Carnivore': [c1, c2]}
     s = Savannah(animals)
     print(s.parameters)
-    #c1 = Carnivore()
-    #h1 = Herbivore()
-    #print('c1' + str(c1.parameters))
-    #print('h1' + str(h1.parameters))
-    #biosim.set_animal_parameters("Carnivore", {"zeta": 7777777, "xi": 1.8})
+    # c1 = Carnivore()
+    # h1 = Herbivore()
+    # print('c1' + str(c1.parameters))
+    # print('h1' + str(h1.parameters))
+    # biosim.set_animal_parameters("Carnivore", {"zeta": 7777777, "xi": 1.8})
     biosim.set_landscape_parameters("S", {"f_max": 777})
     print(s.parameters)
     biosim.add_population(ini_carns)
     print(Map.all_fauna)
     biosim.add_population(ini_carns)
     print(Map.all_fauna)
-    #c2 = Carnivore()
-    #h2 = Herbivore()
-    #print('c2' + str(c2.parameters))
-    #print('h2' + str(h2.parameters))
+    # c2 = Carnivore()
+    # h2 = Herbivore()
+    # print('c2' + str(c2.parameters))
+    # print('h2' + str(h2.parameters))

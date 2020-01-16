@@ -16,9 +16,11 @@ import numpy as np
 
 class Map:
     all_fauna = []
-    def __init__(self, geogr_string):
-        self.geogr_string = geogr_string
-        #self.all_fauna = all_fauna
+
+    def __init__(self, island_map, init_pop):
+        self.island_map = island_map
+        Map.all_fauna.append(init_pop)
+        # self.all_fauna = all_fauna
         # Those animals are just initial for all cells, letr we need to add all_fauna
         h1 = Herbivore()
         h2 = Herbivore()
@@ -52,8 +54,9 @@ class Map:
         return landscape_array
 
     def string_to_np_array(self):
-        geogr_string_clean = self.geogr_string.replace(' ', '')
-        char_array = np.array([[j for j in i] for i in geogr_string_clean.splitlines()])
+        geogr_string_clean = self.island_map.replace(' ', '')
+        char_array = np.array(
+            [[j for j in i] for i in geogr_string_clean.splitlines()])
         # convert string to numpy array with the same diemsions
         return char_array
 

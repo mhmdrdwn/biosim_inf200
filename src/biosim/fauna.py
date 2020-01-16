@@ -13,21 +13,24 @@ from random import seed
 
 
 class Fauna:
-    #this should be a base class
+    # this should be a base class
     parameters = {}
-    def __init__(self):
+
+    def __init__(self, age=0):
         """
 
         """
-        #self.given_parameters = given_parameters
-        self.age = 0
+        if not isinstance(age, (int, float)):
+            raise ValueError('Age of animal can\'t be set to ' + str(age) +
+                             'it has to be integer or float')
+        self.age = age
         # initial age is zero
         # self.parameters = None
         # Using Gaussian values for initial weight
         # how to do that ????? Normal distribution of weights (what weights??)
         self._weight = None
         self._fitness = 0
-        #self._move_probability = 0
+        # self._move_probability = 0
 
     @property
     def weight(self):
@@ -35,7 +38,7 @@ class Fauna:
 
     def grow_up(self):
         self.age += 1
-        weight_to_reduce = self._weight*self.parameters['eta']
+        weight_to_reduce = self._weight * self.parameters['eta']
         self.reduce_weight(weight_to_reduce)
         # age increase by 1 each year
         # decrease the weight by the factor eta
@@ -62,7 +65,7 @@ class Fauna:
         return self.parameters['mu'] * self.fitness
         # animal move probablity based on the equation
 
-    #@property
+    # @property
     def birth_probablity(self, num_fauna):
         zeta = self.parameters['zeta']
         w_birth = self.parameters['w_birth']
@@ -78,7 +81,7 @@ class Fauna:
         print(self._weight)
         print(self.weight)
 
-    #@property
+    # @property
     def death_probability(self):
         if self.fitness == 0:
             return 1
@@ -94,7 +97,7 @@ class Fauna:
 class Herbivore(Fauna):
     parameters = {'eta': 0.05, 'F': 10.0, 'beta': 0.9, 'w_birth': 8.0,
                   'sigma_birth': 1.5, 'phi_age': 0.2, 'phi_weight': 0.1,
-                  'a_half': 40, 'w_half': 10.0,'gamma': 0.8, 'zeta': 3.5,
+                  'a_half': 40, 'w_half': 10.0, 'gamma': 0.8, 'zeta': 3.5,
                   'xi': 1.2, 'mu': 0.25, 'lambda': 1.0, 'omega': 0.4}
 
     def __init__(self, given_parameters=None):
@@ -120,7 +123,7 @@ class Herbivore(Fauna):
                     raise ValueError('Illegal parameter value, ' +
                                      str(parameter) + ' can\'t be negative')
                 else:
-                    #if given_parameters[parameter] >= 0
+                    # if given_parameters[parameter] >= 0
                     Herbivore.parameters[parameter] = \
                         given_parameters[parameter]
             else:
@@ -161,22 +164,23 @@ class Carnivore(Fauna):
                                      str(parameter) + ' can\'t be zero or '
                                                       'negative')
                 else:
-                    #if given_parameters[parameter] >= 0
+                    # if given_parameters[parameter] >= 0
                     Carnivore.parameters[parameter] = \
                         given_parameters[parameter]
             else:
                 # unknown parameter
                 raise RuntimeError('Unknown parameter, ' + str(parameter) +
                                    ' can\'t be set')
-    #@property
+
+    # @property
     def kill_probablity(self, herbivore_to_kill):
         if self.fitness <= herbivore_to_kill.fitness:
             self._kill_probablity = 0
         elif 0 < self.fitness - herbivore_to_kill.fitness < self.parameters[
             'DeltaPhiMax']:
             self._kill_probablity = (self.fitness -
-                                        herbivore_to_kill.fitness) / \
-                                       self.parameters['DeltaPhiMax']
+                                     herbivore_to_kill.fitness) / \
+                                    self.parameters['DeltaPhiMax']
         else:
             self._kill_probablity = 1
         return self._kill_probablity
