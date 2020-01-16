@@ -28,12 +28,15 @@ class Fauna:
         # self.parameters = None
         # Using Gaussian values for initial weight
         # how to do that ????? Normal distribution of weights (what weights??)
-        self._weight = None
+        self._weight = gauss(self.parameters['w_birth'],
+                             self.parameters['sigma_birth'])
         self._fitness = 0
         # self._move_probability = 0
 
     @property
     def weight(self):
+        #self._weight = gauss(self.parameters['w_birth'],
+        #                     self.parameters['sigma_birth'])
         return self._weight
 
     def grow_up(self):
@@ -108,8 +111,7 @@ class Herbivore(Fauna):
             self.set_given_parameters(given_parameters)
             # and after that we set the new updated class variable to the attribute
         self.parameters = Herbivore.parameters
-        self._weight = gauss(self.parameters['w_birth'],
-                             self.parameters['sigma_birth'])
+
 
     @staticmethod
     def set_given_parameters(given_parameters):
@@ -148,8 +150,7 @@ class Carnivore(Fauna):
             self.set_given_parameters(given_parameters)
             # and after that we set the new updated class variable to the attribute
         self.parameters = Carnivore.parameters
-        self._weight = gauss(self.parameters['w_birth'],
-                             self.parameters['sigma_birth'])
+
 
     @staticmethod
     def set_given_parameters(given_parameters):
