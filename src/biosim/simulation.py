@@ -13,14 +13,14 @@ import pandas as pd
 
 class BioSim:
     def __init__(
-        self,
-        island_map,
-        ini_pop,
-        seed,
-        ymax_animals=None,
-        cmax_animals=None,
-        img_base=None,
-        img_fmt="png",
+            self,
+            island_map,
+            ini_pop,
+            seed,
+            ymax_animals=None,
+            cmax_animals=None,
+            img_base=None,
+            img_fmt="png",
     ):
         """
         :param island_map: Multi-line string specifying island geography
@@ -41,8 +41,12 @@ class BioSim:
         img_base should contain a path and beginning of a file name.
         """
         self.island_map = island_map
-        self.landscapes = ['Ocean', 'Savannah', 'Mountain', 'Jungle', 'Desert']
-        self.landscapes_with_changable_parameters = ['Savannah','Jungle']
+        self.landscapes = {'O': Ocean,
+                           'S': Savannah,
+                           'M': Mountain,
+                           'J': Jungle,
+                           'D': Desert}
+        self.landscapes_with_changable_parameters = [Savannah, Jungle]
         self.animal_species = ['Carnivore', 'Herbivore']
 
     def set_animal_parameters(self, species, params):
@@ -65,15 +69,16 @@ class BioSim:
         :param params: Dict with valid parameter specification for landscape
         """
         if landscape in self.landscapes:
-            if landscape in self.landscapes_with_changable_parameters:
-                species_class = eval(landscape)
-                species_class.set_given_parameters(params)
+            landscape_class = self.landscapes[landscape]
+            if landscape_class in \
+                    self.landscapes_with_changable_parameters:
+                landscape_class.set_given_parameters(params)
             else:
                 raise ValueError(landscape + ' parameters is not valid')
 
         else:
             raise TypeError(landscape + ' parameters can\'t be assigned, '
-                                      'there is no such data type')
+                                        'there is no such data type')
 
     def simulate(self, num_years, vis_years=1, img_years=None):
         """
@@ -111,7 +116,6 @@ class BioSim:
 
 
 if __name__ == '__main__':
-
     import textwrap
 
     geogr = """\
@@ -177,11 +181,19 @@ if __name__ == '__main__':
     biosim = BioSim(island_map=geogr, ini_pop=ini_herbs, seed=123456)
     c1 = Carnivore()
     h1 = Herbivore()
-    print('c1'+str(c1.parameters))
-    print('h1'+str(h1.parameters))
-    biosim.set_animal_parameters("Carnivore", {"zeta": 7777777, "xi": 1.8})
     c2 = Carnivore()
     h2 = Herbivore()
-    print('c2'+str(c2.parameters))
-    print('h2'+str(h2.parameters))
-
+    animals = {'Herbivore': [h1, h2], 'Carnivore': [c1, c2]}
+    s = Savannah(animals)
+    print(s.parameters)
+    #c1 = Carnivore()
+    #h1 = Herbivore()
+    #print('c1' + str(c1.parameters))
+    #print('h1' + str(h1.parameters))
+    #biosim.set_animal_parameters("Carnivore", {"zeta": 7777777, "xi": 1.8})
+    biosim.set_landscape_parameters("S", {"f_max": 777})
+    print(s.parameters)
+    #c2 = Carnivore()
+    #h2 = Herbivore()
+    #print('c2' + str(c2.parameters))
+    #print('h2' + str(h2.parameters))
