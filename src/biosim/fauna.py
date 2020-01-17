@@ -81,8 +81,6 @@ class Fauna(ABC):
         return q1 * q2
 
     def calculate_fitness(self):
-        # this can be a class method
-        # because the formula is fixed for all animals
         if self._weight == 0:
             self._fitness = 0
         else:
@@ -128,7 +126,7 @@ class Fauna(ABC):
                 if parameter == 'DeltaPhiMax' and params[parameter] < 0:
                     raise ValueError('Illegal parameter value, ' +
                                      str(parameter) + ' can\'t be or negative')
-                elif params[parameter] <= 0:
+                if params[parameter] <= 0:
                     # protect against negative values
                     raise ValueError('Illegal parameter value, ' +
                                      str(parameter) + ' can\'t be zero '
@@ -138,7 +136,6 @@ class Fauna(ABC):
                     cls.parameters[parameter] = \
                         params[parameter]
             else:
-                # unknown parameter
                 raise RuntimeError('Unknown parameter, ' + str(parameter) +
                                    ' can\'t be set')
 
@@ -151,11 +148,10 @@ class Herbivore(Fauna):
 
     def __init__(self, age=None, weight=None, params=None):
         super().__init__(age, weight)
+
         if params is not None:
-            # if we have given any subset of new parameters, we are going to
-            # call that function that will overwrite the default parameters
             self.set_given_parameters(params)
-            # and after that we set the new updated class variable to the attribute
+
         self.parameters = Herbivore.parameters
 
 
@@ -169,11 +165,10 @@ class Carnivore(Fauna):
     def __init__(self, age=None, weight=None, params=None):
         super().__init__(age, weight)
         self._kill_prob = None
+
         if params is not None:
-            # if we have given any subset of new parameters, we are going to
-            # call that function that will overwrite the default parameters
             self.set_given_parameters(params)
-            # and after that we set the new updated class variable to the attribute
+
         self.parameters = Carnivore.parameters
 
     def kill_prob(self, herbivore_to_kill):
@@ -194,3 +189,4 @@ if __name__ == '__main__':
     c2 = Carnivore(params={'F': 100})
     print(c1.parameters['F'])
     print(c2.parameters['F'])
+    f = Fauna()
