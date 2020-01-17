@@ -145,8 +145,6 @@ class BioSim:
         # make amethod inside the map that will take this arguments and add
         # it to the spicified cell
 
-
-
     def make_movie(self, movie_fmt=_DEFAULT_MOVIE_FORMAT):
         """
         Creates MPEG4 movie from visualization images saved.

@@ -76,30 +76,16 @@ class TestFauna:
         # initial weight should be a function that is decorated as variable
         # it's following Gaussain distro, the seed 1 will generate that value
 
-    def test_reduce_weight(self, gen_animal_data):
+    def test_lose_weight(self, gen_animal_data):
         c, h = gen_animal_data
-        c_pre_reduce_weight = c.weight
-        h_pre_reduce_weight = h.weight
-        c.reduce_weight(2)
-        h.reduce_weight(2)
-        c_post_reduce_weight = c.weight
-        h_post_reduce_weight = h.weight
-        assert c_pre_reduce_weight - c_post_reduce_weight == 2
-        assert h_pre_reduce_weight - h_post_reduce_weight == 2
-
-    def test_grow_up(self, gen_animal_data):
-        c, h = gen_animal_data
-        c_weight_before_grow = c.weight
-        h_weight_before_grow = h.weight
-        c.grow_up()
-        h.grow_up()
-        c_weight_after_grow = c.weight
-        h_weight_after_grow = h.weight
-        assert c_weight_before_grow - c_weight_after_grow == pytest.approx(
-            1.856974224109286)
-        assert h_weight_before_grow - h_weight_after_grow == pytest.approx(
-            1.1796831389199582)
-        # weight weight by eta factor every year
+        c_pre_lose_weight = c.weight
+        h_pre_lose_weight = h.weight
+        c.lose_weight()
+        h.lose_weight()
+        c_post_lose_weight = c.weight
+        h_post_lose_weight = h.weight
+        assert c_pre_lose_weight - c_post_lose_weight == pytest.approx(1.856974224109286)
+        assert h_pre_lose_weight - h_post_lose_weight == pytest.approx(1.1796831389199582)
 
     def test_fitness(self, gen_animal_data):
         c, h = gen_animal_data
@@ -107,7 +93,6 @@ class TestFauna:
         assert 0 <= c.fitness <= 1
         assert h.fitness == pytest.approx(0.04591907551573919)
         assert 0 <= h.fitness <= 1
-
 
     def test_move_probability(self, gen_animal_data):
         c, h = gen_animal_data

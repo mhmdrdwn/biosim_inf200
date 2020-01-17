@@ -43,7 +43,7 @@ class Fauna(ABC):
             raise ValueError(attribute_name + ' of animal can\'t be set to '
                              + attribute_name +
                              ', it has to be integer or float')
-
+    
     def set_default_attribute(self, attribute_name):
         # default attributes are the birth weight and birth age
         if attribute_name is 'weight':
@@ -58,13 +58,12 @@ class Fauna(ABC):
 
     def grow_up(self):
         self.age += 1
-        weight_to_reduce = self._weight * self.parameters['eta']
-        self.reduce_weight(weight_to_reduce)
         # age increase by 1 each year
         # decrease the weight by the factor eta
 
-    def reduce_weight(self, amount_to_reduce):
-        self._weight -= amount_to_reduce
+    def lose_weight(self):
+        weight_to_reduce = self._weight * self.parameters['eta']
+        self._weight -= weight_to_reduce
 
     @property
     def fitness(self):
@@ -178,6 +177,7 @@ class Carnivore(Fauna):
 if __name__ == '__main__':
     c1 = Carnivore()
     print(c1.parameters['F'])
+    c1.set_given_parameters({'F': 40000})
     c2 = Carnivore()
     print(c1.parameters['F'])
     print(c2.parameters['F'])

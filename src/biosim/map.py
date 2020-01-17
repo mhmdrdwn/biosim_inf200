@@ -20,6 +20,7 @@ class Map:
     def __init__(self, island_map, init_pop):
         self.island_map = island_map
         Map.all_fauna.append(init_pop)
+        self.map = self.create_map()
         # self.all_fauna = all_fauna
         # Those animals are just initial for all cells, letr we need to add all_fauna
         h1 = Herbivore()
@@ -82,16 +83,7 @@ class Map:
             total_propensity += cell.propensity(animal)
         return total_propensity
 
-    def migrate(self):
-        map = self.create_map()
-        rows = map.shape[0]
-        cols = map.shape[1]
-        for x in range(0, rows):
-            for y in range(0, cols):
-                current_cell = map[x, y]
-                self.move_animals(current_cell, map, x, y)
-
-    def move_animals(self, current_cell, map, x, y):
+    def migrate(self, current_cell, map, x, y):
         for species in current_cell.in_cell_fauna:
             for animal in species:
                 if np.random.random() > animal.move_prob:
@@ -111,3 +103,22 @@ class Map:
 
     def add_animals_population(self, population):
         print(population)
+
+    def annual_cycle(self):
+        rows = self.map.shape[0]
+        cols = self.map.shape[1]
+        for x in range(0, rows):
+            for y in range(0, cols):
+                cell = self.map[x, y]
+                cell.feed_animals()
+                # step 1 feeding
+                cell.migrate(cell, map, x, y)
+                # step 2 migrate
+                cell.grow_up_animals()
+                # step 4, grow_up
+                cell.lose_weight_animals()
+                cell.die_animals()
+
+
+
+

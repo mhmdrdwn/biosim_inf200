@@ -129,6 +129,7 @@ class Landscape(ABC):
             # change the amount of avialable fadder in landscape after animal eats
             # eaten_food = 0
             herb_available_fodder = self.available_fodder['Herbivore']
+            appetite = herbivore.parameters['F']
             if herb_available_fodder == 0:
                 break
                 # break the for-loop to save computation cost becuase it's no
@@ -138,12 +139,11 @@ class Landscape(ABC):
                 # self._available_fodder = 0
                 # last else statment is not required, so we can remove it and add
                 # it to the elif
-            elif herb_available_fodder >= herbivore.parameters['F']:
+            elif herb_available_fodder >= appetite:
                 # animals eat what he required
-                amount_to_eat = herbivore.parameters['F']
-                herbivore.eat(amount_to_eat)
-                self.available_fodder['Herbivore'] -= amount_to_eat
-            elif 0 < herb_available_fodder < herbivore.parameters['F']:
+                herbivore.eat(appetite)
+                self.available_fodder['Herbivore'] -= appetite
+            elif 0 < herb_available_fodder < appetite:
                 # animals eat what is left
                 amount_to_eat = self.available_fodder['Herbivore']
                 herbivore.eat(amount_to_eat)
@@ -156,6 +156,7 @@ class Landscape(ABC):
         for carnivore in self.sorted_fauna_fitness['Carnivore']:
             # carbivore with highest fitness will kill the lowest fitness
             # herbivore first and so on
+            appetite = carnivore.parameters['F']
             if len(self.sorted_fauna_fitness['Herbivore']) > 0:
                 # if available food (weight of herbi) is zero ,break the for loop becuase it's
                 # no longer efficient
@@ -169,12 +170,30 @@ class Landscape(ABC):
                         # remove it from the dictionary, meaning removing from the cell
                         # herbivore.die()
                         # we need a good implimenetation for method die in the fauna
-                        if weight_to_eat >= carnivore.parameters['F']:
+                        if weight_to_eat >= appetite:
                             # that's wrong becuase, the weight to eat is the weight
                             # of only one meal
-                            carnivore.eat(carnivore.parameters['F'])
-                        elif weight_to_eat < carnivore.parameters['F']:
+                            carnivore.eat(appetite)
+                        elif weight_to_eat < appetite:
                             carnivore.eat(weight_to_eat)
+
+    def feed_animals(self):
+        self.grow_herb_fodder()
+        self.feed_herbivore()
+        self.feed_carnivore()
+
+    def grow_up_animals(self):
+        for animal in self.in_cell_fauna:
+            animal.grow_up()
+
+    def lose_weight_animals(self):
+        for animal in self.in_cell_fauna:
+            animal.lose_weight()
+
+    def die_animals(self):
+        for animal in self.in_cell_fauna:
+            if np.random.random() > animal.death_prob():
+                self.remove_fauna(animal)
 
 
 class Savannah(Landscape):
