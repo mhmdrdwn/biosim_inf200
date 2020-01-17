@@ -102,6 +102,9 @@ class Map:
             total_propensity += cell.propensity(animal)
         return total_propensity
 
+    def procreate_all_cells(self):
+        for
+
     def migrate(self, current_cell, map, x, y):
         for species in current_cell.in_cell_fauna:
             for animal in species:

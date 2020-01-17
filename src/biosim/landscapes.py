@@ -195,6 +195,13 @@ class Landscape(ABC):
             if np.random.random() > animal.death_prob():
                 self.remove_fauna(animal)
 
+    def give_birth_animals(self):
+        for animal in self.in_cell_fauna:
+            if np.random.random() > animal.birth_prob:
+                species = type(animal)
+                baby = species()
+                animal.give_birth(baby)
+
 
 class Savannah(Landscape):
     is_accessible = True
