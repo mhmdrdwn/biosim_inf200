@@ -11,6 +11,8 @@ import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import subprocess
+
 
 from biosim.fauna import Herbivore, Carnivore
 from biosim.landscapes import Ocean, Savannah, Desert, Jungle, Mountain
@@ -81,6 +83,16 @@ class BioSim:
 
         self._step = 0
         self._final_step = None
+        if img_base is None:
+            pass # no figure should be written to file
+        self._img_ctr = 0
+
+        # the following will be initialized by _setup_graphics
+        self._fig = None
+        self._map_ax = None
+        self._img_axis = None
+        self._mean_ax = None
+        self._mean_line = None
 
     def set_animal_parameters(self, species, params):
         """
@@ -192,8 +204,8 @@ class BioSim:
     def _update_graphics(self):
         """Updates graphics with current data."""
 
-        self._update_system_map(self._system.get_status())
-        self._update_mean_graph(self._system.mean_value())
+        self._update_system_map(self._map.get_status())
+        self._update_mean_graph(self._map.mean_value())
         plt.pause(1e-6)
 
     def _save_graphics(self):
@@ -252,8 +264,6 @@ class BioSim:
         else:
             raise ValueError('Unknown movie format: ' + movie_fmt)
 
-
-
     @property
     def year(self):
         """Last year simulated."""
@@ -272,91 +282,3 @@ class BioSim:
 
     def make_movie(self):
         """Create MPEG4 movie from visualization images saved."""
-
-
-if __name__ == '__main__':
-    import textwrap
-
-    geogr = """\
-                OOOOOOOOOOOOOOOOOOOOO
-                OOOOOOOOSMMMMJJJJJJJO
-                OSSSSSJJJJMMJJJJJJJOO
-                OSSSSSSSSSMMJJJJJJOOO
-                OSSSSSJJJJJJJJJJJJOOO
-                OSSSSSJJJDDJJJSJJJOOO
-                OSSJJJJJDDDJJJSSSSOOO
-                OOSSSSJJJDDJJJSOOOOOO
-                OSSSJJJJJDDJJJJJJJOOO
-                OSSSSJJJJDDJJJJOOOOOO
-                OOSSSSJJJJJJJJOOOOOOO
-                OOOSSSSJJJJJJJOOOOOOO
-                OOOOOOOOOOOOOOOOOOOOO"""
-    geogr = textwrap.dedent(geogr)
-    ini_herbs = [
-        {
-            "loc": (10, 10),
-            "pop": [
-                {"species": "Herbivore", "age": 5, "weight": 20}
-                for _ in range(3)
-            ],
-        }
-    ]
-    ini_carns = [
-        {
-            "loc": (20, 20),
-            "pop": [
-                {"species": "Carnivore", "age": 5, "weight": 20}
-                for _ in range(5)
-            ],
-        }
-    ]
-    ini_carns2 = [
-        {
-            "loc": (10, 10),
-            "pop": [
-                {"species": "Carnivore", "age": 5, "weight": 20}
-                for _ in range(4)
-            ],
-        }
-    ]
-    ini_carns3 = [
-        {
-            "loc": (30, 30),
-            "pop": [
-                {"species": "Carnivore", "age": 5, "weight": 20}
-                for _ in range(5)
-            ],
-        }
-    ]
-    ini_carns4 = [
-        {
-            "loc": (40, 40),
-            "pop": [
-                {"species": "Carnivore", "age": 5, "weight": 20}
-                for _ in range(5)
-            ],
-        }
-    ]
-    biosim = BioSim(island_map=geogr, ini_pop=ini_herbs, seed=123456)
-    c1 = Carnivore()
-    h1 = Herbivore()
-    c2 = Carnivore()
-    h2 = Herbivore()
-    animals = {'Herbivore': [h1, h2], 'Carnivore': [c1, c2]}
-    s = Savannah(animals)
-    print(s.parameters)
-    # c1 = Carnivore()
-    # h1 = Herbivore()
-    # print('c1' + str(c1.parameters))
-    # print('h1' + str(h1.parameters))
-    # biosim.set_animal_parameters("Carnivore", {"zeta": 7777777, "xi": 1.8})
-    biosim.set_landscape_parameters("S", {"f_max": 777})
-    print(s.parameters)
-    biosim.add_population(ini_carns)
-    print(Map.all_fauna)
-    biosim.add_population(ini_carns)
-    print(Map.all_fauna)
-    # c2 = Carnivore()
-    # h2 = Herbivore()
-    # print('c2' + str(c2.parameters))
-    # print('h2' + str(h2.parameters))
