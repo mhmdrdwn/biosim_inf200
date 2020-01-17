@@ -6,15 +6,15 @@
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
+from abc import ABC, abstractmethod
+
 from random import gauss
 import math
 import numpy as np
 from random import seed
-from abc import ABC, abstractmethod
 
 
 class Fauna(ABC):
-    # this should be a base class
     parameters = {}
 
     @abstractmethod
@@ -146,12 +146,8 @@ class Herbivore(Fauna):
                   'a_half': 40, 'w_half': 10.0, 'gamma': 0.8, 'zeta': 3.5,
                   'xi': 1.2, 'mu': 0.25, 'lambda': 1.0, 'omega': 0.4}
 
-    def __init__(self, age=None, weight=None, params=None):
+    def __init__(self, age=None, weight=None):
         super().__init__(age, weight)
-
-        if params is not None:
-            self.set_given_parameters(params)
-
         self.parameters = Herbivore.parameters
 
 
@@ -162,13 +158,9 @@ class Carnivore(Fauna):
                   'xi': 1.1, 'mu': 0.4, 'DeltaPhiMax': 10.0, 'lambda': 1.0,
                   'omega': 0.9}
 
-    def __init__(self, age=None, weight=None, params=None):
+    def __init__(self, age=None, weight=None):
         super().__init__(age, weight)
         self._kill_prob = None
-
-        if params is not None:
-            self.set_given_parameters(params)
-
         self.parameters = Carnivore.parameters
 
     def kill_prob(self, herbivore_to_kill):
@@ -186,7 +178,7 @@ class Carnivore(Fauna):
 if __name__ == '__main__':
     c1 = Carnivore()
     print(c1.parameters['F'])
-    c2 = Carnivore(params={'F': 100})
+    c2 = Carnivore()
     print(c1.parameters['F'])
     print(c2.parameters['F'])
     f = Fauna()

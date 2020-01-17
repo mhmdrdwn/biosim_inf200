@@ -6,15 +6,19 @@
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
+from abc import ABC, abstractmethod
+
 import math
-import operator
 import numpy as np
 
+import operator
 
-class Landscape:
+
+class Landscape(ABC):
     available_fodder = {}
     parameters = {}
 
+    @abstractmethod
     def __init__(self, in_cell_fauna):
         # those fauna list is given from the map, which was given earlier
         # from the simulation as initial animals and we append it to when
