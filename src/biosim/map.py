@@ -16,7 +16,7 @@ class Map:
     def __init__(self, island_map, ini_pop=None):
         self.island_map = self.string_to_np_array(island_map)
         self.not_surrounded_by_ocean(self.island_map)
-        self.cells_map = self.create_map()
+        self.cells_map = self.create_map_of_landscape_objects()
         self.add_animals(ini_pop)
         self.fauna_classes = {'Carnivore': Carnivore,
                                 'Herbivore': Herbivore}
@@ -49,7 +49,7 @@ class Map:
                 raise ValueError('The given geography string is not valid.'
                                  'The edges of geography has to be ocean')
 
-    def create_map(self):
+    def create_map_of_landscape_objects(self):
         # for element in geogr_array:
         cells_array = np.empty(self.island_map.shape, dtype=object)
         # we did that to build array of the same dimesions
@@ -119,15 +119,16 @@ class Map:
                 species = animal['weight']
                 age = animal['age']
                 weight = animal['weight']
-                animal_object = self.fauna_classes[species]
-                self.cells_map[loc].add_animal(animal_object)
+                species_class = self.fauna_classes[species]
+                animal_object = species_class(age=age, weight=weight)
+                cell = self.cells_map[loc]
+                cell.add_animal(animal_object)
 
     def run_stage_of_cycle(self, stage_method):
-        cells_matrix = self.create_map()
-        rows, cols = self.matrix_dims(cells_matrix)
+        rows, cols = self.matrix_dims(self.cells_map)
         for x in range(0, rows):
             for y in range(0, cols):
-                cell = cells_matrix[x, y]
+                cell = self.cells_map[x, y]
                 stage_method_call = cell.globals()[stage_method]
                 stage_method_call()
 
@@ -140,11 +141,10 @@ class Map:
 
     # not needed methods
     def give_birth_all_cells(self):
-        cells_matrix = self.create_map()
-        cols, rows = self.matrix_dims(cells_matrix)
+        cols, rows = self.matrix_dims(self.cells_map)
         for x in rows:
             for y in cols:
-                cell = cells_matrix[x, y]
+                cell = self.cells_map[x, y]
                 cell.give_birth_animals()
     # same can be done for all methjods here, to run for all cells
 
