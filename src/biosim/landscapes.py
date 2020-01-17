@@ -87,7 +87,7 @@ class Landscape(ABC):
         # else:
         # animals will turn away from food
 
-    def add_fauna(self, animal):
+    def add_animal(self, animal):
         key = animal.__class__.__name__
         self.in_cell_fauna[key].append(animal)
 

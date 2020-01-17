@@ -7,6 +7,7 @@ __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 from biosim.landscapes import Desert, Ocean, Mountain, Savannah, Jungle
+from biosim.fauna import Herbivore, Carnivore
 import numpy as np
 
 
@@ -15,23 +16,18 @@ class Map:
     def __init__(self, island_map, ini_pop=None):
         self.island_map = self.string_to_np_array(island_map)
         self.not_surrounded_by_ocean(self.island_map)
-        self.ini_pop = ini_pop
-        # self.map = self.create_map(self.island_map)
-        # self.all_fauna = all_fauna
-        # Those animals are just initial for all cells, letr we need to add all_fauna
-        # h1 = Herbivore()
-        # h2 = Herbivore()
-        # c1 = Carnivore()
-        # c2 = Carnivore()
-        # animals = {'Herbivore': [h1, h2], 'Carnivore': [c1, c2]}
-        self.landscape_cells = {'O': Ocean,
+        self.cells_map = self.create_map()
+        self.add_animals(ini_pop)
+        self.fauna_classes = {'Carnivore': Carnivore,
+                                'Herbivore': Herbivore}
+        self.landscape_classes = {'O': Ocean,
                                 'S': Savannah,
                                 'M': Mountain,
                                 'J': Jungle,
                                 'D': Desert}
 
     def create_cell(self, cell_letter):
-        return self.landscape_cells[cell_letter]
+        return self.landscape_classes[cell_letter]
 
     @staticmethod
     def matrix_dims(map):
@@ -115,9 +111,16 @@ class Map:
                     current_cell.remove_fauna(animal)
                     cell_with_maximum_probability.add_fauna(animal)
 
-    def add_animals_population(self, population):
-        print(population)
-        # this should be done with sim
+    def add_animals(self, pop):
+        for animal_group in pop:
+            loc = list(animal_group['loc'])
+            animals = animal_group['pop']
+            for animal in animals:
+                species = animal['weight']
+                age = animal['age']
+                weight = animal['weight']
+                animal_object = self.fauna_classes[species]
+                self.cells_map[loc].add_animal(animal_object)
 
     def run_stage_of_cycle(self, stage_method):
         cells_matrix = self.create_map()
@@ -146,3 +149,16 @@ class Map:
     # same can be done for all methjods here, to run for all cells
 
 
+if __name__ == '__main__':
+    #s = Ocean()
+    #h = Herbivore()
+    #s.add_fauna(h)
+    #print(type(s))
+    #print(s.__class__.__name__)
+    ini_herbs = [{"loc": (10, 10),
+                  "pop": [{"species": "Herbivore", "age": 5, "weight": 20} for
+                          _ in range(3)], }]
+    print(list(ini_herbs[0]['loc']))
+
+    arr = np.array([[1,2],[3,4],[5,6]])
+    print(arr[1, 1])

@@ -3,16 +3,19 @@
 """
 """
 
-__author__ = ""
-__email__ = ""
+__author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
+__email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
+
+import os
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 
 from biosim.fauna import Herbivore, Carnivore
 from biosim.landscapes import Ocean, Savannah, Desert, Jungle, Mountain
 from biosim.map import Map
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import os
+
 
 # update these variables to point to your ffmpeg and convert binaries
 _FFMPEG_BINARY = 'ffmpeg'
@@ -55,7 +58,7 @@ class BioSim:
         img_base should contain a path and beginning of a file name.
         """
         np.random.seed(seed)
-        self._system = map(island_map, ini_pop)
+        self._map = Map(island_map, ini_pop)
         if ymax_animals is None:
             self.ymax_animals = len(ini_pop[0]['pop'])
         else:
@@ -140,10 +143,7 @@ class BioSim:
         Add a population to the island
         :param population: List of dictionaries specifying population
         """
-        for animal in population:
-            Map.all_fauna.append(animal)
-        # make amethod inside the map that will take this arguments and add
-        # it to the spicified cell
+        self._map.add_animals(population)
 
     def make_movie(self, movie_fmt=_DEFAULT_MOVIE_FORMAT):
         """
