@@ -15,56 +15,50 @@ import numpy as np
 
 
 class Map:
-    all_fauna = []
 
-    def __init__(self, island_map, init_pop):
+    def __init__(self, island_map, ini_pop=None):
         self.island_map = self.string_to_np_array(island_map)
         self.not_surrounded_by_ocean(self.island_map)
-        Map.all_fauna.append(init_pop)
+        self.ini_pop = ini_pop
         # self.map = self.create_map(self.island_map)
         # self.all_fauna = all_fauna
         # Those animals are just initial for all cells, letr we need to add all_fauna
-        h1 = Herbivore()
-        h2 = Herbivore()
-        c1 = Carnivore()
-        c2 = Carnivore()
-        animals = {'Herbivore': [h1, h2], 'Carnivore': [c1, c2]}
-        self.landscape_cells = {'O': Ocean(),
-                                'S': Savannah(animals),
-                                'M': Mountain(),
-                                'J': Jungle(animals),
-                                'D': Desert(animals)}
+        #h1 = Herbivore()
+        #h2 = Herbivore()
+        #c1 = Carnivore()
+        #c2 = Carnivore()
+        #animals = {'Herbivore': [h1, h2], 'Carnivore': [c1, c2]}
+        self.landscape_cells = {'O': Ocean,
+                                'S': Savannah,
+                                'M': Mountain,
+                                'J': Jungle,
+                                'D': Desert}
 
     def create_cell(self, cell_letter):
         return self.landscape_cells[cell_letter]
 
     @staticmethod
-    def matrix_dim(map):
+    def matrix_dims(map):
         rows = map.shape[0]
         cols = map.shape[1]
         return rows, cols
 
-    def edges(self, map):
-        rows, cols = self.matrix_dim(map)
-        map_edges = [map[0, :cols], map[rows - 1, :cols],
-                     map[:rows - 1, 0], map[:rows - 1, cols - 1]]
-
-        print(map_edges)
-        print(len(map_edges))
-        print()
-        print(rows * cols)
+    def edges(self, map_array):
+        rows, cols = self.matrix_dims(map_array)
+        map_edges = [map_array[0, :cols], map_array[rows - 1, :cols],
+                     map_array[:rows - 1, 0], map_array[:rows - 1, cols - 1]]
         return map_edges
 
-    def not_surrounded_by_ocean(self, map):
+    def not_surrounded_by_ocean(self, map_array):
         # protect against non ocean edges
-        edges = self.edges(map)
+        edges = self.edges(map_array)
         for side in edges:
             if not np.all(side == 'O'):
                 raise ValueError('The given geography string is not valid.'
                                  'The edges of geography has to be ocean')
 
-    def create_map(self, map):
-        char_map = self.string_to_np_array(map)
+    def create_map(self, map_str):
+        char_map = self.string_to_np_array(map_str)
         # for element in geogr_array:
         landscape_array = np.empty(char_map.shape, dtype=object)
         # we did that to build array of the same dimesions
@@ -80,26 +74,25 @@ class Map:
                 # object of landscape
         return landscape_array
 
-    def string_to_np_array(self, map):
-        map_string_clean = map.replace(' ', '')
+    @staticmethod
+    def string_to_np_array(map_str):
+        map_string_clean = map_str.replace(' ', '')
         char_map = np.array(
             [[j for j in i] for i in map_string_clean.splitlines()])
         # convert string to numpy array with the same diemsions
         return char_map
 
-    @staticmethod
-    def adj_cells(map, x, y):
-        rows = map.shape[0]
-        cols = map.shape[1]
+    def adj_cells(self, map_array, x, y):
+        rows, cols = self.matrix_dims(map_array)
         adj_cells_list = []
         if x > 0:
-            adj_cells_list.append(map[x - 1, y])
+            adj_cells_list.append(map_array[x - 1, y])
         if x + 1 < rows:
-            adj_cells_list.append(map[x + 1, y])
+            adj_cells_list.append(map_array[x + 1, y])
         if y > 0:
-            adj_cells_list.append(map[x, y - 1])
+            adj_cells_list.append(map_array[x, y - 1])
         if y + 1 < cols:
-            adj_cells_list.append(map[x, y + 1])
+            adj_cells_list.append(map_array[x, y + 1])
         return adj_cells_list
 
     @staticmethod
@@ -144,4 +137,5 @@ class Map:
                 # step 4, grow_up
                 cell.lose_weight_animals()
                 cell.die_animals()
+
 
