@@ -88,8 +88,6 @@ class Fauna:
             self._fitness = self.fitness_formula(
                 self.age, self._weight, self.parameters)
 
-
-
     @property
     def move_probability(self):
         return self.parameters['mu'] * self.fitness
@@ -107,9 +105,8 @@ class Fauna:
             return 0
 
     def give_birth(self, baby):
-        self._weight -= baby.parameters['w_birth'] * baby.parameters['xi']
-        print(self._weight)
-        print(self.weight)
+
+        self._weight -= baby.weight * baby.parameters['xi']
 
     # @property
     def death_probability(self):
