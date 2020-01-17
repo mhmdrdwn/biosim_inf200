@@ -231,7 +231,6 @@ class Savannah(Landscape):
                                    str(parameter) +
                                    ' can\'t be set')
 
-
 class Jungle(Landscape):
     is_accessible = True
     parameters = {'f_max': 300.0}
