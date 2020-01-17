@@ -68,17 +68,27 @@ class Fauna:
 
     @property
     def fitness(self):
-        # this is just to be used in the landscape, not needed actually
+        self.calculate_fitness()
+        return self._fitness
+
+    @staticmethod
+    def fitness_formula(age, weight, parameters):
+        # fitness formula
+        q1 = 1 / (1 + math.exp((parameters['phi_age'])
+                               * (age - parameters['a_half'])))
+        q2 = 1 / (1 + math.exp((-1 * (parameters['phi_weight'])
+                                * (weight - parameters['w_half']))))
+        return q1*q2
+
+    def calculate_fitness(self):
+        # this is a class method because the formula is fixed for all animals
         if self._weight == 0:
             self._fitness = 0
         else:
-            q1 = 1 / (1 + math.exp((self.parameters['phi_age']) * (
-                    self.age - self.parameters['a_half'])))
-            q2 = 1 / (1 + math.exp((-1 * (self.parameters['phi_weight']) * (
-                    self._weight - self.parameters['w_half']))))
-            self._fitness = q1 * q2
-            # fitness formula
-        return self._fitness
+            self._fitness = self.fitness_formula(
+                self.age, self._weight, self.parameters)
+
+
 
     @property
     def move_probability(self):
