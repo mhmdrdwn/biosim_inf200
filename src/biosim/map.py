@@ -19,11 +19,11 @@ class Map:
         # self.map = self.create_map(self.island_map)
         # self.all_fauna = all_fauna
         # Those animals are just initial for all cells, letr we need to add all_fauna
-        #h1 = Herbivore()
-        #h2 = Herbivore()
-        #c1 = Carnivore()
-        #c2 = Carnivore()
-        #animals = {'Herbivore': [h1, h2], 'Carnivore': [c1, c2]}
+        # h1 = Herbivore()
+        # h2 = Herbivore()
+        # c1 = Carnivore()
+        # c2 = Carnivore()
+        # animals = {'Herbivore': [h1, h2], 'Carnivore': [c1, c2]}
         self.landscape_cells = {'O': Ocean,
                                 'S': Savannah,
                                 'M': Mountain,
@@ -117,29 +117,25 @@ class Map:
 
     def add_animals_population(self, population):
         print(population)
-        #this should be done with sim
+        # this should be done with sim
 
-    def annual_cycle(self):
+    def run_stage_of_cycle(self, stage_method):
         cells_matrix = self.create_map()
         rows, cols = self.matrix_dims(cells_matrix)
         for x in range(0, rows):
             for y in range(0, cols):
                 cell = cells_matrix[x, y]
-                cell.feed_animals()
-                # step 1 feeding
-                cell.give_birth_animals()
-                # step 2 procreation
-                #cell.migrate_animals(cell, map, x, y)
-                # step 2 migrate
-                cell.grow_up_animals()
-                # step 4, grow_up
-                cell.lose_weight_animals()
-                # step 5, lose weight
-                cell.die_animals()
-                # step 6, die animls
+                stage_method_call = cell.globals()[stage_method]
+                stage_method_call()
 
+    def annual_cycle(self):
+        cycle_stage_methods = ['feed_animals', 'give_birth_animals',
+                               'migrate_animals', 'grow_up_animals',
+                               'lose_weight_animals', 'die_animals']
+        for stage in cycle_stage_methods:
+            self.run_stage_of_cycle(stage)
 
-    #not needed methods
+    # not needed methods
     def give_birth_all_cells(self):
         cells_matrix = self.create_map()
         cols, rows = self.matrix_dims(cells_matrix)
@@ -148,8 +144,5 @@ class Map:
                 cell = cells_matrix[x, y]
                 cell.give_birth_animals()
     # same can be done for all methjods here, to run for all cells
-
-
-
 
 
