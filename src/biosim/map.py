@@ -117,6 +117,7 @@ class Map:
 
     def add_animals_population(self, population):
         print(population)
+        #this should be done with sim
 
     def annual_cycle(self):
         cells_matrix = self.create_map()
@@ -128,7 +129,7 @@ class Map:
                 # step 1 feeding
                 cell.give_birth_animals()
                 # step 2 procreation
-                cell.migrate(cell, map, x, y)
+                #cell.migrate_animals(cell, map, x, y)
                 # step 2 migrate
                 cell.grow_up_animals()
                 # step 4, grow_up
