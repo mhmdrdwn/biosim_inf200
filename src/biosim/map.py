@@ -119,18 +119,24 @@ class Map:
         print(population)
 
     def annual_cycle(self):
-        rows, cols = self.matrix_dims()
+        cells_matrix = self.create_map()
+        rows, cols = self.matrix_dims(cells_matrix)
         for x in range(0, rows):
             for y in range(0, cols):
-                cell = self.map[x, y]
+                cell = cells_matrix[x, y]
                 cell.feed_animals()
                 # step 1 feeding
+                cell.give_birth_animals()
+                # step 2 procreation
                 cell.migrate(cell, map, x, y)
                 # step 2 migrate
                 cell.grow_up_animals()
                 # step 4, grow_up
                 cell.lose_weight_animals()
+                # step 5, lose weight
                 cell.die_animals()
+                # step 6, die animls
+
 
     #not needed methods
     def give_birth_all_cells(self):
