@@ -10,18 +10,18 @@ from random import gauss
 import math
 import numpy as np
 from random import seed
+from abc import ABC, abstractmethod
 
 
-class Fauna:
+class Fauna(ABC):
     # this should be a base class
     parameters = {}
 
+    @abstractmethod
     def __init__(self, age=None, weight=None):
         """
 
         """
-        #self.age = None
-        #self._weight = None
 
         if age is None:
             self.set_default_attribute('age')
@@ -78,10 +78,11 @@ class Fauna:
                                * (age - parameters['a_half'])))
         q2 = 1 / (1 + math.exp((-1 * (parameters['phi_weight'])
                                 * (weight - parameters['w_half']))))
-        return q1*q2
+        return q1 * q2
 
     def calculate_fitness(self):
-        # this is a class method because the formula is fixed for all animals
+        # this can be a class method
+        # because the formula is fixed for all animals
         if self._weight == 0:
             self._fitness = 0
         else:
@@ -89,12 +90,11 @@ class Fauna:
                 self.age, self._weight, self.parameters)
 
     @property
-    def move_probability(self):
+    def move_prob(self):
         return self.parameters['mu'] * self.fitness
         # animal move probablity based on the equation
 
-    # @property
-    def birth_probablity(self, num_fauna):
+    def birth_prob(self, num_fauna):
         zeta = self.parameters['zeta']
         w_birth = self.parameters['w_birth']
         sigma_birth = self.parameters['sigma_birth']
@@ -105,11 +105,9 @@ class Fauna:
             return 0
 
     def give_birth(self, baby):
-
         self._weight -= baby.weight * baby.parameters['xi']
 
-    # @property
-    def death_probability(self):
+    def death_prob(self):
         if self.fitness == 0:
             return 1
         else:
@@ -119,6 +117,30 @@ class Fauna:
         self._weight += self.parameters['beta'] * amount_to_eat
         # the same behaviour for both carni and herbi, just the difference
         # is in the amount to eat
+
+    @classmethod
+    def set_given_parameters(cls, params):
+        for parameter in params:
+            if parameter in cls.parameters:
+                if parameter == 'eta' and params[parameter] > 1:
+                    raise ValueError('Illegal parameter value, eta '
+                                     'can\'t be more than 1')
+                if parameter == 'DeltaPhiMax' and params[parameter] < 0:
+                    raise ValueError('Illegal parameter value, ' +
+                                     str(parameter) + ' can\'t be or negative')
+                elif params[parameter] <= 0:
+                    # protect against negative values
+                    raise ValueError('Illegal parameter value, ' +
+                                     str(parameter) + ' can\'t be zero '
+                                                      'or negative')
+                else:
+                    # if given_parameters[parameter] >= 0
+                    cls.parameters[parameter] = \
+                        params[parameter]
+            else:
+                # unknown parameter
+                raise RuntimeError('Unknown parameter, ' + str(parameter) +
+                                   ' can\'t be set')
 
 
 class Herbivore(Fauna):
@@ -136,26 +158,6 @@ class Herbivore(Fauna):
             # and after that we set the new updated class variable to the attribute
         self.parameters = Herbivore.parameters
 
-    @staticmethod
-    def set_given_parameters(given_parameters):
-        for parameter in given_parameters:
-            if parameter in Herbivore.parameters:
-                if parameter == 'eta' and given_parameters[parameter] > 1:
-                    raise ValueError('Illegal parameter value, ' +
-                                     str(parameter) + ' can\'t be more than 1')
-                elif given_parameters[parameter] < 0:
-                    # protect against negative values
-                    raise ValueError('Illegal parameter value, ' +
-                                     str(parameter) + ' can\'t be negative')
-                else:
-                    # if given_parameters[parameter] >= 0
-                    Herbivore.parameters[parameter] = \
-                        given_parameters[parameter]
-            else:
-                # unknown parameter
-                raise RuntimeError('Unknown parameter, ' + str(parameter) +
-                                   ' can\'t be set')
-
 
 class Carnivore(Fauna):
     parameters = {'eta': 0.125, 'F': 50.0, 'beta': 0.75, 'w_birth': 6.0,
@@ -166,7 +168,7 @@ class Carnivore(Fauna):
 
     def __init__(self, age=None, weight=None, params=None):
         super().__init__(age, weight)
-        self._kill_probablity = None
+        self._kill_prob = None
         if params is not None:
             # if we have given any subset of new parameters, we are going to
             # call that function that will overwrite the default parameters
@@ -174,42 +176,21 @@ class Carnivore(Fauna):
             # and after that we set the new updated class variable to the attribute
         self.parameters = Carnivore.parameters
 
-    @staticmethod
-    def set_given_parameters(given_parameters):
-        for parameter in given_parameters:
-            if parameter in Carnivore.parameters:
-                if parameter == 'eta' and given_parameters[parameter] > 1:
-                    raise ValueError('Illegal parameter value, eta '
-                                     'can\'t be more than 1')
-                elif given_parameters[parameter] <= 0:
-                    # protect against negative values
-                    raise ValueError('Illegal parameter value, ' +
-                                     str(parameter) + ' can\'t be zero or '
-                                                      'negative')
-                else:
-                    # if given_parameters[parameter] >= 0
-                    Carnivore.parameters[parameter] = \
-                        given_parameters[parameter]
-            else:
-                # unknown parameter
-                raise RuntimeError('Unknown parameter, ' + str(parameter) +
-                                   ' can\'t be set')
-
-    # @property
-    def kill_probablity(self, herbivore_to_kill):
+    def kill_prob(self, herbivore_to_kill):
         if self.fitness <= herbivore_to_kill.fitness:
-            self._kill_probablity = 0
-        elif 0 < self.fitness - herbivore_to_kill.fitness < self.parameters[
-            'DeltaPhiMax']:
-            self._kill_probablity = (self.fitness -
-                                     herbivore_to_kill.fitness) / \
-                                    self.parameters['DeltaPhiMax']
+            self._kill_prob = 0
+        elif 0 < self.fitness - herbivore_to_kill.fitness < \
+                self.parameters['DeltaPhiMax']:
+            self._kill_prob = (self.fitness - herbivore_to_kill.fitness) / \
+                              self.parameters['DeltaPhiMax']
         else:
-            self._kill_probablity = 1
-        return self._kill_probablity
+            self._kill_prob = 1
+        return self._kill_prob
 
 
 if __name__ == '__main__':
-    c = Carnivore()
-    print(c.age)
-    print(c.weight)
+    c1 = Carnivore()
+    print(c1.parameters['F'])
+    c2 = Carnivore(params={'F': 100})
+    print(c1.parameters['F'])
+    print(c2.parameters['F'])

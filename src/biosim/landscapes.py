@@ -96,7 +96,7 @@ class Landscape:
         # decrease the weight of the mother
         species = animal.__class__
         num_fauna = len(self.in_cell_fauna[species.__name__])
-        if np.random.random() > animal.birth_probablity(num_fauna):
+        if np.random.random() > animal.birth_prob(num_fauna):
             # if that random number is bigger than that probablity it should
             # give birth, or create new baby, or object of animal
             baby = species()
@@ -158,7 +158,7 @@ class Landscape:
                 for herbivore in self.sorted_fauna_fitness['Herbivore']:
                     # carnivore will kill herivore as a time
                     # if the
-                    if np.random.random() > carnivore.kill_probablity(
+                    if np.random.random() > carnivore.kill_prob(
                             herbivore):
                         weight_to_eat = herbivore.weight
                         # del self.sorted_fauna_fitness['Herbivore'][herbivore]

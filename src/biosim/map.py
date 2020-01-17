@@ -94,7 +94,7 @@ class Map:
     def move_animals(self, current_cell, map, x, y):
         for species in current_cell.in_cell_fauna:
             for animal in species:
-                if np.random.random() > animal.move_probability:
+                if np.random.random() > animal.move_prob:
                     adj_cells_list = self.adj_cells(map, x, y)
                     cell_probabilities_list = [cell.probability_of_cell(animal)
                                                for cell in adj_cells_list]

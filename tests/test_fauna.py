@@ -109,29 +109,29 @@ class TestFauna:
 
     def test_move_probability(self, gen_animal_data):
         c, h = gen_animal_data
-        assert c.move_probability == pytest.approx(0.023071193165190906)
-        assert h.move_probability == pytest.approx(0.013775722654721757)
+        assert c.move_prob == pytest.approx(0.023071193165190906)
+        assert h.move_prob == pytest.approx(0.013775722654721757)
 
     def test_birth_probability(self, gen_animal_data):
         c, h = gen_animal_data
-        assert c.birth_probablity(1) == 0
-        assert h.birth_probablity(1) == 0
+        assert c.birth_prob(1) == 0
+        assert h.birth_prob(1) == 0
         # probablity is zero if animals is less than 2
         # probablity should be more than 0 if animals >= 2
         # probablity of giving birth if there are two animals in the cell
-        assert c.birth_probablity(2) == pytest.approx(0.055370863596458174)
-        assert h.birth_probablity(2) == pytest.approx(0.03214335286101743)
+        assert c.birth_prob(2) == pytest.approx(0.055370863596458174)
+        assert h.birth_prob(2) == pytest.approx(0.03214335286101743)
         # probability should be 0 if the weight is less than
         # zeta(w_birth+sigma_birth)
         h.parameters['zeta'] = 5
         c.parameters['zeta'] = 4
-        assert c.birth_probablity(2) == 0
-        assert h.birth_probablity(2) == 0
+        assert c.birth_prob(2) == 0
+        assert h.birth_prob(2) == 0
 
     def test_death_probability(self, gen_animal_data):
         c, h = gen_animal_data
-        assert c.death_probability() == 0.5446291364035418
-        assert h.death_probability() == 0.2862242773452782
+        assert c.death_prob() == 0.5446291364035418
+        assert h.death_prob() == 0.2862242773452782
         # probablity of death given fitness 0.1 will be 0.36
 
     def test_eat(self, gen_animal_data):
@@ -164,4 +164,4 @@ class TestHerbivores(TestFauna):
 class TestCarnivores(TestFauna):
     def test_kill_probability(self, gen_animal_data):
         c, h = gen_animal_data
-        assert c.kill_probablity(h) == pytest.approx(0.004215063376820403)
+        assert c.kill_prob(h) == pytest.approx(0.004215063376820403)
