@@ -139,6 +139,9 @@ class Map:
         for stage in cycle_stage_methods:
             self.run_stage_of_cycle(stage)
 
+    def update(self):
+        pass
+
     # not needed methods
     def give_birth_all_cells(self):
         cols, rows = self.matrix_dims(self.cells_map)
@@ -147,6 +150,7 @@ class Map:
                 cell = self.cells_map[x, y]
                 cell.give_birth_animals()
     # same can be done for all methjods here, to run for all cells
+
 
 
 if __name__ == '__main__':
