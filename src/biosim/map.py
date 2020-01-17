@@ -6,12 +6,8 @@
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
-from biosim.fauna import Herbivore, Carnivore
 from biosim.landscapes import Desert, Ocean, Mountain, Savannah, Jungle
 import numpy as np
-
-
-# that's wrong
 
 
 class Map:
@@ -57,22 +53,21 @@ class Map:
                 raise ValueError('The given geography string is not valid.'
                                  'The edges of geography has to be ocean')
 
-    def create_map(self, map_str):
-        char_map = self.string_to_np_array(map_str)
+    def create_map(self):
         # for element in geogr_array:
-        landscape_array = np.empty(char_map.shape, dtype=object)
+        cells_array = np.empty(self.island_map.shape, dtype=object)
         # we did that to build array of the same dimesions
-        for i in np.arange(char_map.shape[0]):
-            for j in np.arange(char_map.shape[1]):
+        for i in np.arange(self.island_map.shape[0]):
+            for j in np.arange(self.island_map.shape[1]):
                 # iterate through the given character array and build
                 # object of landscapes for each character
                 # we saved here the landscape class and instantiate the object
-                cell_letter = char_map[i][j]
-                landscape_array[i][j] = self.create_cell(cell_letter)
+                cell_letter = self.island_map[i][j]
+                cells_array[i][j] = self.create_cell(cell_letter)
                 # all object are saved inside the numpy array in output
                 # animals list should be given as arguments to the
                 # object of landscape
-        return landscape_array
+        return cells_array
 
     @staticmethod
     def string_to_np_array(map_str):
@@ -102,9 +97,6 @@ class Map:
             total_propensity += cell.propensity(animal)
         return total_propensity
 
-    def procreate_all_cells(self):
-        for
-
     def migrate(self, current_cell, map, x, y):
         for species in current_cell.in_cell_fauna:
             for animal in species:
@@ -127,8 +119,7 @@ class Map:
         print(population)
 
     def annual_cycle(self):
-        rows = self.map.shape[0]
-        cols = self.map.shape[1]
+        rows, cols = self.matrix_dims()
         for x in range(0, rows):
             for y in range(0, cols):
                 cell = self.map[x, y]
@@ -140,5 +131,18 @@ class Map:
                 # step 4, grow_up
                 cell.lose_weight_animals()
                 cell.die_animals()
+
+    #not needed methods
+    def give_birth_all_cells(self):
+        cells_matrix = self.create_map()
+        cols, rows = self.matrix_dims(cells_matrix)
+        for x in rows:
+            for y in cols:
+                cell = cells_matrix[x, y]
+                cell.give_birth_animals()
+    # same can be done for all methjods here, to run for all cells
+
+
+
 
 
