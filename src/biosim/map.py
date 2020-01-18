@@ -15,6 +15,7 @@ class Map:
 
     def __init__(self, island_map):
         self.island_map = self.string_to_np_array(island_map)
+        self._cells_dims = None
         self.not_surrounded_by_ocean(self.island_map)
         self.landscape_classes = {'O': Ocean,
                                   'S': Savannah,
@@ -23,12 +24,14 @@ class Map:
                                   'D': Desert}
         self._fauna_classes = {'Carnivore': Carnivore,
                                 'Herbivore': Herbivore}
-        self._cells_map = None
-        self.create_map_of_landscape_objects()
 
-    def get_status(self):
+        self._cells = self.create_map_of_landscape_objects()
+
+
+    @property
+    def cells(self):
         """Returns full data matrix."""
-        return self._cells_map
+        return self._cells
 
     def mean_value(self):
         """Returns mean value of system elements."""
@@ -37,14 +40,14 @@ class Map:
     def create_cell(self, cell_letter):
         return self.landscape_classes[cell_letter]()
 
-    @staticmethod
-    def matrix_dims(map):
-        rows = map.shape[0]
-        cols = map.shape[1]
+    @property
+    def cells_dims(self):
+        rows = self._cells.shape[0]
+        cols = self._cells.shape[1]
         return rows, cols
 
     def edges(self, map_array):
-        rows, cols = self.matrix_dims(map_array)
+        rows, cols = map_array.shape[0], map_array.shape[1]
         map_edges = [map_array[0, :cols], map_array[rows - 1, :cols],
                      map_array[:rows - 1, 0], map_array[:rows - 1, cols - 1]]
         return map_edges
@@ -71,7 +74,7 @@ class Map:
                 # all object are saved inside the numpy array in output
                 # animals list should be given as arguments to the
                 # object of landscape
-        self._cells_maps = cells_array
+        return cells_array
 
     @staticmethod
     def string_to_np_array(map_str):
@@ -81,17 +84,17 @@ class Map:
         # convert string to numpy array with the same diemsions
         return char_map
 
-    def adj_cells(self, map_array, x, y):
-        rows, cols = self.matrix_dims(map_array)
+    def adj_cells(self, x, y):
+        rows, cols = self.cells_dims
         adj_cells_list = []
         if x > 0:
-            adj_cells_list.append(map_array[x - 1, y])
+            adj_cells_list.append(self._cells[x - 1, y])
         if x + 1 < rows:
-            adj_cells_list.append(map_array[x + 1, y])
+            adj_cells_list.append(self._cells[x + 1, y])
         if y > 0:
-            adj_cells_list.append(map_array[x, y - 1])
+            adj_cells_list.append(self._cells[x, y - 1])
         if y + 1 < cols:
-            adj_cells_list.append(map_array[x, y + 1])
+            adj_cells_list.append(self._cells[x, y + 1])
         return adj_cells_list
 
     @staticmethod
@@ -129,23 +132,23 @@ class Map:
                 weight = animal['weight']
                 species_class = self._fauna_classes[species]
                 animal_object = species_class(age=age, weight=weight)
-                cell = self._cells_map[loc]
+                cell = self._cells[loc]
                 cell.add_animal(animal_object)
 
     def total_num_animals_per_species(self, species):
         num_animals = 0
-        rows, cols = self.matrix_dims(self._cells_map)
+        rows, cols = self.cells_dims
         for x in range(0, rows):
             for y in range(0, cols):
-                cell = self._cells_map[x, y]
-                num_animals += len(cell.in_cell_fauna[species])
+                cell = self._cells[x, y]
+                num_animals += len(cell._in_cell_fauna[species])
         return num_animals
 
     def run_stage_of_cycle(self, stage_method):
-        rows, cols = self.matrix_dims(self._cells_map)
+        rows, cols = self.cells_dims
         for x in range(0, rows):
             for y in range(0, cols):
-                cell = self._cells_map[x, y]
+                cell = self._cells[x, y]
                 stage_method_call = cell.globals()[stage_method]
                 stage_method_call()
 
@@ -156,14 +159,11 @@ class Map:
         for stage in cycle_stage_methods:
             self.run_stage_of_cycle(stage)
 
-    def update(self):
-        pass
-
     # not needed methods
     def give_birth_all_cells(self):
-        cols, rows = self.matrix_dims(self._cells_map)
+        cols, rows = self.cells_dims
         for x in rows:
             for y in cols:
-                cell = self._cells_map[x, y]
+                cell = self._cells[x, y]
                 cell.give_birth_animals()
     # same can be done for all methjods here, to run for all cells

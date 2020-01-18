@@ -95,6 +95,12 @@ class Landscape(ABC):
         key = animal.__class__.__name__
         self._in_cell_fauna[key].remove(animal)
 
+    @property
+    def cell_fauna_count(self):
+        herbivore = len(self._in_cell_fauna['Herbivore'])
+        carnivore = len(self._in_cell_fauna['Carnivore'])
+        return {'Herbivore': herbivore, 'Carnivore': carnivore}
+
     def mate(self, animal):
         # now change the population of the cell
         # decrease the weight of the mother
@@ -285,7 +291,8 @@ class Desert(Landscape):
         total_herb_weight = sum(
             i.weight for i in self._in_cell_fauna['Herbivore'])
         self.available_fodder['Carnivore'] = total_herb_weight
-        self.available_fodder['Herbivore'] = Desert.available_fodder['Herbivore']
+        self.available_fodder['Herbivore'] = Desert.available_fodder[
+            'Herbivore']
         # should we move aviable_fodder to the class level
         # That's because it's not changeable, so it's private variable
 
@@ -299,7 +306,7 @@ class Mountain(Landscape):
     # class variabels for all classes
 
     def __init__(self):
-        #if fauna_objects_dict is not None:
+        # if fauna_objects_dict is not None:
         #    raise ValueError('Animals can\'t be set on Mountains, '
         #                     'this parameter has to be empty')
         super().__init__()
@@ -318,11 +325,10 @@ class Ocean(Landscape):
     # chnaged in all instances of the variables
     def __init__(self):
         super().__init__()
-        #if in_cell_fauna is not None:
+        # if in_cell_fauna is not None:
         #    raise ValueError('Animals can\'t be set on Ocean, '
         #                     'this parameter has to be empty')
         self.available_fodder = Ocean.available_fodder
         self.in_cell_fauna = Ocean.in_cell_fauna
         # overwrite the object fauna_objects_list to be equals to empty list,
         # is that right?
-
