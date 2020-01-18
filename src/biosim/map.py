@@ -13,18 +13,18 @@ import numpy as np
 
 class Map:
 
-    def __init__(self, island_map, ini_pop=None):
+    def __init__(self, island_map):
         self.island_map = self.string_to_np_array(island_map)
         self.not_surrounded_by_ocean(self.island_map)
-        self.cells_map = self.create_map_of_landscape_objects()
-        self.add_animals(ini_pop)
+        self.landscape_classes = {'O': Ocean,
+                                  'S': Savannah,
+                                  'M': Mountain,
+                                  'J': Jungle,
+                                  'D': Desert}
         self.fauna_classes = {'Carnivore': Carnivore,
                                 'Herbivore': Herbivore}
-        self.landscape_classes = {'O': Ocean,
-                                'S': Savannah,
-                                'M': Mountain,
-                                'J': Jungle,
-                                'D': Desert}
+
+        self.cells_map = self.create_map_of_landscape_objects()
 
     def create_cell(self, cell_letter):
         return self.landscape_classes[cell_letter]

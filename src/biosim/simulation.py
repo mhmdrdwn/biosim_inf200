@@ -61,17 +61,24 @@ class BioSim:
         img_base should contain a path and beginning of a file name.
         """
         np.random.seed(seed)
-        self._map = Map(island_map, ini_pop)
+        self._map = Map(island_map)
+
         if ymax_animals is None:
-            self.ymax_animals = len(ini_pop[0]['pop'])
+            self.ymax_animals = None
         else:
             self.ymax_animals = ymax_animals
+
         if cmax_animals is None:
             self.cmax_animals = None
             # need to add the color pallete here
         else:
             self.cmax_animals = cmax_animals
 
+        if img_base is None:
+            self._img_base = _DEFAULT_GRAPHICS_DIR + _DEFAULT_GRAPHICS_NAME
+        else:
+            self._img_base = img_base
+        self._img_ctr = 0
         self._img_fmt = img_fmt
 
         self.landscapes = {'O': Ocean,
@@ -84,8 +91,6 @@ class BioSim:
 
         self._step = 0
         self._final_step = None
-        self._img_base = img_base
-        self._img_ctr = 0
 
         # the following will be initialized by _setup_graphics
         self._fig = None
@@ -292,7 +297,9 @@ class BioSim:
     @property
     def animal_distribution(self):
         """Pandas DataFrame with animal count per species for each cell on island."""
+        pass
 
 
     def make_movie(self):
         """Create MPEG4 movie from visualization images saved."""
+        pass
