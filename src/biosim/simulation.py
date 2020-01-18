@@ -274,8 +274,7 @@ class BioSim:
     @property
     def year(self):
         """Last year simulated."""
-        self._year += 1
-        return self._year
+        return self._step
 
     @property
     def num_animals(self):

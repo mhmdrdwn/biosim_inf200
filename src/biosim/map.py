@@ -23,8 +23,16 @@ class Map:
                                   'D': Desert}
         self._fauna_classes = {'Carnivore': Carnivore,
                                 'Herbivore': Herbivore}
+        self._cells_map = None
+        self.create_map_of_landscape_objects()
 
-        self.cells_map = self.create_map_of_landscape_objects()
+    def get_status(self):
+        """Returns full data matrix."""
+        return self._cells_map
+
+    def mean_value(self):
+        """Returns mean value of system elements."""
+        pass
 
     def create_cell(self, cell_letter):
         return self.landscape_classes[cell_letter]()
@@ -63,7 +71,7 @@ class Map:
                 # all object are saved inside the numpy array in output
                 # animals list should be given as arguments to the
                 # object of landscape
-        return cells_array
+        self._cells_maps = cells_array
 
     @staticmethod
     def string_to_np_array(map_str):
@@ -121,23 +129,23 @@ class Map:
                 weight = animal['weight']
                 species_class = self._fauna_classes[species]
                 animal_object = species_class(age=age, weight=weight)
-                cell = self.cells_map[loc]
+                cell = self._cells_map[loc]
                 cell.add_animal(animal_object)
 
     def total_num_animals_per_species(self, species):
         num_animals = 0
-        rows, cols = self.matrix_dims(self.cells_map)
+        rows, cols = self.matrix_dims(self._cells_map)
         for x in range(0, rows):
             for y in range(0, cols):
-                cell = self.cells_map[x, y]
+                cell = self._cells_map[x, y]
                 num_animals += len(cell.in_cell_fauna[species])
         return num_animals
 
     def run_stage_of_cycle(self, stage_method):
-        rows, cols = self.matrix_dims(self.cells_map)
+        rows, cols = self.matrix_dims(self._cells_map)
         for x in range(0, rows):
             for y in range(0, cols):
-                cell = self.cells_map[x, y]
+                cell = self._cells_map[x, y]
                 stage_method_call = cell.globals()[stage_method]
                 stage_method_call()
 
@@ -153,9 +161,9 @@ class Map:
 
     # not needed methods
     def give_birth_all_cells(self):
-        cols, rows = self.matrix_dims(self.cells_map)
+        cols, rows = self.matrix_dims(self._cells_map)
         for x in rows:
             for y in cols:
-                cell = self.cells_map[x, y]
+                cell = self._cells_map[x, y]
                 cell.give_birth_animals()
     # same can be done for all methjods here, to run for all cells
