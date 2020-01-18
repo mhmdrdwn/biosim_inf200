@@ -124,6 +124,15 @@ class Map:
                 cell = self.cells_map[loc]
                 cell.add_animal(animal_object)
 
+    def total_num_animals_per_species(self, species):
+        num_animals = 0
+        rows, cols = self.matrix_dims(self.cells_map)
+        for x in range(0, rows):
+            for y in range(0, cols):
+                cell = self.cells_map[x, y]
+                num_animals += len(cell.in_cell_fauna[species])
+        return num_animals
+
     def run_stage_of_cycle(self, stage_method):
         rows, cols = self.matrix_dims(self.cells_map)
         for x in range(0, rows):

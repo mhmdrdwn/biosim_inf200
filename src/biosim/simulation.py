@@ -11,6 +11,7 @@ import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 import subprocess
 
 
@@ -71,7 +72,7 @@ class BioSim:
         else:
             self.cmax_animals = cmax_animals
 
-        self.img_fmt = img_fmt
+        self._img_fmt = img_fmt
 
         self.landscapes = {'O': Ocean,
                            'S': Savannah,
@@ -83,8 +84,7 @@ class BioSim:
 
         self._step = 0
         self._final_step = None
-        if img_base is None:
-            pass # no figure should be written to file
+        self._img_base = img_base
         self._img_ctr = 0
 
         # the following will be initialized by _setup_graphics
@@ -93,6 +93,8 @@ class BioSim:
         self._img_axis = None
         self._mean_ax = None
         self._mean_line = None
+
+        self._year = 0
 
     def set_animal_parameters(self, species, params):
         """
@@ -267,18 +269,30 @@ class BioSim:
     @property
     def year(self):
         """Last year simulated."""
+        self._year += 1
+        return self._year
 
     @property
     def num_animals(self):
         """Total number of animals on island."""
+        total_num = 0
+        for species in self.animal_species:
+            total_num += self._map.total_num_animals_per_species(species)
+        return total_num
 
     @property
     def num_animals_per_species(self):
         """Number of animals per species in island, as dictionary."""
+        num_per_species = {}
+        for species in self.animal_species:
+            num_per_species[species] = \
+                self._map.total_num_animals_per_species(species)
+        return num_per_species
 
     @property
     def animal_distribution(self):
         """Pandas DataFrame with animal count per species for each cell on island."""
+
 
     def make_movie(self):
         """Create MPEG4 movie from visualization images saved."""
