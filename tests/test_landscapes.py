@@ -35,11 +35,11 @@ class TestLandscapes:
         landscape_params = {'f_max': 10.0}
         c1, c2, h1, h2 = gen_animal_data
         animals = {'Herbivore': [h1, h2], 'Carnivore': [c1, c2]}
-        landscapes_dict = {'s': Savannah(animals, landscape_params),
+        landscapes_dict = {'s': Savannah(),
                            'o': Ocean(),
-                           'd': Desert(animals),
+                           'd': Desert(),
                            'm': Mountain(),
-                           'j': Jungle(animals, landscape_params)}
+                           'j': Jungle()}
         return landscapes_dict
 
     def test_save_fitness(self, gen_landscape_data):

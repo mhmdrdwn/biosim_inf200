@@ -19,11 +19,11 @@ class Landscape(ABC):
     parameters = {}
 
     @abstractmethod
-    def __init__(self, in_cell_fauna):
+    def __init__(self):
         # those fauna list is given from the map, which was given earlier
         # from the simulation as initial animals and we append it to when
         # migration and birthing
-        self.in_cell_fauna = in_cell_fauna
+        self._in_cell_fauna = {'Herbivore': [], 'Carnivore': []}
         # that should be list of dicts
         self.sorted_fauna_fitness = {}
 
@@ -62,7 +62,7 @@ class Landscape(ABC):
     def relative_abundance_fodder(self, animal):
         species = animal.__class__.__name__
         return self.relevant_fodder(animal) / (
-                (len(self.in_cell_fauna[species]) + 1) *
+                (len(self._in_cell_fauna[species]) + 1) *
                 animal.parameters['F'])
         # we instantiate object of teh species given and get F from it
         # maybe there is error here
@@ -89,17 +89,17 @@ class Landscape(ABC):
 
     def add_animal(self, animal):
         key = animal.__class__.__name__
-        self.in_cell_fauna[key].append(animal)
+        self._in_cell_fauna[key].append(animal)
 
-    def remove_fauna(self, animal):
+    def remove_animal(self, animal):
         key = animal.__class__.__name__
-        self.in_cell_fauna[key].remove(animal)
+        self._in_cell_fauna[key].remove(animal)
 
     def mate(self, animal):
         # now change the population of the cell
         # decrease the weight of the mother
         species = animal.__class__
-        num_fauna = len(self.in_cell_fauna[species.__name__])
+        num_fauna = len(self._in_cell_fauna[species.__name__])
         if np.random.random() > animal.birth_prob(num_fauna):
             # if that random number is bigger than that probablity it should
             # give birth, or create new baby, or object of animal
@@ -108,7 +108,7 @@ class Landscape(ABC):
                     baby.parameters['xi']:
                 # it gives birth only if its weight is more than the the
                 # weight to be losed
-                self.add_fauna(baby)
+                self.add_animal(baby)
                 animal.give_birth(baby)
                 # that's still wrong becuase it's with the weight of the baby
             else:
@@ -118,7 +118,7 @@ class Landscape(ABC):
     def feed_herbivore(self):
         # that should return the amount of food that is going to be
         # eaten by all animals in celll
-        self.sort_by_fitness(self.in_cell_fauna, 'Herbivore')
+        self.sort_by_fitness(self._in_cell_fauna, 'Herbivore')
         # we need to sort animals by fitness prior to the eating, and the
         # animals with highest fitness eats first
         for herbivore in self.sorted_fauna_fitness['Herbivore']:
@@ -150,8 +150,8 @@ class Landscape(ABC):
                 self.available_fodder['Herbivore'] = 0
 
     def feed_carnivore(self):
-        self.sort_by_fitness(self.in_cell_fauna, 'Carnivore')
-        self.sort_by_fitness(self.in_cell_fauna, 'Herbivore', False)
+        self.sort_by_fitness(self._in_cell_fauna, 'Carnivore')
+        self.sort_by_fitness(self._in_cell_fauna, 'Herbivore', False)
         # reverse order the carnivore by fitness and sort the herbivore
         for carnivore in self.sorted_fauna_fitness['Carnivore']:
             # carbivore with highest fitness will kill the lowest fitness
@@ -182,21 +182,24 @@ class Landscape(ABC):
         self.feed_herbivore()
         self.feed_carnivore()
 
+    def grow_herb_fodder(self):
+        return
+
     def grow_up_animals(self):
-        for animal in self.in_cell_fauna:
+        for animal in self._in_cell_fauna:
             animal.grow_up()
 
     def lose_weight_animals(self):
-        for animal in self.in_cell_fauna:
+        for animal in self._in_cell_fauna:
             animal.lose_weight()
 
     def die_animals(self):
-        for animal in self.in_cell_fauna:
+        for animal in self._in_cell_fauna:
             if np.random.random() > animal.death_prob():
-                self.remove_fauna(animal)
+                self.remove_animal(animal)
 
     def give_birth_animals(self):
-        for animal in self.in_cell_fauna:
+        for animal in self._in_cell_fauna:
             if np.random.random() > animal.birth_prob:
                 species = type(animal)
                 baby = species()
@@ -207,14 +210,14 @@ class Savannah(Landscape):
     is_accessible = True
     parameters = {'f_max': 300.0, 'alpha': 0.3}
 
-    def __init__(self, in_cell_fauna, given_parameters=None):
-        super().__init__(in_cell_fauna)
+    def __init__(self, given_parameters=None):
+        super().__init__()
         if given_parameters is not None:
             self.set_given_parameters(given_parameters)
         self.parameters = Savannah.parameters
         self.available_fodder['Herbivore'] = self.parameters['f_max']
         total_herb_weight = sum(i.weight for i in
-                                self.in_cell_fauna['Herbivore'])
+                                self._in_cell_fauna['Herbivore'])
         self.available_fodder['Carnivore'] = total_herb_weight
         # aviable fodder equals to f_max at the beginning of
         # instaniating anew object
@@ -238,18 +241,19 @@ class Savannah(Landscape):
                                    str(parameter) +
                                    ' can\'t be set')
 
+
 class Jungle(Landscape):
     is_accessible = True
     parameters = {'f_max': 300.0}
 
-    def __init__(self, fauna_objects_dict, given_parameters=None):
-        super().__init__(fauna_objects_dict)
+    def __init__(self, given_parameters=None):
+        super().__init__()
         if given_parameters is not None:
             self.set_given_parameters(given_parameters)
         self.parameters = Jungle.parameters
         self.available_fodder['Herbivore'] = self.parameters['f_max']
         total_herb_weight = sum(
-            i.weight for i in self.in_cell_fauna['Herbivore'])
+            i.weight for i in self._in_cell_fauna['Herbivore'])
         self.available_fodder['Carnivore'] = total_herb_weight
         # amount of initial fodder aviable should equals to f_max
 
@@ -274,13 +278,12 @@ class Desert(Landscape):
     is_accessible = True
     available_fodder = {'Herbivore': 0}
 
-    def __init__(self, in_cell_fauna):
-        super().__init__(in_cell_fauna)
+    def __init__(self):
+        super().__init__()
 
-        self.in_cell_fauna = in_cell_fauna
         # self.available_fodder['Herbivore'] = 0
         total_herb_weight = sum(
-            i.weight for i in self.in_cell_fauna['Herbivore'])
+            i.weight for i in self._in_cell_fauna['Herbivore'])
         self.available_fodder['Carnivore'] = total_herb_weight
         self.available_fodder['Herbivore'] = Desert.available_fodder['Herbivore']
         # should we move aviable_fodder to the class level
@@ -295,11 +298,11 @@ class Mountain(Landscape):
     # That's because it's not changeable, so it's private variable, fixed
     # class variabels for all classes
 
-    def __init__(self, fauna_objects_dict=None):
-        if fauna_objects_dict is not None:
-            raise ValueError('Animals can\'t be set on Mountains, '
-                             'this parameter has to be empty')
-        super().__init__(fauna_objects_dict)
+    def __init__(self):
+        #if fauna_objects_dict is not None:
+        #    raise ValueError('Animals can\'t be set on Mountains, '
+        #                     'this parameter has to be empty')
+        super().__init__()
         self.available_fodder = Mountain.available_fodder
         self.in_cell_fauna = Mountain.in_cell_fauna
 
@@ -313,11 +316,11 @@ class Ocean(Landscape):
     # those are instance variables becuase they are fixed for all
     # instances of the class, meaning if those value changes, they will
     # chnaged in all instances of the variables
-    def __init__(self, in_cell_fauna=None):
-        super().__init__(in_cell_fauna)
-        if in_cell_fauna is not None:
-            raise ValueError('Animals can\'t be set on Ocean, '
-                             'this parameter has to be empty')
+    def __init__(self):
+        super().__init__()
+        #if in_cell_fauna is not None:
+        #    raise ValueError('Animals can\'t be set on Ocean, '
+        #                     'this parameter has to be empty')
         self.available_fodder = Ocean.available_fodder
         self.in_cell_fauna = Ocean.in_cell_fauna
         # overwrite the object fauna_objects_list to be equals to empty list,

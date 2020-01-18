@@ -62,7 +62,7 @@ class BioSim:
         """
         np.random.seed(seed)
         self._map = Map(island_map)
-
+        self.add_population(ini_pop)
         if ymax_animals is None:
             self.ymax_animals = None
         else:

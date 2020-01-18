@@ -21,13 +21,13 @@ class Map:
                                   'M': Mountain,
                                   'J': Jungle,
                                   'D': Desert}
-        self.fauna_classes = {'Carnivore': Carnivore,
+        self._fauna_classes = {'Carnivore': Carnivore,
                                 'Herbivore': Herbivore}
 
         self.cells_map = self.create_map_of_landscape_objects()
 
     def create_cell(self, cell_letter):
-        return self.landscape_classes[cell_letter]
+        return self.landscape_classes[cell_letter]()
 
     @staticmethod
     def matrix_dims(map):
@@ -113,13 +113,13 @@ class Map:
 
     def add_animals(self, pop):
         for animal_group in pop:
-            loc = list(animal_group['loc'])
+            loc = animal_group['loc']
             animals = animal_group['pop']
             for animal in animals:
-                species = animal['weight']
+                species = animal['species']
                 age = animal['age']
                 weight = animal['weight']
-                species_class = self.fauna_classes[species]
+                species_class = self._fauna_classes[species]
                 animal_object = species_class(age=age, weight=weight)
                 cell = self.cells_map[loc]
                 cell.add_animal(animal_object)
@@ -159,19 +159,3 @@ class Map:
                 cell = self.cells_map[x, y]
                 cell.give_birth_animals()
     # same can be done for all methjods here, to run for all cells
-
-
-
-if __name__ == '__main__':
-    #s = Ocean()
-    #h = Herbivore()
-    #s.add_fauna(h)
-    #print(type(s))
-    #print(s.__class__.__name__)
-    ini_herbs = [{"loc": (10, 10),
-                  "pop": [{"species": "Herbivore", "age": 5, "weight": 20} for
-                          _ in range(3)], }]
-    print(list(ini_herbs[0]['loc']))
-
-    arr = np.array([[1,2],[3,4],[5,6]])
-    print(arr[1, 1])
