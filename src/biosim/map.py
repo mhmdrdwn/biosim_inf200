@@ -6,7 +6,7 @@
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
-from biosim.landscapes import Desert, Ocean, Mountain, Savannah, Jungle
+from biosim.landscapes import Landscape, Desert, Ocean, Mountain, Savannah, Jungle
 from biosim.fauna import Herbivore, Carnivore
 import numpy as np
 
@@ -144,20 +144,17 @@ class Map:
                 num_animals += len(cell._in_cell_fauna[species])
         return num_animals
 
-    def run_stage_of_cycle(self, stage_method):
-        rows, cols = self.cells_dims
-        for x in range(0, rows):
-            for y in range(0, cols):
-                cell = self._cells[x, y]
-                stage_method_call = cell.globals()[stage_method]
-                stage_method_call()
-
     def update(self):
-        cycle_stage_methods = ['feed_animals', 'give_birth_animals',
-                               'migrate_animals', 'grow_up_animals',
-                               'lose_weight_animals', 'die_animals']
+        rows, cols = self.cells_dims
+        cycle_stage_methods = ['cell.feed_animals', 'cell.give_birth_animals',
+                               'cell.migrate_animals', 'cell.grow_up_animals',
+                               'cell.lose_weight_animals', 'cell.die_animals']
         for stage in cycle_stage_methods:
-            self.run_stage_of_cycle(stage)
+            for x in range(0, rows):
+                for y in range(0, cols):
+                    cell = self._cells[x, y]
+                    stage_to_call = eval(stage)
+                    #stage_to_call
 
     # not needed methods
     def give_birth_all_cells(self):

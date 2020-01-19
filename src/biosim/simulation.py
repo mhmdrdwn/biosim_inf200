@@ -25,8 +25,8 @@ _CONVERT_BINARY = 'magick'
 
 # update this to the directory and file-name beginning
 # for the graphics files
-_DEFAULT_GRAPHICS_DIR = os.path.join('..', 'data')
-_DEFAULT_GRAPHICS_NAME = 'dv'
+_DEFAULT_GRAPHICS_DIR = os.path.join('../results', '')
+_DEFAULT_GRAPHICS_NAME = 'biosim'
 _DEFAULT_MOVIE_FORMAT = 'mp4'  # alternatives: mp4, gif
 
 
@@ -62,6 +62,7 @@ class BioSim:
         np.random.seed(seed)
         self._map = Map(island_map)
         self.add_population(ini_pop)
+
         if ymax_animals is None:
             self.ymax_animals = None
         else:
@@ -96,7 +97,7 @@ class BioSim:
                                   'J': mcolors.to_rgb('forestgreen')}
 
         self._cells_colors = [[self._landscape_colors[letter] for letter in
-                               line] for line in geogr.splitlines()]
+                               line] for line in island_map.splitlines()]
 
         self._step = 0
         self._final_step = None
@@ -224,17 +225,17 @@ class BioSim:
             self._mean_ax.set_ylim(0, 10000)
 
         # needs updating on subsequent calls to simulate()
-        #self._mean_ax.set_xlim(0, self._final_step + 1)
+        # self._mean_ax.set_xlim(0, self._final_step + 1)
         self._build_herb_sim()
         self._build_carn_sim()
 
         # population distribution graphs
         if self._herbivore_dist is None:
             self._herbivore_dist = self._fig.add_subplot(2, 2, 3)
-            #what to add here
+
         if self._carnivore_dist is None:
             self._carnivore_dist = self._fig.add_subplot(2, 2, 4)
-            #what to add here
+            # what to add here
 
     def _update_system_map(self, sys_map):
         """Update the 2D-view of the system."""
@@ -248,15 +249,32 @@ class BioSim:
             plt.colorbar(self._img_axis, ax=self._map_ax,
                          orientation='horizontal')
 
-    def _update_mean_graph(self, mean):
-        ydata = self._mean_line.get_ydata()
-        ydata[self._step] = mean
-        self._mean_line.set_ydata(ydata)
+    def _update_herbivore_graph(self, distribution):
+        y, x = self._map.cells_dims
+        self._herbivore_dist.imshow(distribution)
+        self._herbivore_dist.set_xticks(range(0, x, 5))
+        self._herbivore_dist.set_xticklabels(range(1, 1 + x, 5))
+        self._herbivore_dist.set_yticks(range(0, y, 5))
+        self._herbivore_dist.set_yticklabels(range(1, 1 + y, 5))
+        self._herbivore_dist.set_title('Herbivore Distribution')
+        plt.show()
+
+    def _update_carnivore_graph(self, distribution):
+        y, x = self._map.cells_dims
+        self._carnivore_dist.imshow(distribution)
+        self._carnivore_dist.set_xticks(range(0, x, 5))
+        self._carnivore_dist.set_xticklabels(range(1, 1 + x, 5))
+        self._carnivore_dist.set_yticks(range(0, y, 5))
+        self._carnivore_dist.set_yticklabels(range(1, 1 + y, 5))
+        self._carnivore_dist.set_title('Carnivore Distribution')
+        plt.show()
 
     def _update_graphics(self):
         """Updates graphics with current data."""
         rows, cols = self._map.cells_dims
-        
+        df = self.animal_distribution
+        self._update_herbivore_graph(df[['carnivore']])  # which df to send
+        self._update_carnivore_graph(df[['herbivore']])  # which df to send
         # self._update_mean_graph(self._map.mean_value())
         plt.pause(1e-6)
 
@@ -351,7 +369,9 @@ class BioSim:
                 cell = self._map.cells[i, j]
                 animals_count = cell.cell_fauna_count
                 loc = i, j
-                count_df.append({'Cell': loc, 'Num of Animals': animals_count})
+                count_df.append({'i': i, 'j': j,
+                                 'carnivore': animals_count['Carnivore'],
+                                 'herbivore': animals_count['Herbivore']})
         return pd.DataFrame(count_df)
 
 
@@ -405,10 +425,16 @@ if __name__ == '__main__':
 
     print(sim.num_animals_per_species)
     print(sim.num_animals)
-    print(sim.animal_distribution)
-    sim._setup_graphics()
+    # sim._setup_graphics()
     # print(len(sim._cells_colors[0]))
     # print(len(geogr.splitlines()))
 
-    test = np.array([[1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3]])
+    # test = np.array([[1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3]])
     # print(test.shape)
+    #print(sim.animal_distribution[['i']])
+    def test():
+        print(111)
+    ss = 'sim.animal_distribution'
+    ducn = eval(ss)
+    print(type(ducn))
+    print(ducn)
