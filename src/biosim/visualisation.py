@@ -147,4 +147,34 @@ class Visualisation:
             self._carnivore_dist = self._fig.add_subplot(2, 2, 4)
             # what to add here
 
-    
+    def update_herbivore_graph(self, distribution):
+        y, x = self._map_dims
+        self._herbivore_dist.imshow(distribution)
+        self._herbivore_dist.set_xticks(range(0, x, 5))
+        self._herbivore_dist.set_xticklabels(range(1, 1 + x, 5))
+        self._herbivore_dist.set_yticks(range(0, y, 5))
+        self._herbivore_dist.set_yticklabels(range(1, 1 + y, 5))
+        self._herbivore_dist.set_title('Herbivore Distribution')
+        plt.show()
+
+    def update_carnivore_graph(self, distribution):
+        y, x = self._map_dims
+        self._carnivore_dist.imshow(distribution)
+        self._carnivore_dist.set_xticks(range(0, x, 5))
+        self._carnivore_dist.set_xticklabels(range(1, 1 + x, 5))
+        self._carnivore_dist.set_yticks(range(0, y, 5))
+        self._carnivore_dist.set_yticklabels(range(1, 1 + y, 5))
+        self._carnivore_dist.set_title('Carnivore Distribution')
+        plt.show()
+
+    def _update_system_map(self, sys_map):
+        """Update the 2D-view of the system."""
+
+        if self._img_axis is not None:
+            self._img_axis.set_data(sys_map)
+        else:
+            self._img_axis = self._map_ax.imshow(sys_map,
+                                                 interpolation='nearest',
+                                                 vmin=0, vmax=1)
+            plt.colorbar(self._img_axis, ax=self._map_ax,
+                         orientation='horizontal')

@@ -108,9 +108,6 @@ class BioSim:
         # the following will be initialized by _setup_graphics
         self._fig = None
         self._img_axis = None
-        self._mean_ax = None
-        self._herbivore_dist = None
-        self._carnivore_dist = None
         self._year = 0
 
     def set_animal_parameters(self, species, params):
@@ -185,44 +182,12 @@ class BioSim:
         # population distribution graphs
         self._vis.animal_dist_graphs()
 
-    def _update_system_map(self, sys_map):
-        """Update the 2D-view of the system."""
-
-        if self._img_axis is not None:
-            self._img_axis.set_data(sys_map)
-        else:
-            self._img_axis = self._map_ax.imshow(sys_map,
-                                                 interpolation='nearest',
-                                                 vmin=0, vmax=1)
-            plt.colorbar(self._img_axis, ax=self._map_ax,
-                         orientation='horizontal')
-
-    def _update_herbivore_graph(self, distribution):
-        y, x = self._map.cells_dims
-        self._herbivore_dist.imshow(distribution)
-        self._herbivore_dist.set_xticks(range(0, x, 5))
-        self._herbivore_dist.set_xticklabels(range(1, 1 + x, 5))
-        self._herbivore_dist.set_yticks(range(0, y, 5))
-        self._herbivore_dist.set_yticklabels(range(1, 1 + y, 5))
-        self._herbivore_dist.set_title('Herbivore Distribution')
-        plt.show()
-
-    def _update_carnivore_graph(self, distribution):
-        y, x = self._map.cells_dims
-        self._carnivore_dist.imshow(distribution)
-        self._carnivore_dist.set_xticks(range(0, x, 5))
-        self._carnivore_dist.set_xticklabels(range(1, 1 + x, 5))
-        self._carnivore_dist.set_yticks(range(0, y, 5))
-        self._carnivore_dist.set_yticklabels(range(1, 1 + y, 5))
-        self._carnivore_dist.set_title('Carnivore Distribution')
-        plt.show()
-
     def _update_graphics(self):
         """Updates graphics with current data."""
         rows, cols = self._map.cells_dims
         df = self.animal_distribution
-        self._update_herbivore_graph(df[['carnivore']])  # which df to send
-        self._update_carnivore_graph(df[['herbivore']])  # which df to send
+        self._vis.update_herbivore_graph(df[['carnivore']])  # which df to send
+        self._vis.update_carnivore_graph(df[['herbivore']])  # which df to send
         # self._update_mean_graph(self._map.mean_value())
         plt.pause(1e-6)
 
