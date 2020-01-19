@@ -15,6 +15,10 @@ import operator
 
 
 class Landscape(ABC):
+    """
+    Landscape abstract class. There are five subclasses: Jungle, Desert,
+    Savannah, Ocean, Mountain inherited from this base class.
+    """
     available_fodder = {}
     parameters = {}
 
@@ -28,6 +32,18 @@ class Landscape(ABC):
         self.sorted_fauna_fitness = {}
 
     def save_fitness(self, fauna_objects, species):
+        """
+        Updating the current fitness and sort.
+
+        Parameters
+        ----------
+        fauna_objects: dict
+        species: str ?
+
+        Returns
+        -------
+        ?
+        """
         # this is to update the current fitness to be able to use in
         # the order later
         # remember also that fitness is goijg to change each time they eat
@@ -39,6 +55,16 @@ class Landscape(ABC):
         self.sorted_fauna_fitness[species] = species_fauna_fitness
 
     def sort_by_fitness(self, animal_objects, species_to_sort, reverse=True):
+        """
+        Sorts animal objects of each species according to their fitness whether
+        it can be sorted or reverse sorted.
+
+        Parameters
+        ----------
+        animal_objects: dict? or list
+        species_to_sort: str
+        reverse: bool
+        """
         self.save_fitness(animal_objects, species_to_sort)
         if reverse:
             self.sorted_fauna_fitness[species_to_sort] = dict(
@@ -52,6 +78,17 @@ class Landscape(ABC):
         # parameters whether it should be sorted or reverse sorted
 
     def relevant_fodder(self, animal):
+        """
+        Returns relevant fodder in cell k (f_k) regarding animal species.
+
+        Parameters
+        ----------
+        animal: object
+
+        Returns
+        -------
+        available_fodder[species]: float ?
+        """
         # This is f_k
         species = animal.__class__.__name__
         return self.available_fodder[species]
@@ -60,6 +97,16 @@ class Landscape(ABC):
         # maybe a herbi is higher fitness
 
     def relative_abundance_fodder(self, animal):
+        """
+        Calculates "Relative Abundance of Fodder" (E_k) which is
+        used in computing propensity to move. That is calculated based on f_k,
+        number of animals of that kind and the F which is a given parameter from
+        the species' subclass.
+
+        Parameters
+        ----------
+        animal: ?
+        """
         species = animal.__class__.__name__
         return self.relevant_fodder(animal) / (
                 (len(self._in_cell_fauna[species]) + 1) *
@@ -68,6 +115,16 @@ class Landscape(ABC):
         # maybe there is error here
 
     def propensity(self, animal):
+        """
+        Returns propensity to move from i which is calculating for all of four
+        adjacent cells. When j is mountain or ocean, the propensity is
+        zero. Otherwise, it is computed as below equation:
+        e ^ ('lambda' * E_j)
+
+        Parameters
+        ----------
+        animal: ?
+        """
         if isinstance(self, Mountain) or isinstance(self, Ocean):
             return 0
         else:
@@ -77,6 +134,14 @@ class Landscape(ABC):
                             animal.parameters['lambda'])
 
     def probability_of_cell(self, animal, total_propensity):
+        """
+        Returns the corresponding probability to move from i to j.
+
+        Parameters
+        ----------
+        animal: object
+        total_propensity: float
+        """
         return self.propensity(animal) / total_propensity
         # this is the rule of probablity
 
@@ -88,20 +153,45 @@ class Landscape(ABC):
         # animals will turn away from food
 
     def add_animal(self, animal):
+        """
+        Adds the new object of animal to the list of same species of the cell.
+
+        Parameters
+        ----------
+        animal: object?
+        """
         key = animal.__class__.__name__
         self._in_cell_fauna[key].append(animal)
 
     def remove_animal(self, animal):
+        """
+        Removes the object of animal from the list of same species of the cell.
+
+        Parameters
+        ----------
+        animal: object?
+        """
         key = animal.__class__.__name__
         self._in_cell_fauna[key].remove(animal)
 
     @property
     def cell_fauna_count(self):
+        """
+        Calculates the number of fauna by their species.
+        """
         herbivore = len(self._in_cell_fauna['Herbivore'])
         carnivore = len(self._in_cell_fauna['Carnivore'])
         return {'Herbivore': herbivore, 'Carnivore': carnivore}
 
     def mate(self, animal):
+        """
+        Breeding new baby, if random number is bigger than the birth probability
+         and also if the weight of mother is more than the weight she loses.
+
+        Parameters
+        ----------
+        animal: obj?
+        """
         # now change the population of the cell
         # decrease the weight of the mother
         species = animal.__class__
@@ -122,6 +212,23 @@ class Landscape(ABC):
                 # dont give birth ?
 
     def feed_herbivore(self):
+        """
+        Herbivores find fodder exclusively in the savannah and jungle. The
+        animal with the highest fitness eating first.
+        Each animal tries every year to eat an amount 'F' of fodder, but how
+        much feed the animal obtain depends on fodder available in the cell.
+        Every time a herbivore eats, the animal can eat fodder as the following
+         "eating rules":
+        If available fodder is more than 'F', the animal eats 'F' and the amount
+        of fodder in the cell is reduced by F.
+        While, when it is less than 'F' , the animal eats what is left of fodder
+        and the remain fodder is set to zero.
+        Finally, if there is no fodder, the animal receives no food.
+        These rules are for both Jungle and Savannah landscapes.
+        Also, because in Desert there is no fodder, the third rule applies.
+        Animals can not go to Ocean or Mountain, so that the eating rules are
+        not applicable for these landscapes.
+        """
         # that should return the amount of food that is going to be
         # eaten by all animals in celll
         self.sort_by_fitness(self._in_cell_fauna, 'Herbivore')
@@ -156,6 +263,15 @@ class Landscape(ABC):
                 self.available_fodder['Herbivore'] = 0
 
     def feed_carnivore(self):
+        """
+        Carnivores can prey on herbivores everywhere, but do not prey on each
+        other. Carnivores with the highest fitness eats first. Carnivores try
+        to kill one herbivore at atime, beginning with the herbivore with the
+        lowest fitness. A carnivore continues to kill herbivores until one of
+        the following conditions occur:
+        The carnivore has eaten herbivores with a total weight of 'F' or more
+        than it. Or, it has tried to kill each herbivore in the cell.
+        """
         self.sort_by_fitness(self._in_cell_fauna, 'Carnivore')
         self.sort_by_fitness(self._in_cell_fauna, 'Herbivore', False)
         # reverse order the carnivore by fitness and sort the herbivore
@@ -213,10 +329,24 @@ class Landscape(ABC):
 
 
 class Savannah(Landscape):
+    """
+    The savannah is accessible by animals. Also, It offers fodder for herbivores
+    in limited quantity and is sensitive to overgrazing.
+    Carnivores can prey on herbivores in the savannah.
+    """
     is_accessible = True
     parameters = {'f_max': 300.0, 'alpha': 0.3}
 
     def __init__(self, given_parameters=None):
+        """
+        This is the constructor for the Savannah class, which is a subclass of
+        Landscape class.
+
+
+        Parameters
+        ----------
+        given_parameters: dict
+        """
         super().__init__()
         if given_parameters is not None:
             self.set_given_parameters(given_parameters)
@@ -229,6 +359,16 @@ class Savannah(Landscape):
         # instaniating anew object
 
     def grow_herb_fodder(self):
+        """
+        Every year in savannah, new fodder grows according to the following
+        equation:
+        available_fodder + 'alpha' * ('f_max'- available_fodder)
+
+        Returns
+        -------
+        available_fodder: float or int ?
+
+        """
         # annual grow of the fodder
         self.available_fodder['Herbivore'] += self.parameters['alpha'] \
                                               * (self.parameters['f_max']
@@ -237,6 +377,13 @@ class Savannah(Landscape):
 
     @staticmethod
     def set_given_parameters(given_parameters):
+        """
+        Sets the user defined parameters that applies to Savannah.
+
+        Parameters
+        ----------
+        given_parameters: dict
+        """
         for parameter in given_parameters:
             if parameter in Savannah.parameters:
                 Savannah.parameters[parameter] = \
@@ -249,10 +396,22 @@ class Savannah(Landscape):
 
 
 class Jungle(Landscape):
+    """
+    The jungle is accessible by animals. Also, It offers fixed amount of fodder
+    for herbivores annually and is not susceptible to long term damage due to
+    overgrazing.
+    Carnivores can prey on herbivores in the jungle.
+    """
     is_accessible = True
     parameters = {'f_max': 300.0}
 
     def __init__(self, given_parameters=None):
+        """
+
+        Parameters
+        ----------
+        given_parameters: dict
+        """
         super().__init__()
         if given_parameters is not None:
             self.set_given_parameters(given_parameters)
@@ -264,11 +423,28 @@ class Jungle(Landscape):
         # amount of initial fodder aviable should equals to f_max
 
     def grow_herb_fodder(self):
+        """
+        In the jungle, the growth of vegetation is, however, so quick that each
+        year, a fixed amount of fodder is available which is equal to 'f_max'
+
+
+        Returns
+        -------
+        available_fodder: float or int ?
+
+        """
         # annual grow of the fadder
         self.available_fodder['Herbivore'] = self.parameters['f_max']
 
     @staticmethod
     def set_given_parameters(given_parameters):
+        """
+        Sets the user defined parameters that applies to Jungle.
+
+        Parameters
+        ----------
+        given_parameters: dict
+        """
         for parameter in given_parameters:
             if parameter in Jungle.parameters:
                 Jungle.parameters[parameter] = \
@@ -281,6 +457,10 @@ class Jungle(Landscape):
 
 
 class Desert(Landscape):
+    """
+    Animals may stay in the desert, but there is no fodder available to
+    herbivores there. Carnivores can prey on herbivores in the desert.
+    """
     is_accessible = True
     available_fodder = {'Herbivore': 0}
 
@@ -298,6 +478,10 @@ class Desert(Landscape):
 
 
 class Mountain(Landscape):
+    """
+    The mountain can not be entered by animals. So that the animal lists are
+    always empty for this kind of landscape and there is no fodder.
+    """
     available_fodder = {'Herbivore': 0, 'Carnivore': 0}
     in_cell_fauna = {'Herbivore': [], 'Carnivore': []}
     is_accessible = False
@@ -315,6 +499,10 @@ class Mountain(Landscape):
 
 
 class Ocean(Landscape):
+    """
+    The ocean can not be entered by animals. So that the animal lists are
+    always empty for this kind of landscape and there is no fodder.
+    """
     available_fodder = {'Herbivore': 0, 'Carnivore': 0}
     in_cell_fauna = {'Herbivore': [], 'Carnivore': []}
     is_accessible = False
