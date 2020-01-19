@@ -109,8 +109,6 @@ class BioSim:
         self._fig = None
         self._img_axis = None
         self._mean_ax = None
-        self._herbivore_curve = None
-        self._carnivore_curve = None
         self._herbivore_dist = None
         self._carnivore_dist = None
         self._year = 0
@@ -171,35 +169,6 @@ class BioSim:
             self._map.update()
             self._step += 1
 
-    def _build_carn_sim(self):
-        if self._carnivore_curve is None:
-            carnivore_plot = self._mean_ax.plot(np.arange(0, self._final_step),
-                                                np.full(self._final_step,
-                                                        np.nan))
-            self._carnivore_curve = carnivore_plot[0]
-        else:
-            xdata, ydata = self._carnivore_curve.get_data()
-            xnew = np.arange(xdata[-1] + 1, self._final_step)
-            if len(xnew) > 0:
-                ynew = np.full(xnew.shape, np.nan)
-                self._carnivore_curve.set_data(np.hstack((xdata, xnew)),
-                                              np.hstack((ydata, ynew)))
-
-    def _build_herb_sim(self):
-        if self._herbivore_curve is None:
-            herbivore_plot = self._mean_ax.plot(np.arange(0, self._final_step),
-                                                np.full(self._final_step,
-                                                        np.nan))
-            self._herbivore_curve = herbivore_plot[0]
-        else:
-            xdata, ydata = self._herbivore_curve.get_data()
-            xnew = np.arange(xdata[-1] + 1, self._final_step)
-            if len(xnew) > 0:
-                ynew = np.full(xnew.shape, np.nan)
-                self._herbivore_curve.set_data(np.hstack((xdata, xnew)),
-                                              np.hstack((ydata, ynew)))
-        plt.show()
-
     def _setup_graphics(self):
         """Creates subplots."""
         map_dims = self._map.cells_dims
@@ -211,23 +180,10 @@ class BioSim:
             self._vis.visualise_map()
             plt.show()
 
-        # Add right subplot for line graph of mean.
-        if self._mean_ax is None:
-            self._mean_ax = self._fig.add_subplot(2, 2, 2)
-            self._mean_ax.set_ylim(0, 10000)
-
-        # needs updating on subsequent calls to simulate()
-        self._mean_ax.set_xlim(0, self._final_step + 1)
-        self._build_herb_sim()
-        self._build_carn_sim()
+        self._vis.animal_graphs(self._final_step)
 
         # population distribution graphs
-        if self._herbivore_dist is None:
-            self._herbivore_dist = self._fig.add_subplot(2, 2, 3)
-
-        if self._carnivore_dist is None:
-            self._carnivore_dist = self._fig.add_subplot(2, 2, 4)
-            # what to add here
+        self._vis.animal_dist_graphs()
 
     def _update_system_map(self, sys_map):
         """Update the 2D-view of the system."""

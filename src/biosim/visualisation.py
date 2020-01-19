@@ -9,7 +9,7 @@ __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 class Visualisation:
     map_colors = {
@@ -29,10 +29,15 @@ class Visualisation:
 
     def __init__(self, map_layout, figure, map_dims):
         self._map_layout = map_layout
-        self._figure = figure
-        self._map_ax = None
+        self._fig = figure
         self._map_colors = Visualisation.map_colors
         self._map_dims = map_dims
+        self._map_ax = None
+        self._mean_ax = None
+        self._herbivore_curve = None
+        self._carnivore_curve = None
+        self._herbivore_dist = None
+        self._carnivore_dist = None
 
     def generate_map_array(self):
         """Transform the string that parametrises the map into an rgba image.
@@ -63,13 +68,13 @@ class Visualisation:
     def visualise_map(self):
         """Create a map over the island
         """
-        self._map_ax = self._figure.add_subplot(2, 2, 1)
+        self._map_ax = self._fig.add_subplot(2, 2, 1)
         y, x = self._map_dims
         self._map_ax.imshow(self.generate_map_array())
         self._map_ax.set_xticks(range(0, x, 5))
-        self._map_ax.set_xticklabels(range(1, 1 + x, 5))
+        self._map_ax.set_xticklabels(range(0, x, 5))
         self._map_ax.set_yticks(range(0, y, 5))
-        self._map_ax.set_yticklabels(range(1, 1 + y, 5))
+        self._map_ax.set_yticklabels(range(0, y, 5))
         self._map_ax.set_title('Island')
         #self.add_map_legend()
 
@@ -96,3 +101,50 @@ class Visualisation:
 
         self._legend_ax.axis("off")
         self._legend_ax.set_ylim(0, i * 0.2 + 0.1)
+
+    def _build_carn_sim_graph(self, final_step):
+        if self._carnivore_curve is None:
+            carnivore_plot = self._mean_ax.plot(np.arange(0, final_step),
+                                                np.full(final_step,
+                                                        np.nan))
+            self._carnivore_curve = carnivore_plot[0]
+        else:
+            xdata, ydata = self._carnivore_curve.get_data()
+            xnew = np.arange(xdata[-1] + 1, final_step)
+            if len(xnew) > 0:
+                ynew = np.full(xnew.shape, np.nan)
+                self._carnivore_curve.set_data(np.hstack((xdata, xnew)),
+                                              np.hstack((ydata, ynew)))
+
+    def _build_herb_sim_graph(self, final_step):
+        if self._herbivore_curve is None:
+            herbivore_plot = self._mean_ax.plot(np.arange(0, final_step),
+                                                np.full(final_step,
+                                                        np.nan))
+            self._herbivore_curve = herbivore_plot[0]
+        else:
+            xdata, ydata = self._herbivore_curve.get_data()
+            xnew = np.arange(xdata[-1] + 1, final_step)
+            if len(xnew) > 0:
+                ynew = np.full(xnew.shape, np.nan)
+                self._herbivore_curve.set_data(np.hstack((xdata, xnew)),
+                                              np.hstack((ydata, ynew)))
+
+    def animal_graphs(self, final_step):
+        if self._mean_ax is None:
+            self._mean_ax = self._fig.add_subplot(2, 2, 2)
+            self._mean_ax.set_ylim(0, 10000)
+        self._mean_ax.set_xlim(0, final_step + 1)
+        self._build_herb_sim_graph(final_step)
+        self._build_carn_sim_graph(final_step)
+
+    def animal_dist_graphs(self):
+        # population distribution graphs
+        if self._herbivore_dist is None:
+            self._herbivore_dist = self._fig.add_subplot(2, 2, 3)
+
+        if self._carnivore_dist is None:
+            self._carnivore_dist = self._fig.add_subplot(2, 2, 4)
+            # what to add here
+
+    
