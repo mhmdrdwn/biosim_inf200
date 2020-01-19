@@ -255,7 +255,8 @@ class BioSim:
 
     def _update_graphics(self):
         """Updates graphics with current data."""
-        self._update_system_map(self.animal_distribution)
+        rows, cols = self._map.cells_dims
+        
         # self._update_mean_graph(self._map.mean_value())
         plt.pause(1e-6)
 
