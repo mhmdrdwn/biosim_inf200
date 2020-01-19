@@ -90,6 +90,16 @@ class BioSim:
         self.landscapes_with_changable_parameters = [Savannah, Jungle]
         self.animal_species = ['Carnivore', 'Herbivore']
 
+        #color pallette for landscapes/cells
+        self._landscape_colors = {'S': mcolors.to_rgb('springgreen'),
+                                  'D': mcolors.to_rgb('navajowhite'),
+                                  'O': mcolors.to_rgb('blue'),
+                                  'M': mcolors.to_rgb('silver'),
+                                  'J': mcolors.to_rgb('forestgreen')}
+
+        self._cells_colors = [[self._landscape_colors[letter] for letter in
+                               line] for line in geogr.splitlines()]
+
         self._step = 0
         self._final_step = None
 
@@ -158,6 +168,9 @@ class BioSim:
             self._map.update()
             self._step += 1
 
+    def _create_map(self):
+        pass
+
     def _setup_graphics(self):
         """Creates subplots."""
 
@@ -169,31 +182,34 @@ class BioSim:
         # We cannot create the actual ImageAxis object before we know
         # the size of the image, so we delay its creation.
         if self._map_ax is None:
-            self._map_ax = self._fig.add_subplot(1, 2, 1)
-            self._img_axis = None
-
+            #self._map_ax = self._fig.add_subplot(1, 2, 1)
+            #self._img_axis = None
+            #self._create_map()
+            self._map_ax = self._fig.add_subplot(2, 2, 1)
+            self._map_ax.imshow(self._cells_colors, interpolation='nearest')
+            plt.show()
         # Add right subplot for line graph of mean.
-        if self._mean_ax is None:
-            self._mean_ax = self._fig.add_subplot(1, 2, 2)
-            self._mean_ax.set_ylim(0, 0.02)
+        #if self._mean_ax is None:
+            #self._mean_ax = self._fig.add_subplot(1, 2, 2)
+            #self._mean_ax.set_ylim(0, 0.02)
 
         # needs updating on subsequent calls to simulate()
-        self._mean_ax.set_xlim(0, self._final_step + 1)
+        #self._mean_ax.set_xlim(0, self._final_step + 1)
 
-        if self._mean_line is None:
-            mean_plot = self._mean_ax.plot(np.arange(0, self._final_step),
-                                           np.full(self._final_step, np.nan))
-            self._mean_line = mean_plot[0]
-        else:
-            xdata, ydata = self._mean_line.get_data()
-            xnew = np.arange(xdata[-1] + 1, self._final_step)
-            if len(xnew) > 0:
-                ynew = np.full(xnew.shape, np.nan)
-                self._mean_line.set_data(np.hstack((xdata, xnew)),
-                                         np.hstack((ydata, ynew)))
+        #if self._mean_line is None:
+        #    mean_plot = self._mean_ax.plot(np.arange(0, self._final_step),
+        #                                  np.full(self._final_step, np.nan))
+        #    self._mean_line = mean_plot[0]
+        #else:
+        #    xdata, ydata = self._mean_line.get_data()
+        #    xnew = np.arange(xdata[-1] + 1, self._final_step)
+        #    if len(xnew) > 0:
+        #        ynew = np.full(xnew.shape, np.nan)
+        #        self._mean_line.set_data(np.hstack((xdata, xnew)),
+        #                                 np.hstack((ydata, ynew)))
 
     def _update_system_map(self, sys_map):
-        '''Update the 2D-view of the system.'''
+        """Update the 2D-view of the system."""
 
         if self._img_axis is not None:
             self._img_axis.set_data(sys_map)
@@ -211,9 +227,8 @@ class BioSim:
 
     def _update_graphics(self):
         """Updates graphics with current data."""
-
-        self._update_system_map(self._map.get_status())
-        self._update_mean_graph(self._map.mean_value())
+        self._update_system_map(self.animal_distribution)
+        #self._update_mean_graph(self._map.mean_value())
         plt.pause(1e-6)
 
     def _save_graphics(self):
@@ -296,7 +311,8 @@ class BioSim:
 
     @property
     def animal_distribution(self):
-        """Pandas DataFrame with animal count per species for each cell on island."""
+        """Pandas DataFrame with animal count per species for each
+        cell on island."""
         count_df = []
         rows, cols = self._map.cells_dims
         for i in range(rows):
@@ -306,11 +322,6 @@ class BioSim:
                 loc = i, j
                 count_df.append({'Cell': loc, 'Num of Animals': animals_count})
         return pd.DataFrame(count_df)
-
-
-    def make_movie(self):
-        """Create MPEG4 movie from visualization images saved."""
-        pass
 
 
 if __name__ == '__main__':
@@ -364,3 +375,4 @@ if __name__ == '__main__':
     print(sim.num_animals_per_species)
     print(sim.num_animals)
     print(sim.animal_distribution)
+    sim._setup_graphics()

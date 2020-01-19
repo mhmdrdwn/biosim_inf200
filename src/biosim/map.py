@@ -152,7 +152,7 @@ class Map:
                 stage_method_call = cell.globals()[stage_method]
                 stage_method_call()
 
-    def annual_cycle(self):
+    def update(self):
         cycle_stage_methods = ['feed_animals', 'give_birth_animals',
                                'migrate_animals', 'grow_up_animals',
                                'lose_weight_animals', 'die_animals']
