@@ -133,7 +133,7 @@ class Visualisation:
     def animal_graphs(self, final_step):
         if self._mean_ax is None:
             self._mean_ax = self._fig.add_subplot(2, 2, 2)
-            self._mean_ax.set_ylim(0, 10000)
+            self._mean_ax.set_ylim(0, 100)
         self._mean_ax.set_xlim(0, final_step + 1)
         self._build_herb_sim_graph(final_step)
         self._build_carn_sim_graph(final_step)
@@ -155,7 +155,6 @@ class Visualisation:
         self._herbivore_dist.set_yticks(range(0, y, 5))
         self._herbivore_dist.set_yticklabels(range(1, 1 + y, 5))
         self._herbivore_dist.set_title('Herbivore Distribution')
-        plt.show()
 
     def update_carnivore_graph(self, distribution):
         y, x = self._map_dims
@@ -165,7 +164,6 @@ class Visualisation:
         self._carnivore_dist.set_yticks(range(0, y, 5))
         self._carnivore_dist.set_yticklabels(range(1, 1 + y, 5))
         self._carnivore_dist.set_title('Carnivore Distribution')
-        plt.show()
 
     def _update_system_map(self, sys_map):
         """Update the 2D-view of the system."""
