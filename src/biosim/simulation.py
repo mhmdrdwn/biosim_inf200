@@ -106,8 +106,10 @@ class BioSim:
         self._map_ax = None
         self._img_axis = None
         self._mean_ax = None
-        self._mean_line = None
-
+        self._herbivore_line = None
+        self._carnivore_line = None
+        self._herbivore_dist = None
+        self._carnivore_dist = None
         self._year = 0
 
     def set_animal_parameters(self, species, params):
@@ -174,7 +176,36 @@ class BioSim:
         self._map_ax.set_xticklabels(range(1, 1 + x, 5))
         self._map_ax.set_yticks(range(0, y, 5))
         self._map_ax.set_yticklabels(range(1, 1 + y, 5))
-        self._map_ax.set_title('Island Map')
+        self._map_ax.set_title('Island')
+        plt.show()
+
+    def _build_carn_sim(self):
+        if self._carnivore_line is None:
+            carnivore_plot = self._mean_ax.plot(np.arange(0, self._final_step),
+                                                np.full(self._final_step,
+                                                        np.nan))
+            self._carnivore_line = carnivore_plot[0]
+        else:
+            xdata, ydata = self._carnivore_line.get_data()
+            xnew = np.arange(xdata[-1] + 1, self._final_step)
+            if len(xnew) > 0:
+                ynew = np.full(xnew.shape, np.nan)
+                self._carnivore_line.set_data(np.hstack((xdata, xnew)),
+                                              np.hstack((ydata, ynew)))
+
+    def _build_herb_sim(self):
+        if self._herbivore_line is None:
+            herbivore_plot = self._mean_ax.plot(np.arange(0, self._final_step),
+                                                np.full(self._final_step,
+                                                        np.nan))
+            self._herb_line = herbivore_plot[0]
+        else:
+            xdata, ydata = self._herbivore_line.get_data()
+            xnew = np.arange(xdata[-1] + 1, self._final_step)
+            if len(xnew) > 0:
+                ynew = np.full(xnew.shape, np.nan)
+                self._herbivore_line.set_data(np.hstack((xdata, xnew)),
+                                              np.hstack((ydata, ynew)))
         plt.show()
 
     def _setup_graphics(self):
@@ -184,30 +215,26 @@ class BioSim:
         if self._fig is None:
             self._fig = plt.figure()
 
-        # Add left subplot for images created with imshow().
-        # We cannot create the actual ImageAxis object before we know
-        # the size of the image, so we delay its creation.
         if self._map_ax is None:
             self._build_map()
+
         # Add right subplot for line graph of mean.
-        # if self._mean_ax is None:
-        # self._mean_ax = self._fig.add_subplot(1, 2, 2)
-        # self._mean_ax.set_ylim(0, 0.02)
+        if self._mean_ax is None:
+            self._mean_ax = self._fig.add_subplot(2, 2, 2)
+            self._mean_ax.set_ylim(0, 10000)
 
         # needs updating on subsequent calls to simulate()
-        # self._mean_ax.set_xlim(0, self._final_step + 1)
+        #self._mean_ax.set_xlim(0, self._final_step + 1)
+        self._build_herb_sim()
+        self._build_carn_sim()
 
-        # if self._mean_line is None:
-        #    mean_plot = self._mean_ax.plot(np.arange(0, self._final_step),
-        #                                  np.full(self._final_step, np.nan))
-        #    self._mean_line = mean_plot[0]
-        # else:
-        #    xdata, ydata = self._mean_line.get_data()
-        #    xnew = np.arange(xdata[-1] + 1, self._final_step)
-        #    if len(xnew) > 0:
-        #        ynew = np.full(xnew.shape, np.nan)
-        #        self._mean_line.set_data(np.hstack((xdata, xnew)),
-        #                                 np.hstack((ydata, ynew)))
+        # population distribution graphs
+        if self._herbivore_dist is None:
+            self._herbivore_dist = self._fig.add_subplot(2, 2, 3)
+            #what to add here
+        if self._carnivore_dist is None:
+            self._carnivore_dist = self._fig.add_subplot(2, 2, 4)
+            #what to add here
 
     def _update_system_map(self, sys_map):
         """Update the 2D-view of the system."""
@@ -380,7 +407,7 @@ if __name__ == '__main__':
     print(sim.animal_distribution)
     sim._setup_graphics()
     # print(len(sim._cells_colors[0]))
-    #print(len(geogr.splitlines()))
+    # print(len(geogr.splitlines()))
 
-    test = np.array([[1, 2,3],[1,2,3],[1,2,3],[1,2,3]])
-    #print(test.shape)
+    test = np.array([[1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3]])
+    # print(test.shape)
