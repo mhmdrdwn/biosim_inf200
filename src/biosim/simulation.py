@@ -15,11 +15,9 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import subprocess
 
-
 from biosim.fauna import Herbivore, Carnivore
 from biosim.landscapes import Ocean, Savannah, Desert, Jungle, Mountain
 from biosim.map import Map
-
 
 # update these variables to point to your ffmpeg and convert binaries
 _FFMPEG_BINARY = 'ffmpeg'
@@ -29,7 +27,7 @@ _CONVERT_BINARY = 'magick'
 # for the graphics files
 _DEFAULT_GRAPHICS_DIR = os.path.join('..', 'data')
 _DEFAULT_GRAPHICS_NAME = 'dv'
-_DEFAULT_MOVIE_FORMAT = 'mp4'   # alternatives: mp4, gif
+_DEFAULT_MOVIE_FORMAT = 'mp4'  # alternatives: mp4, gif
 
 
 class BioSim:
@@ -90,7 +88,7 @@ class BioSim:
         self.landscapes_with_changable_parameters = [Savannah, Jungle]
         self.animal_species = ['Carnivore', 'Herbivore']
 
-        #color pallette for landscapes/cells
+        # color pallette for landscapes/cells
         self._landscape_colors = {'S': mcolors.to_rgb('springgreen'),
                                   'D': mcolors.to_rgb('navajowhite'),
                                   'O': mcolors.to_rgb('blue'),
@@ -168,8 +166,16 @@ class BioSim:
             self._map.update()
             self._step += 1
 
-    def _create_map(self):
-        pass
+    def _build_map(self):
+        y, x = self._map.cells_dims
+        self._map_ax = self._fig.add_subplot(2, 2, 1)
+        self._map_ax.imshow(self._cells_colors)
+        self._map_ax.set_xticks(range(0, x, 5))
+        self._map_ax.set_xticklabels(range(1, 1 + x, 5))
+        self._map_ax.set_yticks(range(0, y, 5))
+        self._map_ax.set_yticklabels(range(1, 1 + y, 5))
+        self._map_ax.set_title('Island Map')
+        plt.show()
 
     def _setup_graphics(self):
         """Creates subplots."""
@@ -182,25 +188,20 @@ class BioSim:
         # We cannot create the actual ImageAxis object before we know
         # the size of the image, so we delay its creation.
         if self._map_ax is None:
-            #self._map_ax = self._fig.add_subplot(1, 2, 1)
-            #self._img_axis = None
-            #self._create_map()
-            self._map_ax = self._fig.add_subplot(2, 2, 1)
-            self._map_ax.imshow(self._cells_colors, interpolation='nearest')
-            plt.show()
+            self._build_map()
         # Add right subplot for line graph of mean.
-        #if self._mean_ax is None:
-            #self._mean_ax = self._fig.add_subplot(1, 2, 2)
-            #self._mean_ax.set_ylim(0, 0.02)
+        # if self._mean_ax is None:
+        # self._mean_ax = self._fig.add_subplot(1, 2, 2)
+        # self._mean_ax.set_ylim(0, 0.02)
 
         # needs updating on subsequent calls to simulate()
-        #self._mean_ax.set_xlim(0, self._final_step + 1)
+        # self._mean_ax.set_xlim(0, self._final_step + 1)
 
-        #if self._mean_line is None:
+        # if self._mean_line is None:
         #    mean_plot = self._mean_ax.plot(np.arange(0, self._final_step),
         #                                  np.full(self._final_step, np.nan))
         #    self._mean_line = mean_plot[0]
-        #else:
+        # else:
         #    xdata, ydata = self._mean_line.get_data()
         #    xnew = np.arange(xdata[-1] + 1, self._final_step)
         #    if len(xnew) > 0:
@@ -228,7 +229,7 @@ class BioSim:
     def _update_graphics(self):
         """Updates graphics with current data."""
         self._update_system_map(self.animal_distribution)
-        #self._update_mean_graph(self._map.mean_value())
+        # self._update_mean_graph(self._map.mean_value())
         plt.pause(1e-6)
 
     def _save_graphics(self):
@@ -265,7 +266,8 @@ class BioSim:
                 # Parameters chosen according to http://trac.ffmpeg.org/wiki/Encode/H.264,
                 # section "Compatibility"
                 subprocess.check_call([_FFMPEG_BINARY,
-                                       '-i', '{}_%05d.png'.format(self._img_base),
+                                       '-i',
+                                       '{}_%05d.png'.format(self._img_base),
                                        '-y',
                                        '-profile:v', 'baseline',
                                        '-level', '3.0',
@@ -283,7 +285,8 @@ class BioSim:
                                        '{}.{}'.format(self._img_base,
                                                       movie_fmt)])
             except subprocess.CalledProcessError as err:
-                raise RuntimeError('ERROR: convert failed with: {}'.format(err))
+                raise RuntimeError(
+                    'ERROR: convert failed with: {}'.format(err))
         else:
             raise ValueError('Unknown movie format: ' + movie_fmt)
 
@@ -376,3 +379,8 @@ if __name__ == '__main__':
     print(sim.num_animals)
     print(sim.animal_distribution)
     sim._setup_graphics()
+    # print(len(sim._cells_colors[0]))
+    #print(len(geogr.splitlines()))
+
+    test = np.array([[1, 2,3],[1,2,3],[1,2,3],[1,2,3]])
+    #print(test.shape)

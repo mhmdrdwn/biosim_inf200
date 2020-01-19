@@ -167,3 +167,4 @@ class Map:
                 cell = self._cells[x, y]
                 cell.give_birth_animals()
     # same can be done for all methjods here, to run for all cells
+
