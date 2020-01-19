@@ -18,6 +18,7 @@ import subprocess
 from biosim.fauna import Herbivore, Carnivore
 from biosim.landscapes import Ocean, Savannah, Desert, Jungle, Mountain
 from biosim.map import Map
+from biosim.visualisation import Visualisation
 
 # update these variables to point to your ffmpeg and convert binaries
 _FFMPEG_BINARY = 'ffmpeg'
@@ -60,7 +61,9 @@ class BioSim:
         img_base should contain a path and beginning of a file name.
         """
         np.random.seed(seed)
+        self._island_map = island_map
         self._map = Map(island_map)
+        self._vis = None
         self.add_population(ini_pop)
 
         if ymax_animals is None:
@@ -104,11 +107,10 @@ class BioSim:
 
         # the following will be initialized by _setup_graphics
         self._fig = None
-        self._map_ax = None
         self._img_axis = None
         self._mean_ax = None
-        self._herbivore_line = None
-        self._carnivore_line = None
+        self._herbivore_curve = None
+        self._carnivore_curve = None
         self._herbivore_dist = None
         self._carnivore_dist = None
         self._year = 0
@@ -169,55 +171,45 @@ class BioSim:
             self._map.update()
             self._step += 1
 
-    def _build_map(self):
-        y, x = self._map.cells_dims
-        self._map_ax = self._fig.add_subplot(2, 2, 1)
-        self._map_ax.imshow(self._cells_colors)
-        self._map_ax.set_xticks(range(0, x, 5))
-        self._map_ax.set_xticklabels(range(1, 1 + x, 5))
-        self._map_ax.set_yticks(range(0, y, 5))
-        self._map_ax.set_yticklabels(range(1, 1 + y, 5))
-        self._map_ax.set_title('Island')
-        plt.show()
-
     def _build_carn_sim(self):
-        if self._carnivore_line is None:
+        if self._carnivore_curve is None:
             carnivore_plot = self._mean_ax.plot(np.arange(0, self._final_step),
                                                 np.full(self._final_step,
                                                         np.nan))
-            self._carnivore_line = carnivore_plot[0]
+            self._carnivore_curve = carnivore_plot[0]
         else:
-            xdata, ydata = self._carnivore_line.get_data()
+            xdata, ydata = self._carnivore_curve.get_data()
             xnew = np.arange(xdata[-1] + 1, self._final_step)
             if len(xnew) > 0:
                 ynew = np.full(xnew.shape, np.nan)
-                self._carnivore_line.set_data(np.hstack((xdata, xnew)),
+                self._carnivore_curve.set_data(np.hstack((xdata, xnew)),
                                               np.hstack((ydata, ynew)))
 
     def _build_herb_sim(self):
-        if self._herbivore_line is None:
+        if self._herbivore_curve is None:
             herbivore_plot = self._mean_ax.plot(np.arange(0, self._final_step),
                                                 np.full(self._final_step,
                                                         np.nan))
-            self._herb_line = herbivore_plot[0]
+            self._herbivore_curve = herbivore_plot[0]
         else:
-            xdata, ydata = self._herbivore_line.get_data()
+            xdata, ydata = self._herbivore_curve.get_data()
             xnew = np.arange(xdata[-1] + 1, self._final_step)
             if len(xnew) > 0:
                 ynew = np.full(xnew.shape, np.nan)
-                self._herbivore_line.set_data(np.hstack((xdata, xnew)),
+                self._herbivore_curve.set_data(np.hstack((xdata, xnew)),
                                               np.hstack((ydata, ynew)))
         plt.show()
 
     def _setup_graphics(self):
         """Creates subplots."""
+        map_dims = self._map.cells_dims
 
         # create new figure window
         if self._fig is None:
             self._fig = plt.figure()
-
-        if self._map_ax is None:
-            self._build_map()
+            self._vis = Visualisation(self._island_map, self._fig, map_dims)
+            self._vis.visualise_map()
+            plt.show()
 
         # Add right subplot for line graph of mean.
         if self._mean_ax is None:
@@ -225,7 +217,7 @@ class BioSim:
             self._mean_ax.set_ylim(0, 10000)
 
         # needs updating on subsequent calls to simulate()
-        # self._mean_ax.set_xlim(0, self._final_step + 1)
+        self._mean_ax.set_xlim(0, self._final_step + 1)
         self._build_herb_sim()
         self._build_carn_sim()
 
@@ -425,7 +417,7 @@ if __name__ == '__main__':
 
     print(sim.num_animals_per_species)
     print(sim.num_animals)
-    # sim._setup_graphics()
+    sim._setup_graphics()
     # print(len(sim._cells_colors[0]))
     # print(len(geogr.splitlines()))
 

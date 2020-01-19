@@ -329,6 +329,6 @@ class Ocean(Landscape):
         #    raise ValueError('Animals can\'t be set on Ocean, '
         #                     'this parameter has to be empty')
         self.available_fodder = Ocean.available_fodder
-        self.in_cell_fauna = Ocean.in_cell_fauna
+        self._in_cell_fauna = Ocean.in_cell_fauna
         # overwrite the object fauna_objects_list to be equals to empty list,
         # is that right?
