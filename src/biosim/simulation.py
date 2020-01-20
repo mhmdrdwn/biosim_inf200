@@ -67,15 +67,14 @@ class BioSim:
         self.add_population(ini_pop)
 
         if ymax_animals is None:
-            self.ymax_animals = None
+            self.ymax_animals = 16000 #adjust this automatically
         else:
             self.ymax_animals = ymax_animals
 
         if cmax_animals is None:
-            self.cmax_animals = None
-            # need to add the color pallete here
+            self._cmax_animals = {'Herbivore': 10, 'Carnivore': 10}
         else:
-            self.cmax_animals = cmax_animals
+            self._cmax_animals = cmax_animals
 
         if img_base is None:
             self._img_base = _DEFAULT_GRAPHICS_DIR + _DEFAULT_GRAPHICS_NAME
@@ -90,14 +89,15 @@ class BioSim:
                            'J': Jungle,
                            'D': Desert}
         self.landscapes_with_changable_parameters = [Savannah, Jungle]
+
         self.animal_species = ['Carnivore', 'Herbivore']
 
-        self._step = 0
-        self._final_step = None
+        self._year = 0
+        self._final_year = None
 
         # the following will be initialized by _setup_graphics
         self._fig = None
-        self._img_axis = None
+        #self._img_axis = None
 
     def set_animal_parameters(self, species, params):
         """
@@ -130,7 +130,7 @@ class BioSim:
             raise TypeError(landscape + ' parameters can\'t be assigned, '
                                         'there is no such data type')
 
-    def simulate(self, num_years, vis_years=1, img_years=None):
+    def simulate(self, num_years, vis_years=None, img_years=None):
         """
         Run simulation while visualizing the result.
         :param num_years: number of years to simulate
@@ -141,19 +141,19 @@ class BioSim:
         if img_years is None:
             img_years = vis_years
 
-        self._final_step = self._step + num_years
+        self._final_year = self._year + num_years
         self._setup_graphics()
 
-        while self._step < self._final_step:
+        while self._year < self._final_year:
 
-            if self._step % vis_years == 0:
+            if self._year % vis_years == 0:
                 self._update_graphics()
 
-            if self._step % img_years == 0:
+            if self._year % img_years == 0:
                 self._save_graphics()
 
-            self._map.update()
-            self._step += 1
+            self._map.life_cycle()
+            self._year += 1
 
     def _setup_graphics(self):
         """Creates subplots."""
@@ -165,8 +165,7 @@ class BioSim:
             self._vis = Visualisation(self._island_map, self._fig, map_dims)
 
         self._vis.visualise_map()
-
-        self._vis.animal_graphs(self._final_step)
+        self._vis.animal_graphs(self._final_year, self.ymax_animals)
 
         # population distribution graphs
         self._vis.animal_dist_graphs()
@@ -178,9 +177,10 @@ class BioSim:
         dist_matrix_carnivore = np.array(df[['carnivore']]).reshape(rows, cols)
         dist_matrix_herbivore = np.array(df[['herbivore']]).reshape(rows, cols)
         self._update_animals_graph()
-        self._vis.update_herbivore_dist(dist_matrix_herbivore)
-        self._vis.update_carnivore_dist(dist_matrix_carnivore)
-        # self._update_mean_graph(self._map.mean_value())
+        self._vis.update_herbivore_dist(dist_matrix_herbivore,
+                                        self._cmax_animals['Herbivore'])
+        self._vis.update_carnivore_dist(dist_matrix_carnivore,
+                                        self._cmax_animals['Carnivore'])
         plt.pause(1e-6)
         self._fig.suptitle('Year: '+str(self.year), x=0.1)
 
@@ -244,20 +244,12 @@ class BioSim:
 
     def _update_animals_graph(self):
         herb_count, carn_count = list(self.num_animals_per_species.values())
-
-        herb_ydata = self._vis.herbivore_curve.get_ydata()
-        herb_ydata[self._step] = herb_count
-        self._vis.herbivore_curve.set_ydata(herb_ydata)
-
-        carn_ydata = self._vis.carnivore_curve.get_ydata()
-        carn_ydata[self._step] = carn_count
-        self._vis.carnivore_curve.set_ydata(carn_ydata)
-
+        self._vis.update_graphs(self._year, herb_count, carn_count)
 
     @property
     def year(self):
         """Last year simulated."""
-        return self._step
+        return self._year
 
     @property
     def num_animals(self):
@@ -286,7 +278,6 @@ class BioSim:
             for j in range(cols):
                 cell = self._map.cells[i, j]
                 animals_count = cell.cell_fauna_count
-                loc = i, j
                 count_df.append({'i': i, 'j': j,
                                  'carnivore': animals_count['Carnivore'],
                                  'herbivore': animals_count['Herbivore']})
