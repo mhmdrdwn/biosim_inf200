@@ -32,7 +32,7 @@ class Landscape(ABC):
 
     def save_fitness(self, fauna_objects, species):
         """
-        Updating the current fitness.
+        Updates the current fitness.
 
         Parameters
         ----------

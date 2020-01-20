@@ -28,6 +28,14 @@ class Visualisation:
     }
 
     def __init__(self, map_layout, figure, map_dims):
+        """
+
+        Parameters
+        ----------
+        map_layout:
+        figure:
+        map_dims:
+        """
         self._map_layout = map_layout
         self._fig = figure
         self._map_colors = Visualisation.map_colors
@@ -42,9 +50,13 @@ class Visualisation:
         self._carnivore_img_axis = None
 
     def generate_map_array(self):
-        """Transform the string that parametrises the map into an rgba image.
         """
+        Transform the string that parametrises the map into an rgba image.
 
+        Returns
+        -------
+        map_array: array
+        """
         lines = self._map_layout.splitlines()
         if len(lines[-1]) == 0:
             lines = lines[:-1]
@@ -68,7 +80,8 @@ class Visualisation:
         return map_array
 
     def visualise_map(self):
-        """Create a map over the island
+        """
+        Creates a map over the island.
         """
         if self._map_graph is None:
             self._map_graph = self._fig.add_subplot(2, 2, 1)
@@ -82,6 +95,13 @@ class Visualisation:
             # self.add_map_legend()
 
     def _build_carn_sim_curve(self, final_year):
+        """
+        Build simulation curve for carnivores in last year. ?
+
+        Parameters
+        ----------
+        final_year: int
+        """
         if self._carnivore_curve is None:
             plot = self._mean_ax.plot(np.arange(0, final_year),
                                       np.full(final_year, np.nan))
@@ -96,6 +116,13 @@ class Visualisation:
                 self._carnivore_curve.set_data(x_stack, y_stack)
 
     def _build_herb_sim_curve(self, final_year):
+        """
+        Build simulation curve for herbivores in last year. ?
+
+        Parameters
+        ----------
+        final_year: int
+        """
         if self._herbivore_curve is None:
             plot = self._mean_ax.plot(np.arange(0, final_year),
                                       np.full(final_year, np.nan))
@@ -110,6 +137,15 @@ class Visualisation:
                 self._herbivore_curve.set_data((x_stack, y_stack))
 
     def update_graphs(self, year, herb_count, carn_count):
+        """
+        Updates the graph?
+
+        Parameters
+        ----------
+        year: int
+        herb_count: int
+        carn_count: int
+        """
         herb_ydata = self._herbivore_curve.get_ydata()
         herb_ydata[year] = herb_count
         self._herbivore_curve.set_ydata(herb_ydata)
@@ -120,6 +156,13 @@ class Visualisation:
         #plt.pause(1e-4)
 
     def animal_graphs(self, final_year, y_lim):
+        """
+        ?
+        Parameters
+        ----------
+        final_year: int
+        y_lim: int?
+        """
         if self._mean_ax is None:
             self._mean_ax = self._fig.add_subplot(2, 2, 2)
             self._mean_ax.set_ylim(0, y_lim)
@@ -128,6 +171,9 @@ class Visualisation:
         self._build_carn_sim_curve(final_year)
 
     def animal_dist_graphs(self):
+        """
+        Plots animal distribution?
+        """
         if self._herbivore_dist is None:
             self._herbivore_dist = self._fig.add_subplot(2, 2, 3)
             self._herbivore_img_axis = None
@@ -137,6 +183,14 @@ class Visualisation:
             self._carnivore_img_axis = None
 
     def update_herbivore_dist(self, distribution, v_max):
+        """
+        Updates herbivores distribution.
+
+        Parameters
+        ----------
+        distribution: str ?
+        v_max: int?
+        """
         if self._herbivore_img_axis is not None:
             self._herbivore_img_axis.set_data(distribution)
         else:
@@ -151,6 +205,14 @@ class Visualisation:
             self._herbivore_dist.set_title('Herbivore Distribution')
 
     def update_carnivore_dist(self, distribution, v_max):
+        """
+        Updates carnivores distribution.
+
+        Parameters
+        ----------
+        distribution: str?
+        v_max: int?
+        """
         if self._carnivore_img_axis is not None:
             self._carnivore_img_axis.set_data(distribution)
         else:
