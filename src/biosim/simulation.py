@@ -90,10 +90,11 @@ class BioSim:
                            'J': Jungle,
                            'D': Desert}
         self.landscapes_with_changable_parameters = [Savannah, Jungle]
+
         self.animal_species = ['Carnivore', 'Herbivore']
 
-        self._step = 0
-        self._final_step = None
+        self._year = 0
+        self._final_year = None
 
         # the following will be initialized by _setup_graphics
         self._fig = None
@@ -141,19 +142,19 @@ class BioSim:
         if img_years is None:
             img_years = vis_years
 
-        self._final_step = self._step + num_years
+        self._final_year = self._year + num_years
         self._setup_graphics()
 
-        while self._step < self._final_step:
+        while self._year < self._final_year:
 
-            if self._step % vis_years == 0:
+            if self._year % vis_years == 0:
                 self._update_graphics()
 
-            if self._step % img_years == 0:
+            if self._year % img_years == 0:
                 self._save_graphics()
 
             self._map.update()
-            self._step += 1
+            self._year += 1
 
     def _setup_graphics(self):
         """Creates subplots."""
@@ -165,8 +166,7 @@ class BioSim:
             self._vis = Visualisation(self._island_map, self._fig, map_dims)
 
         self._vis.visualise_map()
-
-        self._vis.animal_graphs(self._final_step)
+        self._vis.animal_graphs(self._final_year)
 
         # population distribution graphs
         self._vis.animal_dist_graphs()
@@ -180,7 +180,6 @@ class BioSim:
         self._update_animals_graph()
         self._vis.update_herbivore_dist(dist_matrix_herbivore)
         self._vis.update_carnivore_dist(dist_matrix_carnivore)
-        # self._update_mean_graph(self._map.mean_value())
         plt.pause(1e-6)
         self._fig.suptitle('Year: '+str(self.year), x=0.1)
 
@@ -244,20 +243,12 @@ class BioSim:
 
     def _update_animals_graph(self):
         herb_count, carn_count = list(self.num_animals_per_species.values())
-
-        herb_ydata = self._vis.herbivore_curve.get_ydata()
-        herb_ydata[self._step] = herb_count
-        self._vis.herbivore_curve.set_ydata(herb_ydata)
-
-        carn_ydata = self._vis.carnivore_curve.get_ydata()
-        carn_ydata[self._step] = carn_count
-        self._vis.carnivore_curve.set_ydata(carn_ydata)
-
+        self._vis.update_graphs(self._year, herb_count, carn_count)
 
     @property
     def year(self):
         """Last year simulated."""
-        return self._step
+        return self._year
 
     @property
     def num_animals(self):
@@ -286,7 +277,6 @@ class BioSim:
             for j in range(cols):
                 cell = self._map.cells[i, j]
                 animals_count = cell.cell_fauna_count
-                loc = i, j
                 count_df.append({'i': i, 'j': j,
                                  'carnivore': animals_count['Carnivore'],
                                  'herbivore': animals_count['Herbivore']})

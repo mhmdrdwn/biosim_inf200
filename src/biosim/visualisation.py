@@ -11,6 +11,7 @@ import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 class Visualisation:
     map_colors = {
         "O": mcolors.to_rgba("navy"),
@@ -34,8 +35,8 @@ class Visualisation:
         self._map_dims = map_dims
         self._mean_ax = None
         self._map_graph = None
-        self.herbivore_curve = None
-        self.carnivore_curve = None
+        self._herbivore_curve = None
+        self._carnivore_curve = None
         self._herbivore_dist = None
         self._carnivore_dist = None
         self._herbivore_img_axis = None
@@ -105,47 +106,52 @@ class Visualisation:
         self._legend_ax.axis("off")
         self._legend_ax.set_ylim(0, i * 0.2 + 0.1)
 
-    def _build_carn_sim_graph(self, final_step):
-        if self.carnivore_curve is None:
-            carnivore_plot = self._mean_ax.plot(np.arange(0, final_step),
-                                                np.full(final_step,
+    def _build_carn_sim_curve(self, final_year):
+        if self._carnivore_curve is None:
+            carnivore_plot = self._mean_ax.plot(np.arange(0, final_year),
+                                                np.full(final_year,
                                                         np.nan))
-            self.carnivore_curve = carnivore_plot[0]
+            self._carnivore_curve = carnivore_plot[0]
         else:
-            xdata, ydata = self.carnivore_curve.get_data()
-            xnew = np.arange(xdata[-1] + 1, final_step)
+            xdata, ydata = self._carnivore_curve.get_data()
+            xnew = np.arange(xdata[-1] + 1, final_year)
             if len(xnew) > 0:
                 ynew = np.full(xnew.shape, np.nan)
-                self.carnivore_curve.set_data(np.hstack((xdata, xnew)),
-                                              np.hstack((ydata, ynew)))
+                self._carnivore_curve.set_data(np.hstack((xdata, xnew)),
+                                               np.hstack((ydata, ynew)))
 
-    def _build_herb_sim_graph(self, final_step):
-        if self.herbivore_curve is None:
-            herbivore_plot = self._mean_ax.plot(np.arange(0, final_step),
-                                                np.full(final_step,
+    def _build_herb_sim_curve(self, final_year):
+        if self._herbivore_curve is None:
+            herbivore_plot = self._mean_ax.plot(np.arange(0, final_year),
+                                                np.full(final_year,
                                                         np.nan))
-            self.herbivore_curve = herbivore_plot[0]
+            self._herbivore_curve = herbivore_plot[0]
         else:
-            xdata, ydata = self.herbivore_curve.get_data()
-            xnew = np.arange(xdata[-1] + 1, final_step)
+            xdata, ydata = self._herbivore_curve.get_data()
+            xnew = np.arange(xdata[-1] + 1, final_year)
             if len(xnew) > 0:
+                print(self._herbivore_curve)
+                print(self._herbivore_curve.get_data())
                 ynew = np.full(xnew.shape, np.nan)
-                print(np.hstack((xdata, xnew)))
-                print(np.hstack((ydata, ynew)))
-                print(xdata)
-                print(ydata)
-                print(xnew)
-                print(ynew)
-                self.herbivore_curve.set_data(np.hstack((xdata, xnew)),
-                                              np.hstack((ydata, ynew)))
+                self._herbivore_curve.set_data(np.hstack((xdata, xnew)),
+                                               np.hstack((ydata, ynew)))
 
-    def animal_graphs(self, final_step):
+    def update_graphs(self, year, herb_count, carn_count):
+        herb_ydata = self._herbivore_curve.get_ydata()
+        herb_ydata[year] = herb_count
+        self._herbivore_curve.set_ydata(herb_ydata)
+
+        carn_ydata = self._carnivore_curve.get_ydata()
+        carn_ydata[year] = carn_count
+        self._carnivore_curve.set_ydata(carn_ydata)
+
+    def animal_graphs(self, final_year):
         if self._mean_ax is None:
             self._mean_ax = self._fig.add_subplot(2, 2, 2)
             self._mean_ax.set_ylim(0, 10000)
-        self._mean_ax.set_xlim(0, final_step + 1)
-        self._build_herb_sim_graph(final_step)
-        self._build_carn_sim_graph(final_step)
+        self._mean_ax.set_xlim(0, final_year + 1)
+        self._build_herb_sim_curve(final_year)
+        self._build_carn_sim_curve(final_year)
 
     def animal_dist_graphs(self):
         # population distribution graphs
@@ -158,7 +164,7 @@ class Visualisation:
             self._carnivore_img_axis = None
 
     def update_herbivore_dist(self, distribution):
-        if self._carnivore_img_axis is not None:
+        if self._herbivore_img_axis is not None:
             self._herbivore_img_axis.set_data(distribution)
         else:
             y, x = self._map_dims
@@ -172,8 +178,8 @@ class Visualisation:
             self._herbivore_dist.set_title('Herbivore Distribution')
 
     def update_carnivore_dist(self, distribution):
-        if self._herbivore_img_axis is not None:
-            self._herbivore_img_axis.set_data(distribution)
+        if self._carnivore_img_axis is not None:
+            self._carnivore_img_axis.set_data(distribution)
         else:
             y, x = self._map_dims
             self._carnivore_dist.imshow(distribution,
@@ -184,11 +190,3 @@ class Visualisation:
             self._carnivore_dist.set_yticks(range(0, y, 5))
             self._carnivore_dist.set_yticklabels(range(1, 1 + y, 5))
             self._carnivore_dist.set_title('Carnivore Distribution')
-
-
-if __name__ == '__main__':
-    arr = np.array([[1,2,3,4,5],[1,2,3,4,5],[1,2,3,4,5]])
-    a = np.full(arr.shape, np.nan)
-    b = np.nan * np.ones_like(arr)
-    print(a)
-    print(b)
