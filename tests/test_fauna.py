@@ -13,13 +13,22 @@ __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 import pytest
 from biosim.fauna import Herbivore, Carnivore
-from random import seed
+import numpy as np
 
 
 class TestFauna:
 
     @pytest.fixture
     def gen_animal_data(self):
+        """
+        Two animals of the two different species (Herbivore, Carnivore) with
+        predefined set of parameters
+
+        Returns
+        -------
+        carn: Carnivore object
+        herb: Herbivore object
+        """
         c_params = {'eta': 0.30,
                     'w_birth': 4.0,
                     'sigma_birth': 1.7,
@@ -47,13 +56,13 @@ class TestFauna:
                     'zeta': 1,
                     'omega': 0.3
                     }
-        seed(1)
-        c = Carnivore()
-        c.set_given_parameters(c_params)
-        seed(1)
-        h = Herbivore()
-        h.set_given_parameters(h_params)
-        return c, h
+        np.random.seed(1)
+        carn = Carnivore()
+        carn.set_given_parameters(c_params)
+        np.random.seed(1)
+        herb = Herbivore()
+        herb.set_given_parameters(h_params)
+        return carn, herb
 
     def test_age(self, gen_animal_data):
         """
@@ -64,22 +73,22 @@ class TestFauna:
         gen_animal_data: Carnivore and Herbivore Objects
 
         """
-        c, h = gen_animal_data
-        assert c.age == 0
-        assert h.age == 0
-        h.grow_up()
-        assert h.age == 1
-        assert c.age == 0
-        c.grow_up()
-        c.grow_up()
-        assert h.age == 1
-        assert c.age == 2
+        carn, herb = gen_animal_data
+        assert carn.age == 0
+        assert herb.age == 0
+        herb.grow_up()
+        assert herb.age == 1
+        assert carn.age == 0
+        carn.grow_up()
+        carn.grow_up()
+        assert herb.age == 1
+        assert carn.age == 2
 
     def test_weight(self, gen_animal_data):
-        # basic random test, we need advanced tests
-        c, h = gen_animal_data
-        assert c.weight == 6.189914080364287
-        assert h.weight == 3.9322771297331944
+
+        carn, herb = gen_animal_data
+        assert carn.weight == 6.189914080364287
+        assert herb.weight == 3.9322771297331944
         # initial weight should be a function that is decorated as variable
         # it's following Gaussain distro, the seed 1 will generate that value
 
