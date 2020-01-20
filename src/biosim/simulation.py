@@ -67,15 +67,14 @@ class BioSim:
         self.add_population(ini_pop)
 
         if ymax_animals is None:
-            self.ymax_animals = None
+            self.ymax_animals = 16000 #adjust this automatically
         else:
             self.ymax_animals = ymax_animals
 
         if cmax_animals is None:
-            self.cmax_animals = None
-            # need to add the color pallete here
+            self._cmax_animals = {'Herbivore': 10, 'Carnivore': 10}
         else:
-            self.cmax_animals = cmax_animals
+            self._cmax_animals = cmax_animals
 
         if img_base is None:
             self._img_base = _DEFAULT_GRAPHICS_DIR + _DEFAULT_GRAPHICS_NAME
@@ -98,7 +97,7 @@ class BioSim:
 
         # the following will be initialized by _setup_graphics
         self._fig = None
-        self._img_axis = None
+        #self._img_axis = None
 
     def set_animal_parameters(self, species, params):
         """
@@ -153,7 +152,7 @@ class BioSim:
             if self._year % img_years == 0:
                 self._save_graphics()
 
-            self._map.update()
+            self._map.life_cycle()
             self._year += 1
 
     def _setup_graphics(self):
@@ -166,7 +165,7 @@ class BioSim:
             self._vis = Visualisation(self._island_map, self._fig, map_dims)
 
         self._vis.visualise_map()
-        self._vis.animal_graphs(self._final_year)
+        self._vis.animal_graphs(self._final_year, self.ymax_animals)
 
         # population distribution graphs
         self._vis.animal_dist_graphs()
@@ -178,8 +177,10 @@ class BioSim:
         dist_matrix_carnivore = np.array(df[['carnivore']]).reshape(rows, cols)
         dist_matrix_herbivore = np.array(df[['herbivore']]).reshape(rows, cols)
         self._update_animals_graph()
-        self._vis.update_herbivore_dist(dist_matrix_herbivore)
-        self._vis.update_carnivore_dist(dist_matrix_carnivore)
+        self._vis.update_herbivore_dist(dist_matrix_herbivore,
+                                        self._cmax_animals['Herbivore'])
+        self._vis.update_carnivore_dist(dist_matrix_carnivore,
+                                        self._cmax_animals['Carnivore'])
         plt.pause(1e-6)
         self._fig.suptitle('Year: '+str(self.year), x=0.1)
 

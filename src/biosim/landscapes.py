@@ -134,7 +134,7 @@ class Landscape(ABC):
             return math.exp(relevant_abun_fodder *
                             animal.parameters['lambda'])
 
-    def probability_of_cell(self, animal, total_propensity):
+    def probability(self, animal, total_propensity):
         """
         Returns the corresponding probability to move from i to j.
 
@@ -321,7 +321,7 @@ class Landscape(ABC):
     def die_animals(self):
         for species in self.in_cell_fauna:
             for animal in self.in_cell_fauna[species]:
-                if np.random.random() > animal.death_prob():
+                if np.random.random() > animal.death_prob:
                     self.remove_animal(animal)
 
     def give_birth_animals(self):
@@ -331,7 +331,22 @@ class Landscape(ABC):
                 if np.random.random() > animal.birth_prob(num_fauna):
                     baby_species = animal.__class__
                     baby = baby_species()
-                    animal.give_birth(baby)
+                    animal.lose_weight_give_birth(baby)
+
+    def migrate(self, adj_cells):
+        for species, animals in self.in_cell_fauna.items():
+            for animal in animals:
+                if np.random.random() > animal.move_prob:
+                    propensity = [cell.propensity(animal) for cell in adj_cells]
+                    total_propensity = sum(propensity)
+                    probabilty = [cell.probability(animal, total_propensity) for cell in adj_cells]
+                    cumsum_probability = np.cumsum(probabilty)
+                    for idx, prob in enumerate(cumsum_probability):
+                        if np.random.random() > prob:
+                            cell_to_go = adj_cells[idx]
+                            cell_to_go.add_animal(animal)
+                            #print(cell_to_go.in_cell_fauna)
+                self.remove_animal(animal)
 
 
 class Savannah(Landscape):
@@ -536,9 +551,22 @@ if __name__  == '__main__':
     s.add_animal(c1)
     print(s.in_cell_fauna)
     for species in s.in_cell_fauna:
-        print(s.in_cell_fauna[species])
-
+        #print(s.in_cell_fauna[species])
+        pass
     dict_ = {Herbivore: h1, Carnivore: c1}
     for ele in dict_:
-        print(ele)
-        print(dict_[ele])
+        #print(ele)
+        #print(dict_[ele])
+        pass
+
+    a = np.array([[1,2,3,4]])
+    b = np.cumsum(a)
+    print(b)
+
+    bb = ['a','b','c']
+    for i ,a in enumerate(bb):
+        print(i)
+        print(a)
+    cc = [1,2,3]
+    print(np.cumsum(cc))
+    print(type(np.cumsum(cc)))

@@ -160,7 +160,7 @@ class Fauna(ABC):
         else:
             return 0
 
-    def give_birth(self, baby):
+    def lose_weight_give_birth(self, baby):
         """
         Decreases mother animal weight 'xi' times of the actual birth weight
         of the baby.
@@ -170,12 +170,9 @@ class Fauna(ABC):
         baby: obj?
             An object of any Fauna subclasses, either Carnivores or Herbivores
 
-        Returns
-        -------
-        weight: float
-            Mother's weight after giving birth to an offspring
         """
-        self._weight -= baby.weight * baby.parameters['xi']
+        if self._weight > baby.weight * baby.parameters['xi']:
+            self._weight -= baby.weight * baby.parameters['xi']
 
     @property
     def death_prob(self):
