@@ -28,7 +28,7 @@ class Landscape(ABC):
         # those fauna list is given from the map, which was given earlier
         # from the simulation as initial animals and we append it to when
         # migration and birthing
-        self._in_cell_fauna = {'Herbivore': [], 'Carnivore': []}
+        self.in_cell_fauna = {'Herbivore': [], 'Carnivore': []}
         # that should be list of dicts
         self.sorted_fauna_fitness = {}
 
@@ -110,7 +110,7 @@ class Landscape(ABC):
         """
         species = animal.__class__.__name__
         return self.relevant_fodder(animal) / (
-                (len(self._in_cell_fauna[species]) + 1) *
+                (len(self.in_cell_fauna[species]) + 1) *
                 animal.parameters['F'])
         # we instantiate object of teh species given and get F from it
         # maybe there is error here
@@ -162,7 +162,7 @@ class Landscape(ABC):
         animal: object?
         """
         key = animal.__class__.__name__
-        self._in_cell_fauna[key].append(animal)
+        self.in_cell_fauna[key].append(animal)
 
     def remove_animal(self, animal):
         """
@@ -173,15 +173,15 @@ class Landscape(ABC):
         animal: object?
         """
         key = animal.__class__.__name__
-        self._in_cell_fauna[key].remove(animal)
+        self.in_cell_fauna[key].remove(animal)
 
     @property
     def cell_fauna_count(self):
         """
         Calculates the number of fauna by their species.
         """
-        herbivore = len(self._in_cell_fauna['Herbivore'])
-        carnivore = len(self._in_cell_fauna['Carnivore'])
+        herbivore = len(self.in_cell_fauna['Herbivore'])
+        carnivore = len(self.in_cell_fauna['Carnivore'])
         return {'Herbivore': herbivore, 'Carnivore': carnivore}
 
     def mate(self, animal):
@@ -196,7 +196,7 @@ class Landscape(ABC):
         # now change the population of the cell
         # decrease the weight of the mother
         species = animal.__class__
-        num_fauna = len(self._in_cell_fauna[species.__name__])
+        num_fauna = len(self.in_cell_fauna[species.__name__])
         if np.random.random() > animal.birth_prob(num_fauna):
             # if that random number is bigger than that probablity it should
             # give birth, or create new baby, or object of animal
@@ -232,7 +232,7 @@ class Landscape(ABC):
         """
         # that should return the amount of food that is going to be
         # eaten by all animals in celll
-        self.sort_by_fitness(self._in_cell_fauna, 'Herbivore')
+        self.sort_by_fitness(self.in_cell_fauna, 'Herbivore')
         # we need to sort animals by fitness prior to the eating, and the
         # animals with highest fitness eats first
         for herbivore in self.sorted_fauna_fitness['Herbivore']:
@@ -273,8 +273,8 @@ class Landscape(ABC):
         The carnivore has eaten herbivores with a total weight of 'F' or more
         than it. Or, it has tried to kill each herbivore in the cell.
         """
-        self.sort_by_fitness(self._in_cell_fauna, 'Carnivore')
-        self.sort_by_fitness(self._in_cell_fauna, 'Herbivore', False)
+        self.sort_by_fitness(self.in_cell_fauna, 'Carnivore')
+        self.sort_by_fitness(self.in_cell_fauna, 'Herbivore', False)
         # reverse order the carnivore by fitness and sort the herbivore
         for carnivore in self.sorted_fauna_fitness['Carnivore']:
             # carbivore with highest fitness will kill the lowest fitness
@@ -308,39 +308,27 @@ class Landscape(ABC):
     def grow_herb_fodder(self):
         return
 
-    def migrate_animals(self, adj_cells):
-        for species in self._in_cell_fauna:
-            for animal in self._in_cell_fauna[species]:
-                if np.random.random() > animal.move_prob:
-                    cell_probabilities_list = [cell.probability_of_cell(animal)
-                                               for cell in adj_cells]
-                    maximum_probability_index = cell_probabilities_list.index(
-                        max(cell_probabilities_list))
-                    cell_with_maximum_probability = adj_cells[
-                        maximum_probability_index]
-                    self.remove_animal(animal)
-                    cell_with_maximum_probability.add_fauna(animal)
-
     def grow_up_animals(self):
-        for species in self._in_cell_fauna:
-            for animal in self._in_cell_fauna[species]:
+        for species in self.in_cell_fauna:
+            for animal in self.in_cell_fauna[species]:
                 animal.grow_up()
 
     def lose_weight_animals(self):
-        for species in self._in_cell_fauna:
-            for animal in self._in_cell_fauna[species]:
+        for species in self.in_cell_fauna:
+            for animal in self.in_cell_fauna[species]:
                 animal.lose_weight()
 
     def die_animals(self):
-        for species in self._in_cell_fauna:
-            for animal in self._in_cell_fauna[species]:
+        for species in self.in_cell_fauna:
+            for animal in self.in_cell_fauna[species]:
                 if np.random.random() > animal.death_prob():
                     self.remove_animal(animal)
 
     def give_birth_animals(self):
-        for species in self._in_cell_fauna:
-            for animal in self._in_cell_fauna[species]:
-                if np.random.random() > animal.birth_prob:
+        for species in self.in_cell_fauna:
+            num_fauna = len(self.in_cell_fauna[species])
+            for animal in self.in_cell_fauna[species]:
+                if np.random.random() > animal.birth_prob(num_fauna):
                     baby_species = animal.__class__
                     baby = baby_species()
                     animal.give_birth(baby)
@@ -371,7 +359,7 @@ class Savannah(Landscape):
         self.parameters = Savannah.parameters
         self.available_fodder['Herbivore'] = self.parameters['f_max']
         total_herb_weight = sum(i.weight for i in
-                                self._in_cell_fauna['Herbivore'])
+                                self.in_cell_fauna['Herbivore'])
         self.available_fodder['Carnivore'] = total_herb_weight
         # aviable fodder equals to f_max at the beginning of
         # instaniating anew object
@@ -436,7 +424,7 @@ class Jungle(Landscape):
         self.parameters = Jungle.parameters
         self.available_fodder['Herbivore'] = self.parameters['f_max']
         total_herb_weight = sum(
-            i.weight for i in self._in_cell_fauna['Herbivore'])
+            i.weight for i in self.in_cell_fauna['Herbivore'])
         self.available_fodder['Carnivore'] = total_herb_weight
         # amount of initial fodder aviable should equals to f_max
 
@@ -487,7 +475,7 @@ class Desert(Landscape):
 
         # self.available_fodder['Herbivore'] = 0
         total_herb_weight = sum(
-            i.weight for i in self._in_cell_fauna['Herbivore'])
+            i.weight for i in self.in_cell_fauna['Herbivore'])
         self.available_fodder['Carnivore'] = total_herb_weight
         self.available_fodder['Herbivore'] = Desert.available_fodder[
             'Herbivore']
@@ -546,9 +534,9 @@ if __name__  == '__main__':
     c1 = Carnivore()
     s.add_animal(h1)
     s.add_animal(c1)
-    print(s._in_cell_fauna)
-    for species in s._in_cell_fauna:
-        print(s._in_cell_fauna[species])
+    print(s.in_cell_fauna)
+    for species in s.in_cell_fauna:
+        print(s.in_cell_fauna[species])
 
     dict_ = {Herbivore: h1, Carnivore: c1}
     for ele in dict_:

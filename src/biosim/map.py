@@ -122,17 +122,43 @@ class Map:
         for x in range(0, rows):
             for y in range(0, cols):
                 cell = self._cells[x, y]
-                num_animals += len(cell._in_cell_fauna[species])
+                num_animals += len(cell.in_cell_fauna[species])
         return num_animals
 
     def update(self):
         print(1)
         rows, cols = self.cells_dims
         cycle_stage_methods = ['cell.feed_animals', 'cell.give_birth_animals',
-                               'cell.migrate_animals', 'cell.grow_up_animals',
+                               'self.migrate_animals', 'cell.grow_up_animals',
                                'cell.lose_weight_animals', 'cell.die_animals']
         for stage in cycle_stage_methods:
             for x in range(rows):
                 for y in range(cols):
                     cell = self._cells[x, y]
-                    stage_to_call = eval(stage)
+                    if stage is 'cell.migrate_animals':
+                        stage_to_call = eval(stage)
+                        stage_to_call(self.adj_cells(x, y))
+                    else:
+                        stage_to_call = eval(stage)
+                        stage_to_call()
+
+    def migrate_animals(self):
+        for [x, y], cell in np.ndenumerate(self._cells):
+            for species in cell.in_cell_fauna:
+                for animal in cell.in_cell_fauna[species]:
+                    adj_cells = self.adj_cells(x, y)
+                    cell_probabilities_list = [cell.probability_of_cell(animal, self.total_adj_propensity())
+                                               for cell in adj_cells]
+                    maximum_probability_index = cell_probabilities_list.index\
+                        (max(cell_probabilities_list))
+                    cell_with_maximum_probability = adj_cells[
+                        maximum_probability_index]
+                    cell.remove_animal(animal)
+                    cell_with_maximum_probability.add_fauna(animal)
+
+
+if __name__ == '__main__':
+    ss = np.array([[1,2,3],[1,2,3]])
+    for [i, j], flow in np.ndenumerate(ss):
+        print(i, j)
+        print(flow)

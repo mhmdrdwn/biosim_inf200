@@ -177,6 +177,7 @@ class Fauna(ABC):
         """
         self._weight -= baby.weight * baby.parameters['xi']
 
+    @property
     def death_prob(self):
         """
         Returns death probability according to the formula.
