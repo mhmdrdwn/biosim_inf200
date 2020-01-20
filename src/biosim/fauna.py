@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """
+Fauna Classes and subclasses (Herbivore, Carnivore).
+Fauna class is a base class, all objects are instantiated from the
+Carnivore and Herbivore subclasses
+
 """
 
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
@@ -8,26 +12,30 @@ __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 from abc import ABC, abstractmethod
 from random import gauss
+import numpy as np
 import math
 
 
 class Fauna(ABC):
     """
-    Animal abstract class, it has two subclasses which are animal species:
-    Herbivores & Carnivores. They have certain characteristics in common, but
-    feed in different ways.
+    Animal abstract superclass, inheriting from the (Abstract Base class) ABC,
+    it has two subclasses which are animal species.
+    Herbivores & Carnivores. The two subclasses feed in different ways.
     """
     parameters = {}
 
     @abstractmethod
     def __init__(self, age=None, weight=None):
         """
-        The constructor for abstract class Fauna.
+        Constructor for superclass, if age or weight is initialised
+        automatically if not provided. Also, specifing invalid age or weight
+         values will raise a a value error. Initial fitness is
+        set to zero.
 
         Parameters
         ----------
         age: int
-        weight: float
+        weight: float, int
         """
         if age is None:
             self.set_default_attribute('age')
@@ -39,12 +47,23 @@ class Fauna(ABC):
             self.set_default_attribute('weight')
         else:
             self.protect_against_non_valid_attribute('Weight', weight)
-            self._weight = weight
+            self.weight = weight
 
-        self._fitness = 0
+        self._fitness = None
+
+        self._recompute_fitness = False
 
     @staticmethod
     def protect_against_non_valid_attribute(attribute_name, attribute):
+        """
+        Raise an error if the input is invalid type
+
+        Parameters
+        ----------
+        attribute_name : str
+        attribute : value of the attribute. i.e. int
+
+        """
         if not isinstance(attribute, (int, float)):
             raise ValueError(attribute_name + ' of animal can\'t be set to '
                              + attribute_name +
@@ -60,31 +79,38 @@ class Fauna(ABC):
         attribute_name: str
         """
         if attribute_name is 'weight':
-            self._weight = gauss(self.parameters['w_birth'],
-                                 self.parameters['sigma_birth'])
+            self.weight = gauss(self.parameters['w_birth'],
+                                self.parameters['sigma_birth'])
         if attribute_name is 'age':
             self.age = 0
 
-    @property
-    def weight(self):
-        return self._weight
-
     def grow_up(self):
         """
-        Increases animal age yearly
+        Increase age yearly
+
         """
         self.age += 1
 
     def lose_weight(self):
         """
-        Decreases weight of the animal every year by the factor 'eta'.
+        Decreases weight of the animal every year by the factor 'eta'
         """
-        weight_to_reduce = self._weight * self.parameters['eta']
-        self._weight -= weight_to_reduce
+        weight_to_reduce = self.weight * self.parameters['eta']
+        self.weight -= weight_to_reduce
+        self._recompute_fitness = True
 
     @property
     def fitness(self):
-        self.calculate_fitness()
+        """
+        Getter with a flag variable reset to True when the fitness is
+        recalculated using the equation.
+        Returns
+        -------
+        fitness : float
+        """
+        if self._recompute_fitness:
+            self.calculate_fitness()
+            self._recompute_fitness = False
         return self._fitness
 
     @staticmethod
@@ -116,20 +142,24 @@ class Fauna(ABC):
         Controls condition when weight is zero. Otherwise, calculate animal
         fitness which is based on age & weight of the animal.
         """
-        if self._weight == 0:
+        if self.weight == 0:
             self._fitness = 0
         else:
             self._fitness = self.fitness_formula(
-                self.age, self._weight, self.parameters)
+                self.age, self.weight, self.parameters)
 
     @property
     def move_prob(self):
         """
+        probability of animal to move from cell to another
+
         Returns
         -------
-        animal movement probability: float
+        animal movement probability: boolean
+
         """
-        return self.parameters['mu'] * self.fitness
+        movement_prob = self.parameters['mu'] * self.fitness
+        return np.random.random() > movement_prob
 
     def birth_prob(self, num_fauna):
         """
@@ -168,8 +198,8 @@ class Fauna(ABC):
         baby: obj
             An object of any Fauna subclasses, either Carnivores or Herbivores
         """
-        if self._weight > baby.weight * baby.parameters['xi']:
-            self._weight -= baby.weight * baby.parameters['xi']
+        if self.weight > baby.weight * baby.parameters['xi']:
+            self.weight -= baby.weight * baby.parameters['xi']
 
     @property
     def death_prob(self):
@@ -194,7 +224,7 @@ class Fauna(ABC):
         ----------
         amount_to_eat: float
         """
-        self._weight += self.parameters['beta'] * amount_to_eat
+        self.weight += self.parameters['beta'] * amount_to_eat
 
 
     @classmethod
@@ -300,11 +330,8 @@ class Carnivore(Fauna):
             self._kill_prob = 1
         return self._kill_prob
 
-
 if __name__ == '__main__':
-    c1 = Carnivore()
-    print(c1.parameters['F'])
-    c1.set_given_parameters({'F': 40000})
-    c2 = Carnivore()
-    print(c1.parameters['F'])
-    print(c2.parameters['F'])
+    a = Carnivore()
+    print(a.weight)
+    a.lose_weight()
+    print(a.fitness)

@@ -171,8 +171,8 @@ class Landscape(ABC):
         ----------
         animal: object?
         """
-        key = animal.__class__.__name__
-        self.in_cell_fauna[key].remove(animal)
+        species = animal.__class__.__name__
+        self.in_cell_fauna[species].remove(animal)
 
     @property
     def cell_fauna_count(self):
@@ -359,7 +359,7 @@ class Landscape(ABC):
         for species, animals in self.in_cell_fauna.items():
             for animal in animals:
                 # shouldnt it be > = ?
-                if np.random.random() > animal.move_prob:
+                if animal.move_prob:
                     propensity = [cell.propensity(animal) for cell in adj_cells]
                     total_propensity = sum(propensity)
                     # is it Typo or probabilty is right?
@@ -552,32 +552,3 @@ class Ocean(Landscape):
         self._in_cell_fauna = Ocean.in_cell_fauna
         # overwrite the object fauna_objects_list to be equals to empty list,
         # is that right?
-
-
-if __name__  == '__main__':
-    s = Savannah()
-    h1 = Herbivore()
-    c1 = Carnivore()
-    s.add_animal(h1)
-    s.add_animal(c1)
-    print(s.in_cell_fauna)
-    for species in s.in_cell_fauna:
-        #print(s.in_cell_fauna[species])
-        pass
-    dict_ = {Herbivore: h1, Carnivore: c1}
-    for ele in dict_:
-        #print(ele)
-        #print(dict_[ele])
-        pass
-
-    a = np.array([[1,2,3,4]])
-    b = np.cumsum(a)
-    print(b)
-
-    bb = ['a','b','c']
-    for i ,a in enumerate(bb):
-        print(i)
-        print(a)
-    cc = [1,2,3]
-    print(np.cumsum(cc))
-    print(type(np.cumsum(cc)))

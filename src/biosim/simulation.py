@@ -130,7 +130,7 @@ class BioSim:
             raise TypeError(landscape + ' parameters can\'t be assigned, '
                                         'there is no such data type')
 
-    def simulate(self, num_years, vis_years=None, img_years=None):
+    def simulate(self, num_years, vis_years=200, img_years=None):
         """
         Run simulation while visualizing the result.
         :param num_years: number of years to simulate

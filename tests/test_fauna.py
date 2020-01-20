@@ -56,6 +56,14 @@ class TestFauna:
         return c, h
 
     def test_age(self, gen_animal_data):
+        """
+        Age increases one year after one year
+
+        Parameters
+        ----------
+        gen_animal_data: Carnivore and Herbivore Objects
+
+        """
         c, h = gen_animal_data
         assert c.age == 0
         assert h.age == 0
@@ -66,7 +74,6 @@ class TestFauna:
         c.grow_up()
         assert h.age == 1
         assert c.age == 2
-        # age increases one year after one year
 
     def test_weight(self, gen_animal_data):
         # basic random test, we need advanced tests
@@ -96,8 +103,8 @@ class TestFauna:
 
     def test_move_probability(self, gen_animal_data):
         c, h = gen_animal_data
-        assert c.move_prob == pytest.approx(0.023071193165190906)
-        assert h.move_prob == pytest.approx(0.013775722654721757)
+        assert not c.move_prob
+        assert not h.move_prob
 
     def test_birth_probability(self, gen_animal_data):
         c, h = gen_animal_data
@@ -117,8 +124,8 @@ class TestFauna:
 
     def test_death_probability(self, gen_animal_data):
         c, h = gen_animal_data
-        assert c.death_prob() == 0.5446291364035418
-        assert h.death_prob() == 0.2862242773452782
+        assert c.death_prob == 0.5446291364035418
+        assert h.death_prob == 0.2862242773452782
         # probablity of death given fitness 0.1 will be 0.36
 
     def test_eat(self, gen_animal_data):

@@ -146,15 +146,3 @@ class Map:
     def migrate_stage(self):
         for [x, y], cell in np.ndenumerate(self._cells):
             cell.migrate(self.adj_cells(x, y))
-
-
-if __name__ == '__main__':
-    dict_={'a':1,"b":2}
-    for i, j in dict_.items():
-        print(i)
-        print(j)
-    a = {'ca':[1,2,3,4,5,6],'h':[0,9,8,6,7]}
-    for i, j in a.items():
-        for k in j:
-            print(i)
-            print(k)
