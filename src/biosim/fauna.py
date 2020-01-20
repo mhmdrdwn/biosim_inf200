@@ -7,7 +7,6 @@ __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 from abc import ABC, abstractmethod
-
 from random import gauss
 import math
 
@@ -23,9 +22,13 @@ class Fauna(ABC):
     @abstractmethod
     def __init__(self, age=None, weight=None):
         """
+        The constructor for abstract class Fauna.
 
+        Parameters
+        ----------
+        age: int
+        weight: float
         """
-
         if age is None:
             self.set_default_attribute('age')
         else:
@@ -56,7 +59,6 @@ class Fauna(ABC):
         ----------
         attribute_name: str
         """
-        # default attributes are the birth weight and birth age
         if attribute_name is 'weight':
             self._weight = gauss(self.parameters['w_birth'],
                                  self.parameters['sigma_birth'])
@@ -72,20 +74,16 @@ class Fauna(ABC):
         Increases animal age yearly
         """
         self.age += 1
-        # age increase by 1 each year
-        # decrease the weight by the factor eta
 
     def lose_weight(self):
         """
-        Decreases weight of the animal every year.
+        Decreases weight of the animal every year by the factor 'eta'.
         """
         weight_to_reduce = self._weight * self.parameters['eta']
         self._weight -= weight_to_reduce
 
     @property
     def fitness(self):
-        # question why we have this ?
-
         self.calculate_fitness()
         return self._fitness
 
@@ -94,6 +92,7 @@ class Fauna(ABC):
         """
         Computes fitness according to the formula:
         Phi = q(-1, a, a_half, phi_age)*q(+1, w, w_half, phi_weight)
+        and always and always 0=< phi =< 1
 
         Parameters
         ----------
@@ -103,10 +102,9 @@ class Fauna(ABC):
 
         Returns
         -------
-        fitness: float
-            Always between or equal to 0 and 1
+        q1*q2: float
+            Which is equal to fitness.
         """
-        # fitness formula
         q1 = 1 / (1 + math.exp((parameters['phi_age'])
                                * (age - parameters['a_half'])))
         q2 = 1 / (1 + math.exp((-1 * (parameters['phi_weight'])
@@ -118,7 +116,6 @@ class Fauna(ABC):
         Controls condition when weight is zero. Otherwise, calculate animal
         fitness which is based on age & weight of the animal.
         """
-        # question why if age = 0 isn't checked?
         if self._weight == 0:
             self._fitness = 0
         else:
@@ -128,19 +125,21 @@ class Fauna(ABC):
     @property
     def move_prob(self):
         """
-        Returns the probability of animal movement which is a float number.
+        Returns
+        -------
+        animal movement probability: float
         """
         return self.parameters['mu'] * self.fitness
-        # animal move probablity based on the equation
 
     def birth_prob(self, num_fauna):
         """
         Calculates the probability to give birth to an offspring is as follows:
         'gamma' * fitness * (number of fauna-1)
         If this equation is greater than one, the probability is one.
-        The probability is zero if there is less than 2 animals of
-        same kind or the weight of animal is less than below equation:
-        zeta * (w_birth + sigma_birth)
+        The probability is zero in one of below conditions occur:
+        - if there is less than 2 animals of same kind
+        - or the weight of animal is less than below equation:
+          zeta * (w_birth + sigma_birth)
 
         Parameters
         ----------
@@ -149,7 +148,6 @@ class Fauna(ABC):
         Returns
         -------
         birth probability: float
-
         """
         zeta = self.parameters['zeta']
         w_birth = self.parameters['w_birth']
@@ -162,14 +160,13 @@ class Fauna(ABC):
 
     def lose_weight_give_birth(self, baby):
         """
-        Decreases mother animal weight 'xi' times of the actual birth weight
-        of the baby.
+        Decreases mother animal weight 'xi' times of the actual birth weight of
+        the baby.
 
         Parameters
         ----------
-        baby: obj?
+        baby: obj
             An object of any Fauna subclasses, either Carnivores or Herbivores
-
         """
         if self._weight > baby.weight * baby.parameters['xi']:
             self._weight -= baby.weight * baby.parameters['xi']
@@ -178,7 +175,7 @@ class Fauna(ABC):
     def death_prob(self):
         """
         Returns death probability according to the formula.
-        The death probability of an animal with zero fitness is 1
+        The death probability of an animal with zero fitness is 1.
 
         Returns
         -------
@@ -195,11 +192,10 @@ class Fauna(ABC):
 
         Parameters
         ----------
-        amount_to_eat: ? (float or int)
+        amount_to_eat: float
         """
         self._weight += self.parameters['beta'] * amount_to_eat
-        # the same behaviour for both carni and herbi, just the difference
-        # is in the amount to eat
+
 
     @classmethod
     def set_given_parameters(cls, params):
@@ -277,16 +273,18 @@ class Carnivore(Fauna):
     def kill_prob(self, herbivore_to_kill):
         """
         Returns kill probability with following rules:
-        Carnivore only can kill the herbivore with less fitness than its own
-        fitness. So that, in this case, the killing probability is zero.
-        Also, if the difference between two animals (carnivore and herbivore)
-        is more than the parameter 'DeltaPhiMax', killing probability is 100%.
-        In other cases, the killing probability is drawn by following formula:
-        (carnivore fitness - herbivore fitness) / 'DeltaPhiMax'
+        - Carnivore only can kill the herbivore with less fitness than its own
+          fitness. So that, if the fitness of carnivore is less than herbivore's
+          the killing probability is zero.
+        - If the difference between two animals (carnivore and herbivore)
+          is more than the parameter 'DeltaPhiMax', killing probability is 100%.
+        - In other cases, the killing probability is drawn by following formula:
+          (carnivore fitness - herbivore fitness) / 'DeltaPhiMax'
 
         Parameters
         ----------
-        herbivore_to_kill: obj?
+        herbivore_to_kill: obj
+            An object of Herbivore class
 
         Returns
         -------
@@ -310,4 +308,3 @@ if __name__ == '__main__':
     c2 = Carnivore()
     print(c1.parameters['F'])
     print(c2.parameters['F'])
-    f = Fauna()
