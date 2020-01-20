@@ -10,8 +10,6 @@ from abc import ABC, abstractmethod
 
 from random import gauss
 import math
-import numpy as np
-from random import seed
 
 
 class Fauna(ABC):

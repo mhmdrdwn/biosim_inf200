@@ -7,11 +7,12 @@ __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 from abc import ABC, abstractmethod
+import operator
 
 import math
 import numpy as np
 
-import operator
+from biosim.fauna import Herbivore, Carnivore
 
 
 class Landscape(ABC):
@@ -307,25 +308,42 @@ class Landscape(ABC):
     def grow_herb_fodder(self):
         return
 
+    def migrate_animals(self, adj_cells):
+        for species in self._in_cell_fauna:
+            for animal in self._in_cell_fauna[species]:
+                if np.random.random() > animal.move_prob:
+                    cell_probabilities_list = [cell.probability_of_cell(animal)
+                                               for cell in adj_cells]
+                    maximum_probability_index = cell_probabilities_list.index(
+                        max(cell_probabilities_list))
+                    cell_with_maximum_probability = adj_cells[
+                        maximum_probability_index]
+                    self.remove_animal(animal)
+                    cell_with_maximum_probability.add_fauna(animal)
+
     def grow_up_animals(self):
-        for animal in self._in_cell_fauna:
-            animal.grow_up()
+        for species in self._in_cell_fauna:
+            for animal in self._in_cell_fauna[species]:
+                animal.grow_up()
 
     def lose_weight_animals(self):
-        for animal in self._in_cell_fauna:
-            animal.lose_weight()
+        for species in self._in_cell_fauna:
+            for animal in self._in_cell_fauna[species]:
+                animal.lose_weight()
 
     def die_animals(self):
-        for animal in self._in_cell_fauna:
-            if np.random.random() > animal.death_prob():
-                self.remove_animal(animal)
+        for species in self._in_cell_fauna:
+            for animal in self._in_cell_fauna[species]:
+                if np.random.random() > animal.death_prob():
+                    self.remove_animal(animal)
 
     def give_birth_animals(self):
-        for animal in self._in_cell_fauna:
-            if np.random.random() > animal.birth_prob:
-                species = type(animal)
-                baby = species()
-                animal.give_birth(baby)
+        for species in self._in_cell_fauna:
+            for animal in self._in_cell_fauna[species]:
+                if np.random.random() > animal.birth_prob:
+                    baby_species = animal.__class__
+                    baby = baby_species()
+                    animal.give_birth(baby)
 
 
 class Savannah(Landscape):
@@ -520,3 +538,19 @@ class Ocean(Landscape):
         self._in_cell_fauna = Ocean.in_cell_fauna
         # overwrite the object fauna_objects_list to be equals to empty list,
         # is that right?
+
+
+if __name__  == '__main__':
+    s = Savannah()
+    h1 = Herbivore()
+    c1 = Carnivore()
+    s.add_animal(h1)
+    s.add_animal(c1)
+    print(s._in_cell_fauna)
+    for species in s._in_cell_fauna:
+        print(s._in_cell_fauna[species])
+
+    dict_ = {Herbivore: h1, Carnivore: c1}
+    for ele in dict_:
+        print(ele)
+        print(dict_[ele])

@@ -163,8 +163,8 @@ class BioSim:
         if self._fig is None:
             self._fig = plt.figure()
             self._vis = Visualisation(self._island_map, self._fig, map_dims)
-            self._vis.visualise_map()
-            #plt.show()
+
+        self._vis.visualise_map()
 
         self._vis.animal_graphs(self._final_step)
 
@@ -177,10 +177,12 @@ class BioSim:
         rows, cols = self._map.cells_dims
         dist_matrix_carnivore = np.array(df[['carnivore']]).reshape(rows, cols)
         dist_matrix_herbivore = np.array(df[['herbivore']]).reshape(rows, cols)
-        self._vis.update_herbivore_graph(dist_matrix_herbivore)
-        self._vis.update_carnivore_graph(dist_matrix_carnivore)
+        self._update_animals_graph()
+        self._vis.update_herbivore_dist(dist_matrix_herbivore)
+        self._vis.update_carnivore_dist(dist_matrix_carnivore)
         # self._update_mean_graph(self._map.mean_value())
         plt.pause(1e-6)
+        self._fig.suptitle('Year: '+str(self.year), x=0.1)
 
     def _save_graphics(self):
         """Saves graphics to file if file name given."""
@@ -239,6 +241,18 @@ class BioSim:
                     'ERROR: convert failed with: {}'.format(err))
         else:
             raise ValueError('Unknown movie format: ' + movie_fmt)
+
+    def _update_animals_graph(self):
+        herb_count, carn_count = list(self.num_animals_per_species.values())
+
+        herb_ydata = self._vis.herbivore_curve.get_ydata()
+        herb_ydata[self._step] = herb_count
+        self._vis.herbivore_curve.set_ydata(herb_ydata)
+
+        carn_ydata = self._vis.carnivore_curve.get_ydata()
+        carn_ydata[self._step] = carn_count
+        self._vis.carnivore_curve.set_ydata(carn_ydata)
+
 
     @property
     def year(self):

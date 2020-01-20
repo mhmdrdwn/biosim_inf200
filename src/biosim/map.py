@@ -27,7 +27,6 @@ class Map:
 
         self._cells = self.create_map_of_landscape_objects()
 
-
     @property
     def cells(self):
         """Returns full data matrix."""
@@ -104,24 +103,6 @@ class Map:
             total_propensity += cell.propensity(animal)
         return total_propensity
 
-    def migrate(self, current_cell, map, x, y):
-        for species in current_cell.in_cell_fauna:
-            for animal in species:
-                if np.random.random() > animal.move_prob:
-                    adj_cells_list = self.adj_cells(map, x, y)
-                    cell_probabilities_list = [cell.probability_of_cell(animal)
-                                               for cell in adj_cells_list]
-                    # get the adjacent cells for all the current cells and calculate the relevant abundance of fodder
-                    # relative_fodder_abundance =[i.propensity() for i in adj_cells]
-                    # the cell with relevant abundance of fodder will make the animal move to it
-                    maximum_probability_index = cell_probabilities_list.index(
-                        max(cell_probabilities_list))
-                    cell_with_maximum_probability = adj_cells_list[
-                        maximum_probability_index]
-                    # then remove animal from the current cell and add it to the distination cell
-                    current_cell.remove_fauna(animal)
-                    cell_with_maximum_probability.add_fauna(animal)
-
     def add_animals(self, pop):
         for animal_group in pop:
             loc = animal_group['loc']
@@ -145,23 +126,13 @@ class Map:
         return num_animals
 
     def update(self):
+        print(1)
         rows, cols = self.cells_dims
         cycle_stage_methods = ['cell.feed_animals', 'cell.give_birth_animals',
                                'cell.migrate_animals', 'cell.grow_up_animals',
                                'cell.lose_weight_animals', 'cell.die_animals']
         for stage in cycle_stage_methods:
-            for x in range(0, rows):
-                for y in range(0, cols):
+            for x in range(rows):
+                for y in range(cols):
                     cell = self._cells[x, y]
                     stage_to_call = eval(stage)
-                    #stage_to_call
-
-    # not needed methods
-    def give_birth_all_cells(self):
-        cols, rows = self.cells_dims
-        for x in rows:
-            for y in cols:
-                cell = self._cells[x, y]
-                cell.give_birth_animals()
-    # same can be done for all methjods here, to run for all cells
-
