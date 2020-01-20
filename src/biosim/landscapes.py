@@ -199,7 +199,7 @@ class Landscape(ABC):
         """
         species = animal.__class__
         num_fauna = len(self.in_cell_fauna[species.__name__])
-        if np.random.random() > animal.birth_prob(num_fauna):
+        if animal.birth_prob(num_fauna):
             # if that random number is bigger than that probablity it should
             # give birth, or create new baby, or object of animal
             baby = species()
@@ -326,7 +326,7 @@ class Landscape(ABC):
         for species in self.in_cell_fauna:
             for animal in self.in_cell_fauna[species]:
                 # shouldnt it be > = ?
-                if np.random.random() > animal.death_prob:
+                if animal.death_prob:
                     self.remove_animal(animal)
 
     def give_birth_animals(self):
