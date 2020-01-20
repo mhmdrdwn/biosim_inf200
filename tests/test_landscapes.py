@@ -35,26 +35,26 @@ class TestLandscapes:
         landscape_params = {'f_max': 10.0}
         c1, c2, h1, h2 = gen_animal_data
         animals = {'Herbivore': [h1, h2], 'Carnivore': [c1, c2]}
-        landscapes_dict = {'s': Savannah(animals, landscape_params),
+        landscapes_dict = {'s': Savannah(),
                            'o': Ocean(),
-                           'd': Desert(animals),
+                           'd': Desert(),
                            'm': Mountain(),
-                           'j': Jungle(animals, landscape_params)}
+                           'j': Jungle()}
         return landscapes_dict
 
     def test_save_fitness(self, gen_landscape_data):
         s = gen_landscape_data['s']
-        s.save_fitness(s.in_cell_fauna, 'Herbivore')
+        s.save_fitness(s._in_cell_fauna, 'Herbivore')
         assert len(s.sorted_fauna_fitness) == 1
         assert 'Herbivore' in s.sorted_fauna_fitness.keys()
         assert len(s.sorted_fauna_fitness['Herbivore']) == 2
-        s.save_fitness(s.in_cell_fauna, 'Carnivore')
+        s.save_fitness(s._in_cell_fauna, 'Carnivore')
         assert len(s.sorted_fauna_fitness) == 2
         assert 'Carnivore' in s.sorted_fauna_fitness.keys()
 
     def test_sort_fitness(self, gen_landscape_data):
         s = gen_landscape_data['s']
-        dict_to_sort = s.in_cell_fauna
+        dict_to_sort = s._in_cell_fauna
         s.sort_by_fitness(dict_to_sort, 'Herbivore', False)
         dict_values = s.sorted_fauna_fitness['Herbivore'].values()
         assert list(dict_values)[0] <= list(dict_values)[1]
@@ -78,7 +78,7 @@ class TestLandscapes:
 
     def test_mate(self, gen_landscape_data):
         j = gen_landscape_data['j']
-        mate_animal = j.in_cell_fauna['Carnivore'][0]
+        mate_animal = j._in_cell_fauna['Carnivore'][0]
         mate_animal.eat(50)
         mate_animal.eat(50)
         # increase the weight of animal
@@ -185,8 +185,8 @@ class TestDesert(TestLandscapes):
 class TestOcean(TestLandscapes):
     def test_number_animals(self, gen_landscape_data):
         o = gen_landscape_data['o']
-        assert len(o.in_cell_fauna['Carnivore']) == 0
-        assert len(o.in_cell_fauna['Herbivore']) == 0
+        assert len(o._in_cell_fauna['Carnivore']) == 0
+        assert len(o._in_cell_fauna['Herbivore']) == 0
         # it should be changed in the Ocean Class. because when we pass an
         # empty list it is obviouse to get an empty list as a result!!
         with pytest.raises(ValueError) as err:
@@ -197,8 +197,8 @@ class TestOcean(TestLandscapes):
 class TestMountains(TestLandscapes):
     def test_number_animals(self, gen_landscape_data):
         m = gen_landscape_data['m']
-        assert len(m.in_cell_fauna['Carnivore']) == 0
-        assert len(m.in_cell_fauna['Herbivore']) == 0
+        assert len(m._in_cell_fauna['Carnivore']) == 0
+        assert len(m._in_cell_fauna['Herbivore']) == 0
         # it should be changed in the Mountain Class. because when we pass an
         # empty list it is obviouse to get an empty list as a result!!
         with pytest.raises(ValueError) as err:

@@ -140,3 +140,5 @@ $RECYCLE.BIN/
 >>>>>>> initial_fauna_tests
 
 doc/_build/
+
+*.png
