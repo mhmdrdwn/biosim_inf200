@@ -12,6 +12,9 @@ import numpy as np
 
 
 class Visualisation:
+    """
+    Visualises the BioSim simulation by making graphs and movie.
+    """
     map_colors = {
         "O": mcolors.to_rgba("navy"),
         "J": mcolors.to_rgba("forestgreen"),
@@ -29,12 +32,13 @@ class Visualisation:
 
     def __init__(self, map_layout, figure, map_dims):
         """
+        The constructor for the Visualisation class.
 
         Parameters
         ----------
-        map_layout:
-        figure:
-        map_dims:
+        map_layout: str
+        figure: matplotlib figure
+        map_dims: int
         """
         self._map_layout = map_layout
         self._fig = figure
@@ -96,7 +100,7 @@ class Visualisation:
 
     def _build_carn_sim_curve(self, final_year):
         """
-        Build simulation curve for carnivores in last year. ?
+        Makes 2D simulation curve for carnivores.
 
         Parameters
         ----------
@@ -117,7 +121,7 @@ class Visualisation:
 
     def _build_herb_sim_curve(self, final_year):
         """
-        Build simulation curve for herbivores in last year. ?
+        Makes 2D simulation curve for herbivores.
 
         Parameters
         ----------
@@ -138,7 +142,7 @@ class Visualisation:
 
     def update_graphs(self, year, herb_count, carn_count):
         """
-        Updates the graph?
+        Updates the graph curves for both herbivores and carnivores.
 
         Parameters
         ----------
@@ -157,11 +161,12 @@ class Visualisation:
 
     def animal_graphs(self, final_year, y_lim):
         """
-        ?
+        Settings up the lines.
+
         Parameters
         ----------
         final_year: int
-        y_lim: int?
+        y_lim: int
         """
         if self._mean_ax is None:
             self._mean_ax = self._fig.add_subplot(2, 2, 2)
@@ -172,7 +177,7 @@ class Visualisation:
 
     def animal_dist_graphs(self):
         """
-        Plots animal distribution?
+        Plots animal distribution
         """
         if self._herbivore_dist is None:
             self._herbivore_dist = self._fig.add_subplot(2, 2, 3)
@@ -188,8 +193,8 @@ class Visualisation:
 
         Parameters
         ----------
-        distribution: str ?
-        v_max: int?
+        distribution: data frame
+        v_max: int
         """
         if self._herbivore_img_axis is not None:
             self._herbivore_img_axis.set_data(distribution)
@@ -210,8 +215,8 @@ class Visualisation:
 
         Parameters
         ----------
-        distribution: str?
-        v_max: int?
+        distribution: str
+        v_max: int
         """
         if self._carnivore_img_axis is not None:
             self._carnivore_img_axis.set_data(distribution)
