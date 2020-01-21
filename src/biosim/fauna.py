@@ -26,6 +26,7 @@ class Fauna(ABC):
 
     @abstractmethod
     def __init__(self, age=None, weight=None):
+
         """
         Constructor for superclass, if age or weight is initialised
         automatically if not provided. Also, specifing invalid age or weight
@@ -36,25 +37,30 @@ class Fauna(ABC):
         ----------
         age: int
         weight: float, int
+
         """
         if age is None:
-            self.set_default_attribute('age')
+            self.age = 0
         else:
-            self.protect_against_non_valid_attribute('Age', age)
+            self.raise_non_valid_attribute('Age', age)
             self.age = age
 
         if weight is None:
-            self.set_default_attribute('weight')
+            self._weight = self.set_default_weight()
         else:
-            self.protect_against_non_valid_attribute('Weight', weight)
-            self.weight = weight
+            self.raise_non_valid_attribute('Weight', weight)
+            self._weight = weight
 
         self._fitness = None
         self.calculate_fitness()
         self._recompute_fitness = False
 
+    @property
+    def weight(self):
+        return self._weight
+
     @staticmethod
-    def protect_against_non_valid_attribute(attribute_name, attribute):
+    def raise_non_valid_attribute(attribute_name, attribute):
         """
         Raise an error if the input is invalid type
 
@@ -68,8 +74,9 @@ class Fauna(ABC):
             raise ValueError(attribute_name + ' of animal can\'t be set to '
                              + attribute_name +
                              ', it has to be integer or float')
-    
-    def set_default_attribute(self, attribute_name):
+
+    @classmethod
+    def set_default_weight(cls):
         """
         Sets default value for class attributes - age & weight of animal.
         Birth weight draws from gaussian distribution.
@@ -78,12 +85,8 @@ class Fauna(ABC):
         ----------
         attribute_name: str
         """
-        if attribute_name is 'weight':
-            self.weight = gauss(self.parameters['w_birth'],
-                                self.parameters['sigma_birth'])
-            self._recompute_fitness = True
-        if attribute_name is 'age':
-            self.age = 0
+        return np.random.normal(cls.parameters['w_birth'],
+                                cls.parameters['sigma_birth'])
 
     def grow_up(self):
         """
@@ -97,7 +100,7 @@ class Fauna(ABC):
         Decreases weight of the animal every year by the factor 'eta'
         """
         weight_to_reduce = self.weight * self.parameters['eta']
-        self.weight -= weight_to_reduce
+        self._weight -= weight_to_reduce
         self._recompute_fitness = True
 
     @property
@@ -162,8 +165,8 @@ class Fauna(ABC):
         animal movement probability: boolean
 
         """
-        movement_prob = self.parameters['mu'] * self.fitness
-        return np.random.random() < movement_prob
+        move_probability = self.parameters['mu'] * self.fitness
+        return move_probability > np.random.random()
 
     def birth_prob(self, num_fauna):
         """
@@ -206,7 +209,7 @@ class Fauna(ABC):
             based on mother's species
         """
         if self.weight > baby.weight * baby.parameters['xi']:
-            self.weight -= baby.weight * baby.parameters['xi']
+            self._weight -= baby.weight * baby.parameters['xi']
 
     @property
     def death_prob(self):
@@ -219,11 +222,11 @@ class Fauna(ABC):
         death probability: bool
 
         """
-        if self.fitness == 0:
+        if self._fitness == 0:
             return True
         else:
             return np.random.random() < self.parameters['omega'] \
-                   * (1 - self.fitness)
+                   * (1 - self._fitness)
 
     def eat(self, amount_to_eat):
         """
@@ -234,7 +237,7 @@ class Fauna(ABC):
         amount_to_eat: int, float
 
         """
-        self.weight += self.parameters['beta'] * amount_to_eat
+        self._weight += self.parameters['beta'] * amount_to_eat
 
     @classmethod
     def set_given_parameters(cls, params):
@@ -250,7 +253,7 @@ class Fauna(ABC):
 
         for parameter in params:
             if parameter in cls.parameters:
-                if parameter == 'eta' and params[parameter] > 1:
+                if parameter == 'eta' and params['eta'] > 1:
                     raise ValueError('Illegal parameter value, eta '
                                      'can\'t be more than 1')
                 if parameter == 'DeltaPhiMax' and params[parameter] <= 0:

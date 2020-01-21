@@ -277,8 +277,7 @@ class Landscape(ABC):
                 # no longer efficient
                 for herbivore in self.sorted_fauna_fitness['Herbivore']:
                     # shouldnt be >= ?
-                    if np.random.random() > carnivore.kill_prob(
-                            herbivore):
+                    if carnivore.kill_prob(herbivore):
                         weight_to_eat = herbivore.weight
                         # del self.sorted_fauna_fitness['Herbivore'][herbivore]
                         # remove it from the dictionary, meaning removing from the cell
