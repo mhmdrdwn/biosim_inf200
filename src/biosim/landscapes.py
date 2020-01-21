@@ -91,7 +91,7 @@ class Landscape(ABC):
 
         Parameters
         ----------
-        animal: dict?
+        animal: Carnivore or Herbivore object
 
         Returns
         -------

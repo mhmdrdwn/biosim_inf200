@@ -7,7 +7,8 @@
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
-from biosim.landscapes import Landscape, Desert, Ocean, Mountain, Savannah, Jungle
+from biosim.landscapes import Landscape, Desert, Ocean, Mountain, Savannah, \
+    Jungle
 from biosim.fauna import Herbivore, Carnivore
 import numpy as np
 
@@ -16,6 +17,7 @@ class Map:
     """
     The map class contains island design.
     """
+
     def __init__(self, island_map):
         """
         The constructor for Map class.
@@ -33,7 +35,7 @@ class Map:
                                   'J': Jungle,
                                   'D': Desert}
         self._fauna_classes = {'Carnivore': Carnivore,
-                                'Herbivore': Herbivore}
+                               'Herbivore': Herbivore}
 
         self._cells = self.create_map_of_landscape_objects()
 
@@ -240,4 +242,5 @@ class Map:
 
     def migrate_stage(self):
         for [x, y], cell in np.ndenumerate(self._cells):
+            print(self.adj_cells(x,y))
             cell.migrate(self.adj_cells(x, y))
