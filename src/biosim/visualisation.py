@@ -92,11 +92,10 @@ class Visualisation:
             y, x = self._map_dims
             self._map_graph.imshow(self.generate_map_array())
             self._map_graph.set_xticks(range(0, x, 5))
-            self._map_graph.set_xticklabels(range(0, x, 5))
+            self._map_graph.set_xticklabels(range(1, x + 1, 5))
             self._map_graph.set_yticks(range(0, y, 5))
-            self._map_graph.set_yticklabels(range(0, y, 5))
+            self._map_graph.set_yticklabels(range(1, y + 1, 5))
             self._map_graph.set_title('Island')
-            # self.add_map_legend()
 
     def _build_carn_sim_curve(self, final_year):
         """

@@ -170,7 +170,7 @@ class Map:
 
         Parameters
         ----------
-        pop: dict
+        pop: iterable
 
         """
         for animal_group in pop:
