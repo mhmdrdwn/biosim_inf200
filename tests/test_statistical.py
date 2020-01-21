@@ -32,14 +32,13 @@ class TestGaussian:
         """
         birth_weight_list = []
         for _ in range(20):
-            c = Carnivore()
-            c.set_default_attribute('weight')
-            x = c.weight
-            birth_weight_list.append(x)
+            carn = Carnivore()
+            carn.set_default_weight()
+            birth_weight_list.append(carn.weight)
         for _ in range(20):
             h = Herbivore()
-            h.set_default_attribute('weight')
-            z=h.weight
+            h.set_default_weight()
+            z = h.weight
             birth_weight_list.append(z)
         return birth_weight_list
 
@@ -55,15 +54,13 @@ class TestGaussian:
             list of animals' birth weight
         """
         birth_weight_list = generate_animal_data
-        print(birth_weight_list)
         k2, p_value = stats.normaltest(birth_weight_list)
-        print("k2 = {:g}".format(k2))
-        print("p = {:g}".format(p_value))
         alpha = 0.01
         if p_value < alpha:
             print("The null hypothesis can be rejected")
         else:
             print("The null hypothesis cannot be rejected")
+
 
 class TestProbability:
     @pytest.fixture
@@ -84,23 +81,17 @@ class TestProbability:
         for _ in range(5):
             h = Herbivore()
             s.add_animal(h)
-        print(s.in_cell_fauna)
         h_count = len(s.in_cell_fauna['Herbivore'])
         c_count = len(s.in_cell_fauna['Carnivore'])
         fauna_count = h_count + c_count
-        print(fauna_count)
         return s, s.in_cell_fauna, fauna_count
 
     def test_die(self, gen_animal_data):
         s, animals, count = gen_animal_data
         mocker = mock.Mock()
-        mocker.patch('numpy.random.random', return_value =0)
+        mocker.patch('numpy.random.random', return_value=0)
         s.die_animals()
         assert count == 10
-        mocker.patch('numpy.random.random', return_value =1)
+        mocker.patch('numpy.random.random', return_value=1)
         s.remove_animal()
         assert count == 9
-
-
-
-
