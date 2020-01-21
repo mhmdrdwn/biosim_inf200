@@ -14,9 +14,12 @@ __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 import pytest
 from biosim.landscapes import Desert, Ocean, Mountain, Savannah, Jungle
 from biosim.fauna import Herbivore, Carnivore
+from biosim.map import Map
 from scipy import stats
 import mock
 from mock import patch
+from random import seed
+import numpy as np
 
 
 class TestGaussian:
@@ -63,35 +66,32 @@ class TestGaussian:
 
 
 class TestProbability:
-    @pytest.fixture
-    def gen_animal_data(self):
-        """
-        Generating population of animals
-
-        Returns
-        -------
-        in_cell_fauna: dict
-            list of animals by their type in dictionary
-        """
-        parameters = {'f_max': 300.0, 'alpha': 0.3}
-        s = Savannah(parameters)
-        for _ in range(5):
-            c = Carnivore()
-            s.add_animal(c)
-        for _ in range(5):
-            h = Herbivore()
-            s.add_animal(h)
-        h_count = len(s.in_cell_fauna['Herbivore'])
-        c_count = len(s.in_cell_fauna['Carnivore'])
+    """
+    Tests the method die_animal as of using mock: Replacing random number
+    generator with fixed value.
+    """
+    def test_die(mocker):
+        herb_1 = Herbivore(6, 0)
+        herb_2 = Herbivore()
+        carn_1 = Carnivore(1,5)
+        carn_2 = Carnivore()
+        params = {'f_max': 10.0}
+        j=Jungle(params)
+        j.add_animal(carn_1)
+        j.add_animal(carn_2)
+        j.add_animal(herb_1)
+        j.add_animal(herb_2)
+        herb_1.calculate_fitness()
+        assert herb_1.death_prob
+        herb_2.calculate_fitness()
+        carn_1.calculate_fitness()
+        carn_2.calculate_fitness()
+        mock.Mock()
+        mock.patch('numpy.random.random', return_value=0.00049292282)
+        j.die_animals()
+        h_count = len(j.in_cell_fauna['Herbivore'])
+        c_count = len(j.in_cell_fauna['Carnivore'])
         fauna_count = h_count + c_count
-        return s, s.in_cell_fauna, fauna_count
+        print(fauna_count)
+        assert fauna_count == 2
 
-    def test_die(self, gen_animal_data):
-        s, animals, count = gen_animal_data
-        mocker = mock.Mock()
-        mocker.patch('numpy.random.random', return_value=0)
-        s.die_animals()
-        assert count == 10
-        mocker.patch('numpy.random.random', return_value=1)
-        s.remove_animal()
-        assert count == 9
