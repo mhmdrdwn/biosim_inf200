@@ -113,7 +113,6 @@ class BioSim:
         self._year = 0
         self._final_year = None
         self._fig = None
-        # self._img_axis = None
 
     def set_animal_parameters(self, species, params):
         """
