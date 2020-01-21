@@ -1,7 +1,5 @@
 Tests of Visualisation
 =============
 
-.. automodule:: tests.test_visualisation
-   :inherited-members:
-
-
+The code of visualisation is drawn from project samples on project repository.
+So, no test is written for this code.
