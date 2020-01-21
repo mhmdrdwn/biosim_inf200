@@ -44,15 +44,23 @@ can move to one of the four neighbouring cells but not diagonal cells.
 
 Annual Cycle
 ------------
-The stages of annual cycle on the island are supposed as the seasons on Rossum island which are:
-#. **Feeding**:
-#. **Breeding**: When calculating the probability of birth according to equation
-the number of animals at the start of the breeding season is used, new born animals
-do not count.
-#. **Migration**: Animals can migrate at most once per year.
-#. **Aging**: Each animal becomes one year older.
-#. **Loss of weight**: All animals lose weight each year.
-#. **Death**:
+The stages of annual cycle on the island are supposed as the seasons on Rossum island are:
+
+1. **Feeding**: Each animal tries to eat an amount of F of food. But how much they feed depends on
+available food in the cell. Herbivores eat fodder while carnivores eat herbivores.
+
+2. **Breeding**: Animal can mate if there are at least two animals of the same species in a cell. Animal give birth to a baby
+with regards to birth probability.
+
+3. **Migration**: Animals can migrate at most once per year.
+
+4. **Aging**: Each animal becomes one year older.
+
+5. **Loss of weight**: All animals lose weight each year.
+
+6. **Death**: An animal dies whether its fitness gets zero or according to the death probability formula.
+
+**Note:** The formulas and conditions of each stage are described on related methods on class documentation pages.
 
 
 .. toctree::
@@ -65,7 +73,7 @@ do not count.
 
 References
 ----------
-.. [Ref] Yngve Mardal Moe. Modelling the Ecosystem of Rossum Island. Version 2019.1: 2019-01-03.
+Yngve Mardal Moe. Modelling the Ecosystem of Rossum Island. Version 2019.1: 2019-01-03.
 
 
 
