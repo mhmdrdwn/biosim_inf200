@@ -319,6 +319,9 @@ class Landscape(ABC):
         to j and removes it from current cell (i). If total propensity if 0,
         animals won't move since that adjacent cells are inaccessible.
 
+        Animals migrate to the cell with first accumulated propability that is
+        higher than the random number.
+
         Parameters
         ----------
         adj_cells: list
