@@ -7,12 +7,10 @@ __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 import os
-import textwrap
 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
 import subprocess
 
 from biosim.fauna import Carnivore, Herbivore
@@ -25,12 +23,12 @@ _CONVERT_BINARY = 'magick'
 
 _DEFAULT_GRAPHICS_DIR = os.path.join('../results', '')
 _DEFAULT_GRAPHICS_NAME = 'biosim'
-_DEFAULT_MOVIE_FORMAT = 'mp4'  # alternatives: mp4, gif
+_DEFAULT_MOVIE_FORMAT = 'mp4'
 
 
 class BioSim:
     """
-    Simulates the biosim projects behaviours.
+    Simulates the biosim project behaviours.
     """
     def __init__(
             self,
@@ -46,13 +44,10 @@ class BioSim:
         The constructor of BioSim class which contains simulation.
         If ymax_animals is None, the y-axis limit is adjusted automatically.
         If cmax_animals is None, sensible, fixed default values is used.
-        cmax_animals is a dict mapping species names to numbers, e.g.,
-           {'Herbivore': 50, 'Carnivore': 20}
         If img_base is None, no figures are written to file.
         Filenames are formed as
             '{}_{:05d}.{}'.format(img_base, img_no, img_fmt)
         where img_no are consecutive image numbers starting from 0.
-        img_base should contain a path and beginning of a file name.
 
         Parameters
         ----------
@@ -117,8 +112,8 @@ class BioSim:
 
         self._year = 0
         self._final_year = None
-
         self._fig = None
+        # self._img_axis = None
 
     def set_animal_parameters(self, species, params):
         """
@@ -193,8 +188,6 @@ class BioSim:
             self._map.life_cycle()
             self._year += 1
 
-            print('year'+str(self._year))
-
     def _setup_graphics(self):
         """
         Creates subplots.
@@ -214,7 +207,7 @@ class BioSim:
 
     def _update_graphics(self):
         """
-        Updates graphics with current data for Animals
+        Updates graphics with current data.
         """
         df = self.animal_distribution
         rows, cols = self._map.cells_dims
@@ -243,7 +236,7 @@ class BioSim:
 
     def add_population(self, population):
         """
-        Add a population to the island.
+        Adds population to the island.
 
         Parameters
         ----------
@@ -327,7 +320,7 @@ class BioSim:
 
         Returns
         -------
-        num_per_species: dict?
+        num_per_species: dict
         """
         num_per_species = {}
         for species in self.animal_species:
@@ -352,6 +345,6 @@ class BioSim:
                 cell = self._map.cells[i, j]
                 animals_count = cell.cell_fauna_count
                 count_df.append({'Row': i, 'Col': j,
-                                 'Herbivore': animals_count['Herbivore'],
-                                 'Carnivore': animals_count['Carnivore']})
+                                 'Carnivore': animals_count['Carnivore'],
+                                 'Herbivore': animals_count['Herbivore']})
         return pd.DataFrame(count_df)
