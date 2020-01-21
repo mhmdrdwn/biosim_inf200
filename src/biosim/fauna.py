@@ -50,7 +50,7 @@ class Fauna(ABC):
             self.raise_non_valid_attribute('Weight', weight)
             self._weight = weight
 
-        self.animal_just_givbe_birth = False
+        self.animal_just_give_birth = False
 
         self._fitness = None
         self.calculate_fitness()
