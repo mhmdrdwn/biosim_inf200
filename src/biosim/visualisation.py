@@ -153,7 +153,7 @@ class Visualisation:
         carn_ydata = self._carnivore_curve.get_ydata()
         carn_ydata[year] = carn_count
         self._carnivore_curve.set_ydata(carn_ydata)
-        #plt.pause(1e-4)
+        plt.pause(1e-4)
 
     def animal_graphs(self, final_year, y_lim):
         """

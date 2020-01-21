@@ -118,9 +118,7 @@ class BioSim:
         self._year = 0
         self._final_year = None
 
-        # the following will be initialized by _setup_graphics
         self._fig = None
-        # self._img_axis = None
 
     def set_animal_parameters(self, species, params):
         """
@@ -195,6 +193,8 @@ class BioSim:
             self._map.life_cycle()
             self._year += 1
 
+            print('year'+str(self._year))
+
     def _setup_graphics(self):
         """
         Creates subplots.
@@ -214,7 +214,7 @@ class BioSim:
 
     def _update_graphics(self):
         """
-        Updates graphics with current data.
+        Updates graphics with current data for Animals
         """
         df = self.animal_distribution
         rows, cols = self._map.cells_dims
@@ -343,7 +343,7 @@ class BioSim:
 
         Returns
         -------
-        pd.DataFrame(count_df): data frame ?
+        pd.DataFrame(count_df): data frame
         """
         count_df = []
         rows, cols = self._map.cells_dims
@@ -352,6 +352,6 @@ class BioSim:
                 cell = self._map.cells[i, j]
                 animals_count = cell.cell_fauna_count
                 count_df.append({'Row': i, 'Col': j,
-                                 'Carnivore': animals_count['Carnivore'],
-                                 'Herbivore': animals_count['Herbivore']})
+                                 'Herbivore': animals_count['Herbivore'],
+                                 'Carnivore': animals_count['Carnivore']})
         return pd.DataFrame(count_df)
