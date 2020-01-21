@@ -297,10 +297,14 @@ class Landscape(ABC):
         Adds new object of baby to the animals' dictionary of same kind, and
         decreases mother's weight when random number for group of two animals
         of same kind in the cell is more than or equal to birth probability.
+        Only adult fauna are allowed to give birth. Babies animals are added
+        to the dictionary of animals in cells. But it's allowed to give birth
+        in the first year of the cycle. But added to the adult animals for the
+        next year
         """
 
         for species, animals in self.adult_fauna.items():
-            half_num_fauna = math.floor(len(animals) / 2)
+            half_num_fauna = math.floor(len(self.adult_fauna[species]) / 2)
             # half of the animals will give birth of adult animals
             for i in range(half_num_fauna):
                 animal = animals[i]
@@ -311,6 +315,7 @@ class Landscape(ABC):
                     animal.lose_weight_give_birth(baby)
                     if animal.just_give_birth:
                         self.in_cell_fauna[species].append(baby)
+                        animal.just_give_birth = False
 
     def migrate(self, adj_cells):
         """
