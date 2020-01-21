@@ -66,7 +66,7 @@ class TestProbability:
     Tests the method die_animal as of using mock: Replacing random number
     generator with fixed value.
     """
-    def test_die(mocker):
+    def test_die(self, mocker):
         """
         Tests the die_animal method and death_prob in two conditions:
         1. animal with fitness zero (herb_1).
