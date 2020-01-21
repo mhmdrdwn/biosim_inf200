@@ -29,6 +29,9 @@ _DEFAULT_MOVIE_FORMAT = 'mp4'  # alternatives: mp4, gif
 
 
 class BioSim:
+    """
+    Simulates the biosim projects behaviours.
+    """
     def __init__(
             self,
             island_map,
