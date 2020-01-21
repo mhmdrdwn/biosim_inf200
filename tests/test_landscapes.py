@@ -24,153 +24,159 @@ class TestLandscapes:
     @pytest.fixture
     def gen_animal_data(self):
         seed(1)
-        h1 = Herbivore()
-        h2 = Herbivore()
+        herb_1 = Herbivore()
+        herb_2 = Herbivore()
         seed(1)
-        c1 = Carnivore()
-        c2 = Carnivore()
-        return c1, c2, h1, h2
+        carn_1 = Carnivore()
+        carn_2 = Carnivore()
+        return carn_1, carn_2, herb_1, herb_2
 
     @pytest.fixture
     def gen_landscape_data(self, gen_animal_data):
         landscape_params = {'f_max': 10.0}
-        c1, c2, h1, h2 = gen_animal_data
-        animals = {'Herbivore': [h1, h2], 'Carnivore': [c1, c2]}
+        carn_1, carn_2, herb_1, herb_2 = gen_animal_data
+        animals = {'Herbivore': [herb_1, herb_2], 'Carnivore': [carn_1, carn_2]}
         landscapes_dict = {'s': Savannah(),
                            'o': Ocean(),
                            'd': Desert(),
                            'm': Mountain(),
                            'j': Jungle()}
+        for species, animals in animals.items():
+            for animal in animals:
+                landscapes_dict['s'].add_animal(animal)
+                landscapes_dict['d'].add_animal(animal)
+                landscapes_dict['j'].add_animal(animal)
+
         return landscapes_dict
 
     def test_save_fitness(self, gen_landscape_data):
-        s = gen_landscape_data['s']
-        s.save_fitness(s._in_cell_fauna, 'Herbivore')
-        assert len(s.sorted_fauna_fitness) == 1
-        assert 'Herbivore' in s.sorted_fauna_fitness.keys()
-        assert len(s.sorted_fauna_fitness['Herbivore']) == 2
-        s.save_fitness(s._in_cell_fauna, 'Carnivore')
-        assert len(s.sorted_fauna_fitness) == 2
-        assert 'Carnivore' in s.sorted_fauna_fitness.keys()
+        sav = gen_landscape_data['s']
+        sav.save_fitness(sav.in_cell_fauna, 'Herbivore')
+        assert len(sav.sorted_fauna_fitness) == 1
+        assert 'Herbivore' in sav.sorted_fauna_fitness.keys()
+        assert len(sav.sorted_fauna_fitness['Herbivore']) == 2
+        sav.save_fitness(sav.in_cell_fauna, 'Carnivore')
+        assert len(sav.sorted_fauna_fitness) == 2
+        assert 'Carnivore' in sav.sorted_fauna_fitness.keys()
 
     def test_sort_fitness(self, gen_landscape_data):
-        s = gen_landscape_data['s']
-        dict_to_sort = s._in_cell_fauna
-        s.sort_by_fitness(dict_to_sort, 'Herbivore', False)
-        dict_values = s.sorted_fauna_fitness['Herbivore'].values()
+        sav = gen_landscape_data['s']
+        dict_to_sort = sav.in_cell_fauna
+        sav.sort_by_fitness(dict_to_sort, 'Herbivore', False)
+        dict_values = sav.sorted_fauna_fitness['Herbivore'].values()
         assert list(dict_values)[0] <= list(dict_values)[1]
-        s.sort_by_fitness(dict_to_sort, 'Carnivore')
-        dict_values = s.sorted_fauna_fitness['Carnivore'].values()
+        sav.sort_by_fitness(dict_to_sort, 'Carnivore')
+        dict_values = sav.sorted_fauna_fitness['Carnivore'].values()
         assert list(dict_values)[0] >= list(dict_values)[1]
 
     def test_add_and_remove_fauna(self, gen_landscape_data):
-        s, d = (gen_landscape_data[i] for i in ('s', 'd'))
-        assert len(s.in_cell_fauna['Carnivore'] + s.in_cell_fauna[
+        sav, des = (gen_landscape_data[i] for i in ('s', 'd'))
+        assert len(sav.in_cell_fauna['Carnivore'] + sav.in_cell_fauna[
             'Herbivore']) == 4
-        assert len(d.in_cell_fauna['Herbivore']) == 2
-        assert len(d.in_cell_fauna['Carnivore']) == 2
-        h3 = Herbivore()
-        s.add_fauna(h3)
-        assert len(s.in_cell_fauna['Carnivore'] + s.in_cell_fauna[
+        assert len(des.in_cell_fauna['Herbivore']) == 2
+        assert len(des.in_cell_fauna['Carnivore']) == 2
+        herb_3 = Herbivore()
+        sav.add_animal(herb_3)
+        assert len(sav.in_cell_fauna['Carnivore'] + sav.in_cell_fauna[
             'Herbivore']) == 5
-        s.remove_fauna(h3)
-        assert len(s.in_cell_fauna['Carnivore'] + s.in_cell_fauna[
+        sav.remove_animal(herb_3)
+        assert len(sav.in_cell_fauna['Carnivore'] + sav.in_cell_fauna[
             'Herbivore']) == 4
 
     def test_mate(self, gen_landscape_data):
-        j = gen_landscape_data['j']
-        mate_animal = j._in_cell_fauna['Carnivore'][0]
+        jun = gen_landscape_data['j']
+        mate_animal = jun.in_cell_fauna['Carnivore'][0]
         mate_animal.eat(50)
         mate_animal.eat(50)
         # increase the weight of animal
         weight_pre_birth = mate_animal.weight
-        j.mate(mate_animal)
+        jun.mate(mate_animal)
         weight_post_birth = mate_animal.weight
         # assert len(j.fauna_objects_dict['Carnivore']) == 3
         # assert weight_post_birth < weight_pre_birth
 
     def test_feed_herbivore(self, gen_landscape_data):
-        s, d = (gen_landscape_data[i] for i in ('s', 'd'))
-        dict_to_sort = s.in_cell_fauna
-        s.sort_by_fitness(dict_to_sort, 'Herbivore')
-        dict_keys = s.sorted_fauna_fitness['Herbivore'].keys()
+        sav, des = (gen_landscape_data[i] for i in ('s', 'd'))
+        dict_to_sort = sav.in_cell_fauna
+        sav.sort_by_fitness(dict_to_sort, 'Herbivore')
+        dict_keys = sav.sorted_fauna_fitness['Herbivore'].keys()
         h1_higher_fitness = list(dict_keys)[0]
         h2_lower_fitness = list(dict_keys)[1]
         h1_weight_pre_eat = h1_higher_fitness.weight
         h2_weight_pre_eat = h2_lower_fitness.weight
-        assert s.available_fodder['Herbivore'] > 0
-        s.feed_herbivore()
-        assert s.available_fodder['Herbivore'] == 0
+        assert sav.available_fodder['Herbivore'] > 0
+        sav.feed_herbivore()
+        assert sav.available_fodder['Herbivore'] == 0
         h1_weight_post_eat = h1_higher_fitness.weight
         h2_weight_post_eat = h2_lower_fitness.weight
         assert h1_weight_post_eat > h1_weight_pre_eat
         assert h2_weight_post_eat == h2_weight_pre_eat
 
-        h1 = d.in_cell_fauna['Herbivore'][0]
-        h2 = d.in_cell_fauna['Herbivore'][1]
+        h1 = des.in_cell_fauna['Herbivore'][0]
+        h2 = des.in_cell_fauna['Herbivore'][1]
         h1_weight_pre_eat = h1.weight
         h2_weight_pre_eat = h2.weight
-        assert d.available_fodder['Herbivore'] == 0
-        d.feed_herbivore()
+        assert des.available_fodder['Herbivore'] == 0
+        des.feed_herbivore()
         h1_weight_post_eat = h1.weight
         h2_weight_post_eat = h2.weight
-        assert d.available_fodder['Herbivore'] == 0
+        assert des.available_fodder['Herbivore'] == 0
         assert h1_weight_post_eat == h1_weight_pre_eat
         assert h2_weight_post_eat == h2_weight_pre_eat
 
     def test_feed_carnivore(self, gen_landscape_data):
-        s, d = (gen_landscape_data[i] for i in ('s', 'd'))
-        s.feed_carnivore()
+        sav, des = (gen_landscape_data[i] for i in ('s', 'd'))
+        sav.feed_carnivore()
         # its weight remains the same meaning it doesn't eat anything
 
     def test_relevant_fodder(self, gen_landscape_data):
-        s, d, j = (gen_landscape_data[i] for i in ('s', 'd', 'j'))
-        herb = d.in_cell_fauna['Herbivore'][0]
-        carn = d.in_cell_fauna['Carnivore'][0]
-        assert j.relevant_fodder(herb) == j.available_fodder['Herbivore']
-        assert d.relevant_fodder(herb) == d.available_fodder['Herbivore']
-        assert d.relevant_fodder(herb) == 0
-        assert d.relevant_fodder(carn) == s.available_fodder['Carnivore']
-        assert d.relevant_fodder(carn) == pytest.approx(
+        sav, des, jun = (gen_landscape_data[i] for i in ('s', 'd', 'j'))
+        herb = des.in_cell_fauna['Herbivore'][0]
+        carn = des.in_cell_fauna['Carnivore'][0]
+        assert jun.relevant_fodder(herb) == jun.available_fodder['Herbivore']
+        assert des.relevant_fodder(herb) == des.available_fodder['Herbivore']
+        assert des.relevant_fodder(herb) == 0
+        assert des.relevant_fodder(carn) == sav.available_fodder['Carnivore']
+        assert des.relevant_fodder(carn) == pytest.approx(
             20.10644554278285)
 
     def test_relative_abundance_fodder(self, gen_landscape_data):
-        s, o, d = (gen_landscape_data[i] for i in ('s', 'o', 'd'))
-        herb = s.in_cell_fauna['Herbivore'][0]
-        carn = s.in_cell_fauna['Carnivore'][0]
-        assert d.relative_abundance_fodder(herb) == 0
-        assert s.relative_abundance_fodder(herb) == \
+        sav, ocean, des = (gen_landscape_data[i] for i in ('s', 'o', 'd'))
+        herb = sav.in_cell_fauna['Herbivore'][0]
+        carn = sav.in_cell_fauna['Carnivore'][0]
+        assert des.relative_abundance_fodder(herb) == 0
+        assert sav.relative_abundance_fodder(herb) == \
                pytest.approx(0.3333333333333333)
-        assert o.relative_abundance_fodder(herb) == 0
-        assert d.relative_abundance_fodder(carn) == \
+        assert ocean.relative_abundance_fodder(herb) == 0
+        assert des.relative_abundance_fodder(carn) == \
                pytest.approx(0.134042970285219)
 
     def test_propensity(self, gen_landscape_data):
-        s, o, d, m, j = (gen_landscape_data[i]
+        sav, ocean, des, mount, jun = (gen_landscape_data[i]
                          for i in ('s', 'o', 'd', 'm', 'j'))
-        herb = s.in_cell_fauna['Herbivore'][0]
-        carn = s.in_cell_fauna['Carnivore'][0]
-        assert s.propensity(herb) == pytest.approx(1.3956124250860895)
-        assert s.propensity(carn) == pytest.approx(1.1434419526158457)
-        assert m.propensity(herb) == 0
-        assert o.propensity(carn) == 0
-        assert j.propensity(herb) == pytest.approx(1.3956124250860895)
-        assert d.propensity(herb) == math.exp(0) == 1
-        assert d.propensity(carn) == pytest.approx(1.1434419526158457)
-        assert j.propensity(carn) == pytest.approx(1.1434419526158457)
+        herb = sav.in_cell_fauna['Herbivore'][0]
+        carn = sav.in_cell_fauna['Carnivore'][0]
+        assert sav.propensity(herb) == pytest.approx(1.3956124250860895)
+        assert sav.propensity(carn) == pytest.approx(1.1434419526158457)
+        assert mount.propensity(herb) == 0
+        assert ocean.propensity(carn) == 0
+        assert jun.propensity(herb) == pytest.approx(1.3956124250860895)
+        assert des.propensity(herb) == math.exp(0) == 1
+        assert des.propensity(carn) == pytest.approx(1.1434419526158457)
+        assert jun.propensity(carn) == pytest.approx(1.1434419526158457)
 
     def test_probability_of_cell(self, gen_landscape_data):
-        s, o, d, m, j = (gen_landscape_data[i]
+        sav, ocean, des, mount, jun = (gen_landscape_data[i]
                          for i in ('s', 'o', 'd', 'm', 'j'))
 
-        adj_cells = [d, d, o, j]
-        herb = j.in_cell_fauna['Herbivore'][0]
-        carn = j.in_cell_fauna['Carnivore'][0]
+        adj_cells = [des, des, ocean, jun]
+        herb = jun.in_cell_fauna['Herbivore'][0]
+        carn = jun.in_cell_fauna['Carnivore'][0]
         total_propensity_carn = sum(i.propensity(carn) for i in adj_cells)
-        assert s.probability_of_cell(carn, total_propensity_carn) == \
+        assert sav.probability(carn, total_propensity_carn) == \
                pytest.approx(0.33333333333333337)
         total_propensity_herb = sum(i.propensity(herb) for i in adj_cells)
-        assert s.probability_of_cell(herb, total_propensity_herb) == \
+        assert sav.probability(herb, total_propensity_herb) == \
                pytest.approx(0.41100462902526524)
 
 
@@ -178,16 +184,16 @@ class TestDesert(TestLandscapes):
     # test of is accessible for all of the subclasses should be added.
     def test_no_fodder(self, gen_landscape_data):
         """No fodder available in the desert"""
-        o = gen_landscape_data['o']
-        assert o.available_fodder['Herbivore'] == 0
-        assert o.available_fodder['Carnivore'] == 0
+        ocean = gen_landscape_data['o']
+        assert ocean.available_fodder['Herbivore'] == 0
+        assert ocean.available_fodder['Carnivore'] == 0
 
 
 class TestOcean(TestLandscapes):
     def test_number_animals(self, gen_landscape_data):
-        o = gen_landscape_data['o']
-        assert len(o._in_cell_fauna['Carnivore']) == 0
-        assert len(o._in_cell_fauna['Herbivore']) == 0
+        ocean = gen_landscape_data['o']
+        assert len(ocean.in_cell_fauna['Carnivore']) == 0
+        assert len(ocean.in_cell_fauna['Herbivore']) == 0
         # it should be changed in the Ocean Class. because when we pass an
         # empty list it is obviouse to get an empty list as a result!!
         with pytest.raises(ValueError) as err:
@@ -197,9 +203,9 @@ class TestOcean(TestLandscapes):
 
 class TestMountains(TestLandscapes):
     def test_number_animals(self, gen_landscape_data):
-        m = gen_landscape_data['m']
-        assert len(m._in_cell_fauna['Carnivore']) == 0
-        assert len(m._in_cell_fauna['Herbivore']) == 0
+        mount = gen_landscape_data['m']
+        assert len(mount.in_cell_fauna['Carnivore']) == 0
+        assert len(mount.in_cell_fauna['Herbivore']) == 0
         # it should be changed in the Mountain Class. because when we pass an
         # empty list it is obviouse to get an empty list as a result!!
         with pytest.raises(ValueError) as err:
@@ -209,44 +215,44 @@ class TestMountains(TestLandscapes):
 
 class TestSavannah(TestLandscapes):
     def test_grow_herb_fodder(self, gen_landscape_data):
-        s = gen_landscape_data['s']
-        assert s.available_fodder['Herbivore'] == s.parameters['f_max']
-        assert s.available_fodder['Herbivore'] == 10
-        s.feed_herbivore()
-        fodder_pre_grow = s.available_fodder['Herbivore']
-        s.grow_herb_fodder()
-        fodder_post_grow = s.available_fodder['Herbivore']
+        sav = gen_landscape_data['s']
+        assert sav.available_fodder['Herbivore'] == sav.parameters['f_max']
+        assert sav.available_fodder['Herbivore'] == 10
+        sav.feed_herbivore()
+        fodder_pre_grow = sav.available_fodder['Herbivore']
+        sav.grow_herb_fodder()
+        fodder_post_grow = sav.available_fodder['Herbivore']
         assert fodder_post_grow > fodder_pre_grow
         assert fodder_post_grow - fodder_pre_grow == \
-               s.parameters['alpha'] * (s.parameters['f_max'] -
+               sav.parameters['alpha'] * (sav.parameters['f_max'] -
                                         fodder_pre_grow)
         # the growth or the difference between them is given by the formula
 
     def test_reset_parameters(self, gen_landscape_data):
-        s = gen_landscape_data['s']
-        alpha_pre_change = s.parameters['alpha']
-        s.set_given_parameters({'alpha': 0.5})
-        alpha_post_change = s.parameters['alpha']
+        sav = gen_landscape_data['s']
+        alpha_pre_change = sav.parameters['alpha']
+        sav.set_given_parameters({'alpha': 0.5})
+        alpha_post_change = sav.parameters['alpha']
         assert alpha_post_change != alpha_pre_change
 
 
 class TestJungle(TestLandscapes):
     def test_grow_herb_fodder(self, gen_landscape_data):
-        j = gen_landscape_data['j']
-        assert j.available_fodder['Herbivore'] == j.parameters['f_max']
-        assert j.available_fodder['Herbivore'] == 10
-        j.feed_herbivore()
-        fodder_pre_grow = j.available_fodder['Herbivore']
-        j.grow_herb_fodder()
-        fodder_post_grow = j.available_fodder['Herbivore']
+        jun = gen_landscape_data['j']
+        assert jun.available_fodder['Herbivore'] == jun.parameters['f_max']
+        assert jun.available_fodder['Herbivore'] == 10
+        jun.feed_herbivore()
+        fodder_pre_grow = jun.available_fodder['Herbivore']
+        jun.grow_herb_fodder()
+        fodder_post_grow = jun.available_fodder['Herbivore']
         assert fodder_pre_grow < fodder_post_grow
-        assert fodder_post_grow == j.parameters['f_max']
+        assert fodder_post_grow == jun.parameters['f_max']
         # at the start of each simulation the fodder will have f_max
         # after a year the fodder will have f_max, no matter how much was eaten
 
     def test_reset_parameters(self, gen_landscape_data):
-        j = gen_landscape_data['j']
-        f_max_pre_change = j.parameters['f_max']
-        j.set_given_parameters({'f_max': 400})
-        f_max_post_change = j.parameters['f_max']
+        jun = gen_landscape_data['j']
+        f_max_pre_change = jun.parameters['f_max']
+        jun.set_given_parameters({'f_max': 400})
+        f_max_post_change = jun.parameters['f_max']
         assert f_max_post_change != f_max_pre_change
