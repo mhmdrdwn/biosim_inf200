@@ -15,6 +15,7 @@ import numpy as np
 class Map:
     """
     The map class contains map parent class with .
+
     """
 
     def __init__(self, island_map):
@@ -54,6 +55,7 @@ class Map:
 
     def create_cell(self, cell_letter):
         """
+        create cell object based on given string
 
         Parameters
         ----------
@@ -61,19 +63,23 @@ class Map:
 
         Returns
         -------
-        name of class?
+        class of landscape (Jungle, Mountain, Savannah, Ocean, Desert)
+
         """
         return self.landscape_classes[cell_letter]()
 
     def edges(self, map_array):
         """
+        get the border element of the matrix, the cells on the border of the
+         provided map array
+
         Parameters
         ----------
         map_array: array
 
         Returns
         -------
-        map_edges: list?
+        map_edges: list
         """
         rows, cols = map_array.shape[0], map_array.shape[1]
         map_edges = [map_array[0, :cols], map_array[rows - 1, :cols],
@@ -82,11 +88,12 @@ class Map:
 
     def not_surrounded_by_ocean(self, map_array):
         """
-        Controls that the island is surrounded by ocean.
+        Raise an exception if the border of geography is not ocean
 
         Parameters
         ----------
-        map_array: array
+        map_array: np.ndarray
+
         """
         edges = self.edges(map_array)
         for side in edges:
@@ -103,8 +110,8 @@ class Map:
 
         Returns
         -------
-        cells_array: array
-            All object are saved inside the numpy array in output
+        cells_array: np.ndarray of landscape objects
+
         """
         cells_array = np.empty(self.island_map.shape, dtype=object)
         for i in np.arange(self.island_map.shape[0]):
@@ -124,7 +131,7 @@ class Map:
 
         Returns
         -------
-        char_map: array?
+        char_map: np.ndarray
         """
         map_string_clean = map_str.replace(' ', '')
         char_map = np.array(
@@ -133,7 +140,7 @@ class Map:
 
     def adj_cells(self, x, y):
         """
-        Returns the list of 4 neighbouring cells.
+        Returns the list of 4 adjacent cells.
         Parameters
         ----------
         x: int
@@ -142,7 +149,7 @@ class Map:
         Returns
         -------
         adj_cells_list: list
-            List of 4 neighbouring cells
+            List of 4 adjacent cells
         """
         rows, cols = self.cells_dims
         adj_cells_list = []
@@ -158,12 +165,13 @@ class Map:
 
     def add_animals(self, pop):
         """
-        Adds animal object and its attributes to the animal population of the
-        cell or all cells ?
+        Add the given population to the animal population of the
+        cell with specific location
 
         Parameters
         ----------
-        pop: list?
+        pop: dict
+
         """
         for animal_group in pop:
             loc = animal_group['loc']
@@ -179,7 +187,7 @@ class Map:
 
     def total_num_animals_per_species(self, species):
         """
-        Calculates number of animals per kind for all cells. ?
+        Calculates number of animals per kind for all cells per species.
 
         Parameters
         ----------
@@ -187,7 +195,7 @@ class Map:
 
         Returns
         -------
-        num_animals: int
+        num_animals: dict
         """
         num_animals = 0
         rows, cols = self.cells_dims
@@ -200,6 +208,7 @@ class Map:
     def life_cycle(self):
         """
         Calculates life cycle of animals yearly.
+
         """
         self.feed_stage()
         self.give_birth_stage()
@@ -209,12 +218,18 @@ class Map:
         self.die_stage()
 
     def feed_stage(self):
+        """
+        feeding all the animals in all cells
+        """
         rows, cols = self.cells_dims
         for x in range(rows):
             for y in range(cols):
                 self._cells[x, y].feed_animals()
 
     def give_birth_stage(self):
+        """
+        giving birth all the animals in all cells
+        """
         rows, cols = self.cells_dims
         for x in range(rows):
             for y in range(cols):
@@ -225,23 +240,37 @@ class Map:
                 self._cells[x, y].add_baby_to_adult_animals()
 
     def grow_up_stage(self):
+        """
+        growing up all the animals in all cells
+
+        """
         rows, cols = self.cells_dims
         for x in range(rows):
             for y in range(cols):
                 self._cells[x, y].grow_up_animals()
 
     def lose_weight_stage(self):
+        """
+        losing weight for all the animals in all cells
+
+        """
         rows, cols = self.cells_dims
         for x in range(rows):
             for y in range(cols):
                 self._cells[x, y].lose_weight_animals()
 
     def die_stage(self):
+        """
+        die all the animals that are with higher probability in all cells
+        """
         rows, cols = self.cells_dims
         for x in range(rows):
             for y in range(cols):
                 self._cells[x, y].die_animals()
 
     def migrate_stage(self):
+        """
+        migrate all the animals in all cells
+        """
         for [x, y], cell in np.ndenumerate(self._cells):
             cell.migrate(self.adj_cells(x, y))

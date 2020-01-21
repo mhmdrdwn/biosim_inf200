@@ -186,6 +186,8 @@ class BioSim:
 
             self._map.life_cycle()
             self._year += 1
+            print(self.num_animals_per_species)
+            print('Year '+str(self._year))
 
     def _setup_graphics(self):
         """
@@ -193,7 +195,6 @@ class BioSim:
         """
         map_dims = self._map.cells_dims
 
-        # create new figure window
         if self._fig is None:
             self._fig = plt.figure()
             self._vis = Visualisation(self._island_map, self._fig, map_dims)
@@ -201,7 +202,6 @@ class BioSim:
         self._vis.visualise_map()
         self._vis.animal_graphs(self._final_year, self.ymax_animals)
 
-        # population distribution graphs
         self._vis.animal_dist_graphs()
 
     def _update_graphics(self):
@@ -344,6 +344,6 @@ class BioSim:
                 cell = self._map.cells[i, j]
                 animals_count = cell.cell_fauna_count
                 count_df.append({'Row': i, 'Col': j,
-                                 'Carnivore': animals_count['Carnivore'],
-                                 'Herbivore': animals_count['Herbivore']})
+                                 'Herbivore': animals_count['Herbivore'],
+                                 'Carnivore': animals_count['Carnivore']})
         return pd.DataFrame(count_df)

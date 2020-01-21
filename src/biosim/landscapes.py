@@ -278,8 +278,8 @@ class Landscape(ABC):
         number is more than or equal to death probability for that object
         in the cell.
         """
-        for species in self.in_cell_fauna:
-            for animal in self.in_cell_fauna[species]:
+        for species, animals in self.in_cell_fauna.items():
+            for animal in animals:
                 if animal.death_prob:
                     self.remove_animal(animal)
 

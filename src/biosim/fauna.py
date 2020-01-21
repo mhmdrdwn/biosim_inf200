@@ -167,7 +167,7 @@ class Fauna(ABC):
         animal movement probability: boolean
 
         """
-        move_probability = self.parameters['mu'] * self.fitness
+        move_probability = self.parameters['mu'] * self._fitness
         return move_probability > np.random.random()
 
     def birth_prob(self, num_fauna):
@@ -195,7 +195,7 @@ class Fauna(ABC):
         if num_fauna >= 2 and self.weight >= zeta * (w_birth + sigma_birth):
             gamma = self.parameters['gamma']
             return np.random.random() < min(1, gamma *
-                                            self.fitness * (num_fauna - 1))
+                                            self._fitness * (num_fauna - 1))
         else:
             return False
 
@@ -333,11 +333,11 @@ class Carnivore(Fauna):
         _kill_prob: bool
         """
 
-        if self.fitness <= herbivore_to_kill.fitness:
+        if self._fitness <= herbivore_to_kill.fitness:
             self._kill_prob = 0
-        elif 0 < self.fitness - herbivore_to_kill.fitness < \
+        elif 0 < self._fitness - herbivore_to_kill.fitness < \
                 self.parameters['DeltaPhiMax']:
-            self._kill_prob = (self.fitness - herbivore_to_kill.fitness) / \
+            self._kill_prob = (self._fitness - herbivore_to_kill.fitness) / \
                               self.parameters['DeltaPhiMax']
         else:
             self._kill_prob = 1
