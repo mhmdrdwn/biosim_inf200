@@ -173,6 +173,7 @@ class Visualisation:
         self._mean_ax.set_xlim(0, final_year + 1)
         self._build_herb_sim_curve(final_year)
         self._build_carn_sim_curve(final_year)
+        self._mean_ax.set_title('Animals population')
 
     def animal_dist_graphs(self):
         """

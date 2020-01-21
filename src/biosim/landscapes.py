@@ -23,14 +23,12 @@ class Landscape(ABC):
     """
     available_fodder = {}
     parameters = {}
-    in_cell_fauna = {'Herbivore': [], 'Carnivore': []}
+    in_cell_fauna = {}
+    adult_fauna = {}
 
     @abstractmethod
     def __init__(self):
-        self.in_cell_fauna = Landscape.in_cell_fauna
-        self.adult_fauna = {'Herbivore': [], 'Carnivore': []}
         self.sorted_fauna_fitness = {}
-        self.available_fodder = Landscape.available_fodder
 
     def save_fitness(self, fauna_objects, species):
         """
@@ -463,9 +461,8 @@ class Desert(Landscape):
         self.in_cell_fauna = {'Carnivore': [], 'Herbivore': []}
         total_herb_weight = sum(
             i.weight for i in self.in_cell_fauna['Herbivore'])
-        self.available_fodder['Carnivore'] = total_herb_weight
-        self.available_fodder['Herbivore'] = Desert.available_fodder[
-            'Herbivore']
+        self.available_fodder = {'Herbivore': 0,
+                                 'Carnivore': total_herb_weight}
 
 
 class Mountain(Landscape):

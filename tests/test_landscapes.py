@@ -33,7 +33,7 @@ class TestLandscapes:
 
     @pytest.fixture
     def gen_landscape_data(self, gen_animal_data):
-        landscape_params = {'f_max': 10.0}
+        #landscape_params = {'f_max': 10.0}
         carn_1, carn_2, herb_1, herb_2 = gen_animal_data
         animals = {'Herbivore': [herb_1, herb_2], 'Carnivore': [carn_1, carn_2]}
         landscapes_dict = {'s': Savannah(),
@@ -83,18 +83,6 @@ class TestLandscapes:
         assert len(sav.in_cell_fauna['Carnivore'] + sav.in_cell_fauna[
             'Herbivore']) == 4
 
-    def test_mate(self, gen_landscape_data):
-        jun = gen_landscape_data['j']
-        mate_animal = jun.in_cell_fauna['Carnivore'][0]
-        mate_animal.eat(50)
-        mate_animal.eat(50)
-        # increase the weight of animal
-        weight_pre_birth = mate_animal.weight
-        jun.mate(mate_animal)
-        weight_post_birth = mate_animal.weight
-        # assert len(j.fauna_objects_dict['Carnivore']) == 3
-        # assert weight_post_birth < weight_pre_birth
-
     def test_feed_herbivore(self, gen_landscape_data):
         sav, des = (gen_landscape_data[i] for i in ('s', 'd'))
         dict_to_sort = sav.in_cell_fauna
@@ -136,7 +124,7 @@ class TestLandscapes:
         assert jun.relevant_fodder(herb) == jun.available_fodder['Herbivore']
         assert des.relevant_fodder(herb) == des.available_fodder['Herbivore']
         assert des.relevant_fodder(herb) == 0
-        assert des.relevant_fodder(carn) == sav.available_fodder['Carnivore']
+        assert des.relevant_fodder(carn) == des.available_fodder['Carnivore']
         assert des.relevant_fodder(carn) == pytest.approx(
             20.10644554278285)
 

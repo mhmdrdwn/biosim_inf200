@@ -218,7 +218,7 @@ class BioSim:
         self._vis.update_carnivore_dist(dist_matrix_carnivore,
                                         self._cmax_animals['Carnivore'])
         plt.pause(1e-6)
-        self._fig.suptitle('Year: ' + str(self.year), x=0.1)
+        self._fig.suptitle('Year: ' + str(self.year), x=0.5)
 
     def _save_graphics(self):
         """
