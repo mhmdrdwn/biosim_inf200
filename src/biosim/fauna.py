@@ -50,7 +50,7 @@ class Fauna(ABC):
             self.raise_non_valid_attribute('Weight', weight)
             self._weight = weight
 
-        self.animal_just_give_birth = False
+        self.just_give_birth = False
 
         self._fitness = None
         self.calculate_fitness()
@@ -85,6 +85,7 @@ class Fauna(ABC):
         Parameters
         ----------
         attribute_name: str
+
         """
         return np.random.normal(cls.parameters['w_birth'],
                                 cls.parameters['sigma_birth'])
@@ -211,7 +212,7 @@ class Fauna(ABC):
         """
         if self.weight >= baby.weight * baby.parameters['xi']:
             self._weight -= baby.weight * baby.parameters['xi']
-            self.animal_just_give_birth = True
+            self.just_give_birth = True
 
     @property
     def death_prob(self):

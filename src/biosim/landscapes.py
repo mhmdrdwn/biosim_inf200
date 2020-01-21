@@ -28,6 +28,7 @@ class Landscape(ABC):
     @abstractmethod
     def __init__(self):
         self.in_cell_fauna = {'Herbivore': [], 'Carnivore': []}
+        self.baby_fauna = {'Herbivore': [], 'Carnivore': []}
         self.sorted_fauna_fitness = {}
 
     def save_fitness(self, fauna_objects, species):
@@ -181,26 +182,6 @@ class Landscape(ABC):
         carnivore = len(self.in_cell_fauna['Carnivore'])
         return {'Herbivore': herbivore, 'Carnivore': carnivore}
 
-    def mate(self, animal):
-        """
-        Changes the population of the cell due to breeding new baby, if random
-        number is bigger than the birth probability. Once the baby is born,
-        it's added to the cell.
-
-        Parameters
-        ----------
-        animal: Carnivore or Herbivore object
-        """
-        species = animal.__class__
-        num_fauna = len(self.in_cell_fauna[species.__name__])
-        if animal.birth_prob(num_fauna):
-            # if that random number is bigger than that probablity it should
-            # give birth, or create new baby, or object of animal
-            baby = species()
-            animal.give_birth(baby)
-            if animal.animal_just_givbe_birth:
-                self.add_animal(baby)
-
     def feed_herbivore(self):
         """
         Herbivores with the highest fitness eat first, so the dictionary
@@ -310,20 +291,28 @@ class Landscape(ABC):
                 if animal.death_prob:
                     self.remove_animal(animal)
 
+    def add_baby_to_cell_animals(self):
+        for species, babies in self.baby_fauna.items():
+            for baby in babies:
+                self.add_animal(baby)
+
     def give_birth_animals(self):
         """
         Adds new object of baby to the animals' dictionary of same kind, and
-        decreases mother's weight when random number for group of two animals of
-        same kind in the cell is more than or equal to birth probability.
+        decreases mother's weight when random number for group of two animals
+        of same kind in the cell is more than or equal to birth probability.
         """
-        for species in self.in_cell_fauna:
-            num_fauna = len(self.in_cell_fauna[species])
-            # shouldnt it be divided by 2 (floor)
-            for animal in self.in_cell_fauna[species]:
-                if np.random.random() > animal.birth_prob(num_fauna):
+        for species, animals in self.in_cell_fauna.items():
+            half_num_fauna = math.floor(len(animals) / 2)
+            # half of the animals will give birth
+            for i in range(half_num_fauna):
+                animal = animals[i]
+                if animal.birth_prob(len(animals)):
                     baby_species = animal.__class__
                     baby = baby_species()
                     animal.lose_weight_give_birth(baby)
+                    if animal.just_give_birth:
+                        self.baby_fauna[species].append(baby)
 
     def migrate(self, adj_cells):
         """
@@ -342,17 +331,19 @@ class Landscape(ABC):
                     propensity = [cell.propensity(animal) for cell in
                                   adj_cells]
                     total_propensity = sum(propensity)
-                    probability = [cell.probability(animal, total_propensity)
-                                   for cell in adj_cells]
-                    cumsum_probability = np.cumsum(probability)
-                    random_num = np.random.random()
-                    i = 0
-                    while random_num > cumsum_probability[i]:
-                        i += 1
-                    cell_to_go = adj_cells[i]
-                    if cell_to_go.is_accessible:
-                        cell_to_go.add_animal(animal)
-                        self.remove_animal(animal)
+                    if total_propensity != 0:
+                        probability = [cell.probability(animal,
+                                                        total_propensity)
+                                       for cell in adj_cells]
+                        cumsum_probability = np.cumsum(probability)
+                        random_num = np.random.random()
+                        i = 0
+                        while random_num > cumsum_probability[i]:
+                            i += 1
+                        cell_to_go = adj_cells[i]
+                        if cell_to_go.is_accessible:
+                            cell_to_go.add_animal(animal)
+                            self.remove_animal(animal)
 
     @classmethod
     def set_given_parameters(cls, given_parameters):
@@ -398,11 +389,9 @@ class Savannah(Landscape):
             self.set_given_parameters(given_parameters)
         self.parameters = Savannah.parameters
         self.available_fodder['Herbivore'] = self.parameters['f_max']
-        total_herb_weight = sum(i.weight for i in
+        total_herb_weight = sum(animal.weight for animal in
                                 self.in_cell_fauna['Herbivore'])
         self.available_fodder['Carnivore'] = total_herb_weight
-        # aviable fodder equals to f_max at the beginning of
-        # instaniating anew object
 
     def grow_herb_fodder(self):
         """
@@ -439,7 +428,7 @@ class Jungle(Landscape):
         self.parameters = Jungle.parameters
         self.available_fodder['Herbivore'] = self.parameters['f_max']
         total_herb_weight = sum(
-            i.weight for i in self.in_cell_fauna['Herbivore'])
+            animal.weight for animal in self.in_cell_fauna['Herbivore'])
         self.available_fodder['Carnivore'] = total_herb_weight
 
     def grow_herb_fodder(self):
@@ -482,9 +471,6 @@ class Mountain(Landscape):
     is_accessible = False
 
     def __init__(self):
-        # if fauna_objects_dict is not None:
-        #    raise ValueError('Animals can\'t be set on Mountains, '
-        #                     'this parameter has to be empty')
         super().__init__()
         self.available_fodder = Mountain.available_fodder
         self.in_cell_fauna = Mountain.in_cell_fauna

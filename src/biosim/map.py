@@ -27,7 +27,6 @@ class Map:
         island_map: str?
         """
         self.island_map = self.string_to_np_array(island_map)
-        self._cells_dims = None
         self.not_surrounded_by_ocean(self.island_map)
         self.landscape_classes = {'O': Ocean,
                                   'S': Savannah,
@@ -38,6 +37,9 @@ class Map:
                                'Herbivore': Herbivore}
 
         self._cells = self.create_map_of_landscape_objects()
+        rows = self._cells.shape[0]
+        cols = self._cells.shape[1]
+        self.cells_dims = rows, cols
 
     @property
     def cells(self):
@@ -63,18 +65,6 @@ class Map:
         name of class?
         """
         return self.landscape_classes[cell_letter]()
-
-    @property
-    def cells_dims(self):
-        """
-
-        Returns
-        -------
-        rows, cols: array ?
-        """
-        rows = self._cells.shape[0]
-        cols = self._cells.shape[1]
-        return rows, cols
 
     def edges(self, map_array):
         """
@@ -221,26 +211,39 @@ class Map:
         self.die_stage()
 
     def feed_stage(self):
-        for [x, y], cell in np.ndenumerate(self._cells):
-            cell.feed_animals()
+        rows, cols = self.cells_dims
+        for x in range(rows):
+            for y in range(cols):
+                self._cells[x, y].feed_animals()
 
     def give_birth_stage(self):
-        for [x, y], cell in np.ndenumerate(self._cells):
-            cell.give_birth_animals()
+        rows, cols = self.cells_dims
+        for x in range(rows):
+            for y in range(cols):
+                self._cells[x, y].give_birth_animals()
+        rows, cols = self.cells_dims
+        for x in range(rows):
+            for y in range(cols):
+                self._cells[x, y].add_baby_to_cell_animals()
 
     def grow_up_stage(self):
-        for [x, y], cell in np.ndenumerate(self._cells):
-            cell.grow_up_animals()
+        rows, cols = self.cells_dims
+        for x in range(rows):
+            for y in range(cols):
+                self._cells[x, y].grow_up_animals()
 
     def lose_weight_stage(self):
-        for [x, y], cell in np.ndenumerate(self._cells):
-            cell.lose_weight_animals()
+        rows, cols = self.cells_dims
+        for x in range(rows):
+            for y in range(cols):
+                self._cells[x, y].lose_weight_animals()
 
     def die_stage(self):
-        for [x, y], cell in np.ndenumerate(self._cells):
-            cell.die_animals()
+        rows, cols = self.cells_dims
+        for x in range(rows):
+            for y in range(cols):
+                self._cells[x, y].die_animals()
 
     def migrate_stage(self):
         for [x, y], cell in np.ndenumerate(self._cells):
-            print(self.adj_cells(x,y))
             cell.migrate(self.adj_cells(x, y))

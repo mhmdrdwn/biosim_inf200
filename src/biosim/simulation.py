@@ -267,8 +267,9 @@ class BioSim:
 
         if movie_fmt == 'mp4':
             try:
-                # Parameters chosen according to http://trac.ffmpeg.org/wiki/Encode/H.264,
-                # section "Compatibility"
+                """ Parameters chosen according to 
+                 http://trac.ffmpeg.org/wiki/Encode/H.264, 
+                 section "Compatibility" """
                 subprocess.check_call([_FFMPEG_BINARY,
                                        '-i',
                                        '{}_%05d.png'.format(self._img_base),
