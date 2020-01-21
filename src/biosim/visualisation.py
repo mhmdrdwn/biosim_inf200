@@ -32,9 +32,9 @@ class Visualisation:
 
         Parameters
         ----------
-        map_layout:
-        figure:
-        map_dims:
+        map_layout: str
+        figure: matplotlib figure
+        map_dims: int
         """
         self._map_layout = map_layout
         self._fig = figure
