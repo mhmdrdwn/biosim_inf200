@@ -15,17 +15,14 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import subprocess
 
-from biosim.fauna import Herbivore, Carnivore
+from biosim.fauna import Carnivore, Herbivore
 from biosim.landscapes import Ocean, Savannah, Desert, Jungle, Mountain
 from biosim.map import Map
 from biosim.visualisation import Visualisation
 
-# update these variables to point to your ffmpeg and convert binaries
 _FFMPEG_BINARY = 'ffmpeg'
 _CONVERT_BINARY = 'magick'
 
-# update this to the directory and file-name beginning
-# for the graphics files
 _DEFAULT_GRAPHICS_DIR = os.path.join('../results', '')
 _DEFAULT_GRAPHICS_NAME = 'biosim'
 _DEFAULT_MOVIE_FORMAT = 'mp4'  # alternatives: mp4, gif
@@ -71,9 +68,30 @@ class BioSim:
         img_fmt: str
             String with file type for figures
         """
+
+        self.landscapes = {'O': Ocean,
+                           'S': Savannah,
+                           'M': Mountain,
+                           'J': Jungle,
+                           'D': Desert}
+        self.landscapes_with_changable_parameters = [Savannah, Jungle]
+
+        self.animal_species = {'Carnivore': Carnivore, 'Herbivore': Herbivore}
+
+        for char in island_map.replace('\n', ''):
+            if char not in self.landscapes:
+                raise ValueError('This given string contains unknown '
+                                 'geographies')
+
+        lengths = [len(line) for line in island_map.splitlines()]
+        if len(set(lengths)) > 1:
+            raise ValueError('This given string is not uniform')
+
         np.random.seed(seed)
+
         self._island_map = island_map
         self._map = Map(island_map)
+
         self._vis = None
         self.add_population(ini_pop)
 
@@ -94,21 +112,12 @@ class BioSim:
         self._img_ctr = 0
         self._img_fmt = img_fmt
 
-        self.landscapes = {'O': Ocean,
-                           'S': Savannah,
-                           'M': Mountain,
-                           'J': Jungle,
-                           'D': Desert}
-        self.landscapes_with_changable_parameters = [Savannah, Jungle]
-
-        self.animal_species = ['Carnivore', 'Herbivore']
-
         self._year = 0
         self._final_year = None
 
         # the following will be initialized by _setup_graphics
         self._fig = None
-        #self._img_axis = None
+        # self._img_axis = None
 
     def set_animal_parameters(self, species, params):
         """
@@ -122,8 +131,9 @@ class BioSim:
             With valid parameter specification for species
         """
         if species in self.animal_species:
-            species_class = eval(species)
-            species_class.set_given_parameters(params)
+            species_class = self.animal_species[species]
+            animal = species_class()
+            animal.set_given_parameters(params)
         else:
             raise TypeError(species + ' parameters can\'t be assigned, '
                                       'there is no such data type')
@@ -205,15 +215,15 @@ class BioSim:
         """
         df = self.animal_distribution
         rows, cols = self._map.cells_dims
-        dist_matrix_carnivore = np.array(df[['carnivore']]).reshape(rows, cols)
-        dist_matrix_herbivore = np.array(df[['herbivore']]).reshape(rows, cols)
+        dist_matrix_carnivore = np.array(df[['Carnivore']]).reshape(rows, cols)
+        dist_matrix_herbivore = np.array(df[['Herbivore']]).reshape(rows, cols)
         self._update_animals_graph()
         self._vis.update_herbivore_dist(dist_matrix_herbivore,
                                         self._cmax_animals['Herbivore'])
         self._vis.update_carnivore_dist(dist_matrix_carnivore,
                                         self._cmax_animals['Carnivore'])
         plt.pause(1e-6)
-        self._fig.suptitle('Year: '+str(self.year), x=0.1)
+        self._fig.suptitle('Year: ' + str(self.year), x=0.1)
 
     def _save_graphics(self):
         """
@@ -337,7 +347,7 @@ class BioSim:
             for j in range(cols):
                 cell = self._map.cells[i, j]
                 animals_count = cell.cell_fauna_count
-                count_df.append({'i': i, 'j': j,
-                                 'carnivore': animals_count['Carnivore'],
-                                 'herbivore': animals_count['Herbivore']})
+                count_df.append({'Row': i, 'Col': j,
+                                 'Carnivore': animals_count['Carnivore'],
+                                 'Herbivore': animals_count['Herbivore']})
         return pd.DataFrame(count_df)

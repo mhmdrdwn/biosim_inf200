@@ -357,19 +357,18 @@ class Landscape(ABC):
         """
         for species, animals in self.in_cell_fauna.items():
             for animal in animals:
-                # shouldnt it be > = ?
                 if animal.move_prob:
                     propensity = [cell.propensity(animal) for cell in adj_cells]
                     total_propensity = sum(propensity)
-                    # is it Typo or probabilty is right?
-                    probabilty = [cell.probability(animal, total_propensity) for cell in adj_cells]
-                    cumsum_probability = np.cumsum(probabilty)
-                    for idx, prob in enumerate(cumsum_probability):
-                        # shouldnt it be > = ?
-                        if np.random.random() > prob:
-                            cell_to_go = adj_cells[idx]
-                            cell_to_go.add_animal(animal)
-                self.remove_animal(animal)
+                    probability = [cell.probability(animal, total_propensity) for cell in adj_cells]
+                    cumsum_probability = np.cumsum(probability)
+                    random_num = np.random.random()
+                    i = 0
+                    while random_num > cumsum_probability[i]:
+                        i += 1
+                    cell_to_go = adj_cells[i]
+                    cell_to_go.add_animal(animal)
+                    self.remove_animal(animal)
 
 
 class Savannah(Landscape):
