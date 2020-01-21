@@ -11,7 +11,6 @@ __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 from abc import ABC, abstractmethod
-from random import gauss
 import numpy as np
 import math
 
@@ -50,6 +49,8 @@ class Fauna(ABC):
         else:
             self.raise_non_valid_attribute('Weight', weight)
             self._weight = weight
+
+        self.animal_just_givbe_birth = False
 
         self._fitness = None
         self.calculate_fitness()
@@ -208,8 +209,9 @@ class Fauna(ABC):
             An object of any Fauna subclasses, either Carnivores or Herbivores
             based on mother's species
         """
-        if self.weight > baby.weight * baby.parameters['xi']:
+        if self.weight >= baby.weight * baby.parameters['xi']:
             self._weight -= baby.weight * baby.parameters['xi']
+            self.animal_just_give_birth = True
 
     @property
     def death_prob(self):
