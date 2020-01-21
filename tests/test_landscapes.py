@@ -194,11 +194,6 @@ class TestOcean(TestLandscapes):
         ocean = gen_landscape_data['o']
         assert len(ocean.in_cell_fauna['Carnivore']) == 0
         assert len(ocean.in_cell_fauna['Herbivore']) == 0
-        # it should be changed in the Ocean Class. because when we pass an
-        # empty list it is obviouse to get an empty list as a result!!
-        with pytest.raises(ValueError) as err:
-            Ocean({'Herbivore': [Herbivore()]})
-        assert err.type is ValueError
 
 
 class TestMountains(TestLandscapes):
@@ -206,11 +201,6 @@ class TestMountains(TestLandscapes):
         mount = gen_landscape_data['m']
         assert len(mount.in_cell_fauna['Carnivore']) == 0
         assert len(mount.in_cell_fauna['Herbivore']) == 0
-        # it should be changed in the Mountain Class. because when we pass an
-        # empty list it is obviouse to get an empty list as a result!!
-        with pytest.raises(ValueError) as err:
-            Mountain({'Herbivore': [Herbivore()]})
-        assert err.type is ValueError
 
 
 class TestSavannah(TestLandscapes):

@@ -7,15 +7,14 @@
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
-from biosim.landscapes import Landscape, Desert, Ocean, Mountain, Savannah, \
-    Jungle
+from biosim.landscapes import Desert, Ocean, Mountain, Savannah, Jungle
 from biosim.fauna import Herbivore, Carnivore
 import numpy as np
 
 
 class Map:
     """
-    The map class contains island design.
+    The map class contains map parent class with .
     """
 
     def __init__(self, island_map):
@@ -202,7 +201,6 @@ class Map:
         """
         Calculates life cycle of animals yearly.
         """
-        print('year')
         self.feed_stage()
         self.give_birth_stage()
         self.migrate_stage()
@@ -221,10 +219,10 @@ class Map:
         for x in range(rows):
             for y in range(cols):
                 self._cells[x, y].give_birth_animals()
-        rows, cols = self.cells_dims
+
         for x in range(rows):
             for y in range(cols):
-                self._cells[x, y].add_baby_to_cell_animals()
+                self._cells[x, y].add_baby_to_adult_animals()
 
     def grow_up_stage(self):
         rows, cols = self.cells_dims

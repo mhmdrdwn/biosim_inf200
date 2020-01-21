@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 """
-
 Landscape Class and subclasses (Jungle, Desert, Ocean, Savannah, Mountain).
 Landscape class is a base class, all objects are instantiated from the
 Jungle, Desert, Ocean, Savannah, Mountain subclasses
@@ -24,12 +23,14 @@ class Landscape(ABC):
     """
     available_fodder = {}
     parameters = {}
+    in_cell_fauna = {'Herbivore': [], 'Carnivore': []}
 
     @abstractmethod
     def __init__(self):
-        self.in_cell_fauna = {'Herbivore': [], 'Carnivore': []}
-        self.baby_fauna = {'Herbivore': [], 'Carnivore': []}
+        self.in_cell_fauna = Landscape.in_cell_fauna
+        self.adult_fauna = {'Herbivore': [], 'Carnivore': []}
         self.sorted_fauna_fitness = {}
+        self.available_fodder = Landscape.available_fodder
 
     def save_fitness(self, fauna_objects, species):
         """
@@ -43,8 +44,8 @@ class Landscape(ABC):
 
         """
         species_fauna_fitness = {}
-        for fauna in fauna_objects[species]:
-            species_fauna_fitness[fauna] = fauna.fitness
+        for animal in fauna_objects[species]:
+            species_fauna_fitness[animal] = animal.fitness
         self.sorted_fauna_fitness[species] = species_fauna_fitness
 
     def sort_by_fitness(self, animal_objects, species_to_sort, reverse=True):
@@ -184,8 +185,8 @@ class Landscape(ABC):
 
     def feed_herbivore(self):
         """
-        Herbivores with the highest fitness eat first, so the dictionary
-        "sorted_fauna_fitness" is already reverse sorted .
+        Herbivores with the highest fitness eat first, "sorted_fauna_fitness"
+         dictionary is reverse sorted .
         Every time a herbivore eats, the animal can eat fodder as the following
         "eating rules":
         - If available fodder is more than 'F', the animal eats 'F' and the
@@ -212,40 +213,31 @@ class Landscape(ABC):
 
     def feed_carnivore(self):
         """
-        Carnivores can prey on herbivores everywhere, but do not prey on each
-        other. Carnivores with the highest fitness eat first. Carnivores try
-        to kill one herbivore at a time, beginning with the herbivore with the
-        lowest fitness. So that, the dictionary "sort_by_fitness" is reversed
-        order by fitness for carnivore and sorted order for the herbivore.
-        A carnivore can kill a herbivore if the random number is more than or
-        equal to kill probability.
+        Carnivores with the highest fitness eat first. The method
+        "sort_by_fitness" return reverse sorted carnivores by fitness.
+        Herbivores are sorted.
         A carnivore continues to kill herbivores until one of the following
         conditions occur:
-        - The carnivore has eaten herbivores with a total weight of 'F' or more
-          than it.
+        - The carnivore has eaten herbivores with a total weight of 'F'
         - Or, it has tried to kill each herbivore in the cell.
+
         """
         self.sort_by_fitness(self.in_cell_fauna, 'Carnivore')
         self.sort_by_fitness(self.in_cell_fauna, 'Herbivore', False)
         for carnivore in self.sorted_fauna_fitness['Carnivore']:
             appetite = carnivore.parameters['F']
-            if len(self.sorted_fauna_fitness['Herbivore']) > 0:
-                # if available food (weight of herbi) is zero ,break the for loop becuase it's
-                # no longer efficient
-                for herbivore in self.sorted_fauna_fitness['Herbivore']:
-                    # shouldnt be >= ?
-                    if carnivore.kill_prob(herbivore):
-                        weight_to_eat = herbivore.weight
-                        # del self.sorted_fauna_fitness['Herbivore'][herbivore]
-                        # remove it from the dictionary, meaning removing from the cell
-                        # herbivore.die()
-                        # we need a good implimenetation for method die in the fauna
-                        if weight_to_eat >= appetite:
-                            # that's wrong becuase, the weight to eat is the weight
-                            # of only one meal
-                            carnivore.eat(appetite)
-                        elif weight_to_eat < appetite:
-                            carnivore.eat(weight_to_eat)
+            if self.available_fodder['Carnivore'] == 0:
+                break
+            else:
+                if len(self.sorted_fauna_fitness['Herbivore']) > 0:
+                    for herbivore in self.sorted_fauna_fitness['Herbivore']:
+                        if carnivore.kill_prob(herbivore):
+                            weight_to_eat = herbivore.weight
+                            self.remove_animal(herbivore)
+                            if weight_to_eat >= appetite:
+                                carnivore.eat(appetite)
+                            elif weight_to_eat < appetite:
+                                carnivore.eat(weight_to_eat)
 
     def feed_animals(self):
         """
@@ -291,10 +283,14 @@ class Landscape(ABC):
                 if animal.death_prob:
                     self.remove_animal(animal)
 
-    def add_baby_to_cell_animals(self):
-        for species, babies in self.baby_fauna.items():
-            for baby in babies:
-                self.add_animal(baby)
+    def add_baby_to_adult_animals(self):
+        """
+        After the breeding stage, the new babies are added to the cell
+        animals dictionary and remove it from the baby fauna dictionary.
+        adult_fauna as input to calculate the giving birth probability.
+        """
+
+        self.adult_fauna = self.in_cell_fauna
 
     def give_birth_animals(self):
         """
@@ -302,28 +298,31 @@ class Landscape(ABC):
         decreases mother's weight when random number for group of two animals
         of same kind in the cell is more than or equal to birth probability.
         """
-        for species, animals in self.in_cell_fauna.items():
+
+        for species, animals in self.adult_fauna.items():
             half_num_fauna = math.floor(len(animals) / 2)
-            # half of the animals will give birth
+            # half of the animals will give birth of adult animals
             for i in range(half_num_fauna):
                 animal = animals[i]
+                # only iterate through the first half of the animal list
                 if animal.birth_prob(len(animals)):
                     baby_species = animal.__class__
                     baby = baby_species()
                     animal.lose_weight_give_birth(baby)
                     if animal.just_give_birth:
-                        self.baby_fauna[species].append(baby)
+                        self.in_cell_fauna[species].append(baby)
 
     def migrate(self, adj_cells):
         """
         Moves the object from i to j by generating random number and comparing
         first with movement probability and then the probability to move from i
-        to j and removes it from current cell (i).
+        to j and removes it from current cell (i). If total propensity if 0,
+        animals won't move since that adjacent cells are inaccessible.
 
         Parameters
         ----------
-        adj_cells: list?
-            List of 4 neighbouring cells
+        adj_cells: list
+            List of 4 adjacent cells
         """
         for species, animals in self.in_cell_fauna.items():
             for animal in animals:
@@ -335,10 +334,10 @@ class Landscape(ABC):
                         probability = [cell.probability(animal,
                                                         total_propensity)
                                        for cell in adj_cells]
-                        cumsum_probability = np.cumsum(probability)
+                        cum_probability = np.cumsum(probability)
                         random_num = np.random.random()
                         i = 0
-                        while random_num > cumsum_probability[i]:
+                        while random_num > cum_probability[i]:
                             i += 1
                         cell_to_go = adj_cells[i]
                         if cell_to_go.is_accessible:
@@ -388,6 +387,7 @@ class Savannah(Landscape):
         if given_parameters is not None:
             self.set_given_parameters(given_parameters)
         self.parameters = Savannah.parameters
+        self.in_cell_fauna = {'Carnivore': [], 'Herbivore': []}
         self.available_fodder['Herbivore'] = self.parameters['f_max']
         total_herb_weight = sum(animal.weight for animal in
                                 self.in_cell_fauna['Herbivore'])
@@ -425,6 +425,7 @@ class Jungle(Landscape):
         super().__init__()
         if given_parameters is not None:
             self.set_given_parameters(given_parameters)
+        self.in_cell_fauna = {'Carnivore': [], 'Herbivore': []}
         self.parameters = Jungle.parameters
         self.available_fodder['Herbivore'] = self.parameters['f_max']
         total_herb_weight = sum(
@@ -451,7 +452,7 @@ class Desert(Landscape):
 
     def __init__(self):
         super().__init__()
-
+        self.in_cell_fauna = {'Carnivore': [], 'Herbivore': []}
         total_herb_weight = sum(
             i.weight for i in self.in_cell_fauna['Herbivore'])
         self.available_fodder['Carnivore'] = total_herb_weight
@@ -472,8 +473,8 @@ class Mountain(Landscape):
 
     def __init__(self):
         super().__init__()
-        self.available_fodder = Mountain.available_fodder
         self.in_cell_fauna = Mountain.in_cell_fauna
+        self.available_fodder = Mountain.available_fodder
 
 
 class Ocean(Landscape):
@@ -488,5 +489,6 @@ class Ocean(Landscape):
 
     def __init__(self):
         super().__init__()
+        self.in_cell_fauna = Ocean.in_cell_fauna
         self.available_fodder = Ocean.available_fodder
         self.in_cell_fauna = Ocean.in_cell_fauna
