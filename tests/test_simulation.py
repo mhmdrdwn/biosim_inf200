@@ -8,13 +8,11 @@ Test set for Simulation class functionality and attributes.
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
-from random import seed
 from biosim.fauna import Carnivore, Herbivore
 from biosim.landscapes import Savannah, Desert, Ocean, Mountain, Jungle
 from biosim.map import Map
 from biosim.simulation import BioSim
 import pytest
-import textwrap
 
 
 class TestSimulation:

@@ -15,7 +15,6 @@ import pytest
 from biosim.landscapes import Desert, Ocean, Mountain, Savannah, Jungle
 from biosim.fauna import Herbivore, Carnivore
 from biosim.map import Map
-import numpy as np
 
 
 class TestMap:
@@ -37,7 +36,6 @@ class TestMap:
     @pytest.fixture
     def gen_landscape_data(self, gen_animal_data):
         c1, c2, h1, h2 = gen_animal_data
-        animals = {'Herbivore': [h1, h2], 'Carnivore': [c1, c2]}
         landscapes_dict = {'s': Savannah(),
                            'o': Ocean(),
                            'd': Desert(),
@@ -106,8 +104,10 @@ class TestMap:
         map_str = """    OSOOOOOOOOOOOOOOOOOOO
                          OMSOOOOOSMMMMJJJJJJJO
                          OOOOOOOOOOOOOOOOOOOOO"""
-        with pytest.raises(ValueError):
+
+        with pytest.raises(ValueError) as err:
             m = Map(map_str)
+        assert err.type is ValueError
 
     def test_add_animals(self, gen_map_data):
         """

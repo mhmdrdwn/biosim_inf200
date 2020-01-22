@@ -234,8 +234,8 @@ class Landscape(ABC):
 
     def lose_weight_animals(self):
         """
-        Runs lose_weight method from Fauna class to do yearly weight loss of all
-        animals in the cell.
+        Runs lose_weight method from Fauna class to do yearly weight loss of
+        all animals in the cell.
         """
         for species in self.in_cell_fauna:
             for animal in self.in_cell_fauna[species]:
@@ -299,6 +299,7 @@ class Landscape(ABC):
         adj_cells: list
             List of 4 adjacent cells
         """
+        adj_cells = np.array(adj_cells)
         for species, animals in self.in_cell_fauna.items():
             for animal in animals:
                 if animal.move_prob:

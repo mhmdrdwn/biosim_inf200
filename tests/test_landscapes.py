@@ -14,7 +14,6 @@ import math
 import pytest
 from biosim.landscapes import Desert, Ocean, Mountain, Savannah, Jungle
 from biosim.fauna import Herbivore, Carnivore
-from random import seed
 import numpy as np
 
 
