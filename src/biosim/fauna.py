@@ -314,9 +314,10 @@ class Carnivore(Fauna):
           its own fitness. So that, if the fitness of carnivore is less than
           herbivore's the killing probability is zero.
         - If the difference between two animals (carnivore and herbivore)
-          is more than the parameter 'DeltaPhiMax', killing probability is 100%.
-        - In other cases, the killing probability is drawn by following formula:
-          (carnivore fitness - herbivore fitness) / 'DeltaPhiMax'
+          is more than the parameter 'DeltaPhiMax', killing probability is
+          100%.
+        - In other cases, the killing probability is drawn by following
+          formula: (carnivore fitness - herbivore fitness) / 'DeltaPhiMax'
 
         Parameters
         ----------

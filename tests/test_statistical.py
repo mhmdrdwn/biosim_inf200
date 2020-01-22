@@ -13,7 +13,6 @@ from biosim.fauna import Herbivore, Carnivore
 from scipy import stats
 
 
-
 class TestGaussian:
     """
     Tests that whether the birth weight is following the gaussian distribution.
@@ -67,20 +66,21 @@ class TestProbability:
         """
         Tests the die_animal method and death_prob in two conditions:
         1. animal with fitness zero (herb_1).
-        2. a fixed return value for random number with the use of mock (carn_1).
+        2. a fixed return value for random number with the use of mock
+        (carn_1).
 
         Explanation of code:
         First, generating animals population for one of the landscapes types
         (i.e. jungle).
         Generating herb_1 with weight 0 to get the fitness zero and gain
         death_prob = True.
-        Also, generates carn_1 with some default value just to have fixed values
-        for its fitness.
-        Then, use mock for numpy random number and set the return_value to it in
-        the way taht it always fulfill death_prob = True for carn_1
+        Also, generates carn_1 with some default value just to have fixed
+        values for its fitness.
+        Then, use mock for numpy random number and set the return_value to
+        it in the way taht it always fulfill death_prob = True for carn_1
         Finally, run the die_animal method for all of the animals of jungle
-        instance and assert that the 2 animals are died and only the other 2 are
-        in the animal list.
+        instance and assert that the 2 animals are died and only the other 2
+        are in the animal list.
 
         """
 
@@ -89,7 +89,7 @@ class TestProbability:
         carn_1 = Carnivore(1, 5)
         carn_2 = Carnivore()
         params = {'f_max': 10.0}
-        j=Jungle(params)
+        j = Jungle(params)
         j.add_animal(carn_1)
         j.add_animal(carn_2)
         j.add_animal(herb_1)

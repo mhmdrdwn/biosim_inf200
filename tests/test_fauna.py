@@ -86,13 +86,12 @@ class TestFauna:
 
     def test_weight(self, gen_animal_data):
         """
-        using the np.random.seed(1), the expected values should be as follows
+        using the np.random.seed(1), takes predefined parameters and
+        expect values. the expected values should be as follows
 
         Parameters
         ----------
-        gen_animal_data: Carnivore and Herbivore objects with predefined
-        parameters
-
+        gen_animal_data: Carnivore and Herbivore objects
         """
         carn, herb = gen_animal_data
         assert carn.weight == pytest.approx(6.7613871182275105)

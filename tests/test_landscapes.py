@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 
 """
@@ -22,6 +21,7 @@ class TestLandscapes:
     This set of tests checks the Landscapes class methods perform as expected
     as provided in modeling.
     """
+
     @pytest.fixture
     def gen_animal_data(self):
         """
@@ -55,7 +55,8 @@ class TestLandscapes:
         landscapes_dict : dict
         """
         carn_1, carn_2, herb_1, herb_2 = gen_animal_data
-        animals = {'Herbivore': [herb_1, herb_2], 'Carnivore': [carn_1, carn_2]}
+        animals = {'Herbivore': [herb_1, herb_2], 'Carnivore': [
+            carn_1, carn_2]}
         landscapes_dict = {'s': Savannah(),
                            'o': Ocean(),
                            'd': Desert(),
@@ -200,8 +201,8 @@ class TestLandscapes:
         gen_landscape_data: tuple
 
         """
-        sav, ocean, des, mount, jun = (gen_landscape_data[i]
-                         for i in ('s', 'o', 'd', 'm', 'j'))
+        sav, ocean, des, mount, jun = (gen_landscape_data[i] for
+                                       i in ('s', 'o', 'd', 'm', 'j'))
         herb = sav.in_cell_fauna['Herbivore'][0]
         carn = sav.in_cell_fauna['Carnivore'][0]
         assert sav.propensity(herb) == pytest.approx(22026.465794806718)
@@ -222,18 +223,18 @@ class TestLandscapes:
         gen_landscape_data: tuple
 
         """
-        sav, ocean, des, mount, jun = (gen_landscape_data[i]
-                         for i in ('s', 'o', 'd', 'm', 'j'))
+        sav, ocean, des, mount, jun = (gen_landscape_data[i] for
+                                       i in ('s', 'o', 'd', 'm', 'j'))
 
         adj_cells = [des, des, ocean, jun]
         herb = jun.in_cell_fauna['Herbivore'][0]
         carn = jun.in_cell_fauna['Carnivore'][0]
         total_propensity_carn = sum(i.propensity(carn) for i in adj_cells)
-        assert sav.probability(carn, total_propensity_carn) == \
-               pytest.approx(0.3333333333333333)
+        assert sav.probability(carn, total_propensity_carn) == pytest.approx(
+            0.3333333333333333)
         total_propensity_herb = sum(i.propensity(herb) for i in adj_cells)
-        assert sav.probability(herb, total_propensity_herb) == \
-               pytest.approx(0.9999092083843409)
+        assert sav.probability(herb, total_propensity_herb) == pytest.approx(
+            0.9999092083843409)
 
 
 class TestDesert(TestLandscapes):
@@ -241,6 +242,7 @@ class TestDesert(TestLandscapes):
     This set of tests checks the Desert class methods perform as expected
     as provided in modeling.
     """
+
     def test_no_fodder(self, gen_landscape_data):
         """
         No herbi fodder is available in desert
@@ -260,6 +262,7 @@ class TestOcean(TestLandscapes):
     This set of tests checks the Ocean class methods perform as expected
     as provided in modeling.
     """
+
     def test_number_animals(self, gen_landscape_data):
         """
         number of animals is zero in ocean
@@ -279,6 +282,7 @@ class TestMountains(TestLandscapes):
     This set of tests checks the Mountain class methods perform as expected
     as provided in modeling.
     """
+
     def test_number_animals(self, gen_landscape_data):
         """
         NUmber of animals in mountains is zero
@@ -297,6 +301,7 @@ class TestSavannah(TestLandscapes):
     This set of tests checks the Savannah class methods perform as expected
     as provided in modeling.
     """
+
     def test_grow_herb_fodder(self, gen_landscape_data):
         """
         Fodder grows by the formula
@@ -315,9 +320,8 @@ class TestSavannah(TestLandscapes):
         sav.grow_herb_fodder()
         fodder_post_grow = sav.available_fodder['Herbivore']
         assert fodder_post_grow > fodder_pre_grow
-        assert fodder_post_grow - fodder_pre_grow == \
-               sav.parameters['alpha'] * (sav.parameters['f_max'] -
-                                        fodder_pre_grow)
+        assert fodder_post_grow - fodder_pre_grow == sav.parameters[
+            'alpha'] * (sav.parameters['f_max'] - fodder_pre_grow)
 
     def test_reset_parameters(self, gen_landscape_data):
         """
@@ -339,6 +343,7 @@ class TestJungle(TestLandscapes):
     This set of tests checks the Jungle class methods perform as expected
     as provided in modeling.
     """
+
     def test_grow_herb_fodder(self, gen_landscape_data):
         """
         fodder become as the original value (f_max) after a year

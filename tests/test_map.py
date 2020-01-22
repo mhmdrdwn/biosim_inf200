@@ -35,7 +35,6 @@ class TestMap:
 
     @pytest.fixture
     def gen_landscape_data(self, gen_animal_data):
-        c1, c2, h1, h2 = gen_animal_data
         landscapes_dict = {'s': Savannah(),
                            'o': Ocean(),
                            'd': Desert(),
@@ -84,7 +83,6 @@ class TestMap:
         """
         test that all adjacent elements are only the perpendicular cells
 
-<<<<<<< Updated upstream
         """
         map_str = """  OOOOOOOOOOOOOOOOOOOOO
                        OMSOOOOOSMMMMJJJJJJJO
@@ -107,7 +105,7 @@ class TestMap:
 
         with pytest.raises(ValueError) as err:
             m = Map(map_str)
-        assert err.type is ValueError
+            assert err.type is ValueError
 
     def test_add_animals(self, gen_map_data):
         """
@@ -115,7 +113,6 @@ class TestMap:
 
         """
         m = gen_map_data
-        print(m)
         animals = [
             {
                 "loc": (1, 1),
@@ -166,5 +163,4 @@ class TestMap:
         m.give_birth_stage()
         num_animals_after = m.total_num_animals_per_species('Herbivore')
         assert num_animals_after >= num_animals_before
-=======
->>>>>>> Stashed changes
+

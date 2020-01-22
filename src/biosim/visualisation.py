@@ -77,7 +77,7 @@ class Visualisation:
                 if letter not in self.map_colors:
                     raise ValueError(
                         f"'{letter}' is not a valid landscape type. "
-                        f"Must be one of {set(self._map_colors.keys)}"
+                        f"Must be one of {set(self._map_colors.keys())}"
                     )
                 map_array[-1].append(self.map_colors[letter])
 
@@ -198,7 +198,6 @@ class Visualisation:
         if self._herbivore_img_axis is not None:
             self._herbivore_img_axis.set_data(distribution)
         else:
-            v_max = type(self._herbivore_dist)
             y, x = self._map_dims
             self._herbivore_dist.imshow(distribution,
                                         interpolation='nearest',
