@@ -11,6 +11,7 @@ __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 from abc import ABC, abstractmethod
+
 import numpy as np
 import math
 
@@ -81,10 +82,6 @@ class Fauna(ABC):
         """
         Sets default value for class attributes - age & weight of animal.
         Birth weight draws from gaussian distribution.
-
-        Parameters
-        ----------
-        attribute_name: str
 
         """
         return np.random.normal(cls.parameters['w_birth'],

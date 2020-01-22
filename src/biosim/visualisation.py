@@ -194,7 +194,6 @@ class Visualisation:
         Parameters
         ----------
         distribution: data frame
-        v_max: int
         """
         if self._herbivore_img_axis is not None:
             self._herbivore_img_axis.set_data(distribution)
@@ -217,7 +216,6 @@ class Visualisation:
         Parameters
         ----------
         distribution: str
-        v_max: int
         """
         if self._carnivore_img_axis is not None:
             self._carnivore_img_axis.set_data(distribution)

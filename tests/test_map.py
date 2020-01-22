@@ -34,56 +34,132 @@ class TestMap:
 
     @pytest.fixture
     def gen_landscape_data(self, gen_animal_data):
-        landscape_params = {'f_max': 10.0}
         c1, c2, h1, h2 = gen_animal_data
         animals = {'Herbivore': [h1, h2], 'Carnivore': [c1, c2]}
-        landscapes_dict = {'s': Savannah(animals, landscape_params),
+        landscapes_dict = {'s': Savannah(),
                            'o': Ocean(),
-                           'd': Desert(animals),
+                           'd': Desert(),
                            'm': Mountain(),
-                           'j': Jungle(animals, landscape_params)}
+                           'j': Jungle()}
         return landscapes_dict
 
     @pytest.fixture
     def gen_map_data(self, gen_landscape_data):
-        pass
+        map_str = """          OOOOOOOOOOOOOOOOOOOOO
+                               OMSOOOOOSMMMMJJJJJJJO
+                               OOOOOOOOOOOOOOOOOOOOO"""
+        m = Map(map_str)
+        return m
 
     def test_string_to_np_array(self):
-        map_str = """  OSMSOOOOOOOOOOOOOOOOO
-                       OMSOOOOOSMMMMJJJJJJJJ
-                       OOOOOOOOOOOOOOOOOOOSO"""
+        """
+        output of the function is np.ndarray and the letters are in the
+        right row/column in the matrix
+
+        """
+        map_str = """  OOOOOOOOOOOOOOOOOOOOO
+                       OMSOOOOOSMMMMJJJJJJJO
+                       OOOOOOOOOOOOOOOOOOOOO"""
         m = Map(map_str)
         assert m.string_to_np_array()[0][0] == 'O'
         assert m.string_to_np_array()[1][10] == 'M'
-        assert m.string_to_np_array()[1][20] == 'J'
+        assert m.string_to_np_array()[1][20] == 'O'
         assert type(m.string_to_np_array()).__name__ == 'ndarray'
 
     def test_create_map(self):
-        map_str = """  OSMSOOOOOOOOOOOOOOOOO
-                       OMSOOOOOSMMMMJJJJJJJJ
-                       OOOOOOOOOOOOOOOOOOOSO"""
+        """
+        Object matches with the given string
+
+        """
+        map_str = """  OOOOOOOOOOOOOOOOOOOOO
+                       OMSOOOOOSMMMMJJJJJJJO
+                       OOOOOOOOOOOOOOOOOOOOO"""
         m = Map(map_str)
-        assert isinstance(m.create_map()[0][0], Ocean)
-        assert isinstance(m.create_map()[1][10], Mountain)
-        assert isinstance(m.create_map()[1][20], Jungle)
-        assert isinstance(m.create_map()[0][1], Savannah)
+        assert isinstance(m.create_map_of_landscape_objects()[0][0], Ocean)
+        assert isinstance(m.create_map_of_landscape_objects()[1][10], Mountain)
+        assert isinstance(m.create_map_of_landscape_objects()[1][20], Ocean)
+        assert isinstance(m.create_map_of_landscape_objects()[1][2], Savannah)
 
     def test_adj_cells(self):
-        map_str = """  OSMSOOOOOOOOOOOOOOOOO
-                       OMSOOOOOSMMMMJJJJJJJJ
-                       OOOOOOOOOOOOOOOOOOOSO"""
-        m = Map(map_str)
-        map_arr = m.string_to_np_array()
-        assert all(j in m.adj_cells(map_arr, 0, 0) for j in ['O', 'S'])
-        assert all(j in m.adj_cells(map_arr, 1, 0) for j in ['M', 'O', 'O'])
-        assert all(j in m.adj_cells(map_arr, 2, 20) for j in ['S', 'J'])
+        """
+        test that all adjacent elements are only the perpendicular cells
 
-    def test_total_propensity(self):
-        map_str = """  OSMSOOOOOOOOOOOOOOOOO
-                       OMSOOOOOSMMMMJJJJJJJJ
-                       OOOOOOOOOOOOOOOOOOOSO"""
+        """
+        map_str = """  OOOOOOOOOOOOOOOOOOOOO
+                       OMSOOOOOSMMMMJJJJJJJO
+                       OOOOOOOOOOOOOOOOOOOOO"""
         m = Map(map_str)
-        map_arr = m.string_to_np_array()
-        adjacent_cells = m.adj_cells(map_arr, 1, 0)
+        m.string_to_np_array()
+        assert all(j in m.adj_cells(0, 0) for j in ['O', 'O'])
+        assert all(j in m.adj_cells(1, 0) for j in ['M', 'O', 'O'])
+        assert all(j in m.adj_cells(2, 20) for j in ['O', 'O'])
 
-# def test_migrate(self):
+    def test_not_surrounded_by_ocean(self):
+        """
+        the constructor raise value error incase the map string is not
+        surrounded by letter 'O'
+
+        """
+        map_str = """    OSOOOOOOOOOOOOOOOOOOO
+                         OMSOOOOOSMMMMJJJJJJJO
+                         OOOOOOOOOOOOOOOOOOOOO"""
+        with pytest.raises(ValueError):
+            m = Map(map_str)
+
+    def test_add_animals(self, gen_map_data):
+        """
+        Add animals and check the total number of animals
+
+        """
+        m = gen_map_data
+        print(m)
+        animals = [
+            {
+                "loc": (1, 1),
+                "pop": [
+                    {"species": "Herbivore", "age": 1, "weight": 10.0},
+                    {"species": "Carnivore", "age": 1, "weight": 10.0},
+                ],
+            },
+            {
+                "loc": (1, 2),
+                "pop": [
+                    {"species": "Herbivore", "age": 1, "weight": 10.0},
+                    {"species": "Carnivore", "age": 1, "weight": 10.0},
+                ],
+            },
+        ]
+        m.add_animals(animals)
+        assert m.total_num_animals_per_species('Herbivore') == 2
+        assert m.total_num_animals_per_species('Carnivore') == 2
+
+    def test_die_stage(self, gen_map_data):
+        """
+        number of animals should decrease after die
+        Parameters
+        ----------
+        gen_map_data: Map object
+
+        """
+        m = gen_map_data
+        num_animals_before = m.total_num_animals_per_species('Herbivore')
+        m.life_cycle()
+        num_animals_after = m.total_num_animals_per_species('Herbivore')
+        assert num_animals_after <= num_animals_before
+
+    def test_give_birth_stage(self, gen_map_data):
+        """
+        number of animals should increase after procreation
+
+        Parameters
+        ----------
+        gen_map_data: Map object
+
+        -------
+
+        """
+        m = gen_map_data
+        num_animals_before = m.total_num_animals_per_species('Herbivore')
+        m.give_birth_stage()
+        num_animals_after = m.total_num_animals_per_species('Herbivore')
+        assert num_animals_after >= num_animals_before
