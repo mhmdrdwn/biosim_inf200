@@ -1,19 +1,18 @@
 Tests
 ======
-This project is written in a test driven methodology. Unit tests are written for testing the functionality of software.
-The concepts of fixtures are used. Also, the statistical tests and some compatibility checks and acceptance tests are added.
+This project is written in a test driven view. Unit tests are written for designing and testing the functionality of software.
+Also, the concepts of fixtures are used. Moreover, the statistical tests and some compatibility checks and acceptance tests are added.
 
 
-Classes
+Test Classes
 --------
 The tests consists of these python files.
 
-* **test_fauna.py**: contains *Fauna* abstract class and its subclasses, *Herbivore* and *Carnivore*.
-* **test_landscapes.py**: consists of *Landscape* abstract class and its subclasses, *Savannah*, *Jungle*, *Desert*, *Mountain* and *Ocean*.
-* **test_map.py**: has *Map* class.
-* **test_simulation.py**: contains *BioSim* class.
-* **test_visualisation.py**: has *Visualisation* class.
-* **test_statistical.py**: statistic test for testing the distribution is added.
+* **test_fauna.py**: contains unit tests in *TestFauna*, *TestHerbivores* and *TestCarnivores* classes.
+* **test_landscapes.py**: consists of unit tests in *TestLandscapes*, *TestOcean*  *TestDesert*, *TestMountains*, *TestSavannah* and *TestJungle* classes.
+* **test_map.py**: has unit tests in *TestMap* class.
+* **test_simulation.py**: contains unit tests in *TestSimulation* class.
+* **test_statistical.py**: consists of statistical test *TestGaussian* and *TestProbability* classes.
 
 Also, two compatibility checks are provided by EPAP, and the biosim package passes both:
 
@@ -30,5 +29,5 @@ Also, two compatibility checks are provided by EPAP, and the biosim package pass
    test_landscapesdoc
    test_mapdoc
    test_simulationdoc
-   test_visualisationdoc
    test_statisticaldoc
+   test_visualisationdoc

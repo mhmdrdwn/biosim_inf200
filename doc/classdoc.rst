@@ -1,9 +1,14 @@
 Implementation
 ====================
-The BioSim is modelled after the ``scikit-learn`` API
-and should be fully compliant with the ``scikit-learn`` ecosystem.
-Consequently, it depends on ``numpy``, ``scipy``
-and ``scikit-learn``.
+The BioSim model depends on *numpy*, *scipy* and *panda*. Also, for ploting *matplotlib* is used.
+
+
+Model
+-----
+On the starting of the project, following model which shows the relations between attributes and variables in BioSim was drawn.
+
+.. image:: attribute_model.png
+
 
 Classes
 --------
@@ -14,6 +19,7 @@ This project consists of five python files. Each file contains classes and subcl
 * **map.py**: has *Map* class.
 * **simulation.py**: contains *BioSim* class.
 * **visualisation.py**: has *Visualisation* class.
+
 
 .. toctree::
    :maxdepth: 2

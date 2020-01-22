@@ -21,19 +21,19 @@ concepts written in Python programming language (python 3.6).
 
 The Ecosystem
 --------------
-Rossum island cosists of several different landscapes which are as
+Rossum island consists of several different landscapes which are as
 follows:
 
 * **Jungle**: provides large amount of fodder even under intense grazing.
 * **Savannah**: provides a limited amount of fodder.
 * **Desert**: does not provide fodder for herbivores.
 * **Mountain**: is impassable for animals.
-* **Ocean**: like mountains is impassable for animal. Also, the edges of the island are surrounded by ocean.
+* **Ocean**: like mountains, is impassable for animals. Also, the edges of the island are surrounded by ocean.
 
-In addition, on the island two species of animal live:
+In addition, on the island two species of animals live:
 
 * **Herbivores**: depend on a good supply of fodder to survive and reproduce.
-* **Carnivores**: depend on the availability of prey. They are more more mobile than herbivores.
+* **Carnivores**: depend on the availability of prey.
 
 Simulation
 ----------
@@ -44,7 +44,7 @@ can move to one of the four neighbouring cells but not diagonal cells.
 
 Annual Cycle
 ------------
-The stages of annual cycle on the island are supposed as the seasons on Rossum island are:
+The stages of annual cycle on the island supposed as the seasons on Rossum island are:
 
 1. **Feeding**: Each animal tries to eat an amount of F of food. But how much they feed depends on
 available food in the cell. Herbivores eat fodder while carnivores eat herbivores.
