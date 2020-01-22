@@ -11,7 +11,6 @@ The tests consists of these python files.
 * **test_fauna.py**: contains unit tests in *TestFauna*, *TestHerbivores* and *TestCarnivores* classes.
 * **test_landscapes.py**: consists of unit tests in *TestLandscapes*, *TestOcean*  *TestDesert*, *TestMountains*, *TestSavannah* and *TestJungle* classes.
 * **test_map.py**: has unit tests in *TestMap* class.
-* **test_simulation.py**: contains unit tests in *TestSimulation* class.
 * **test_statistical.py**: consists of statistical test *TestGaussian* and *TestProbability* classes.
 
 Also, biosim package passes the two compatibility checks provided by EPAP:
@@ -28,6 +27,5 @@ Also, biosim package passes the two compatibility checks provided by EPAP:
    test_faunadoc
    test_landscapesdoc
    test_mapdoc
-   test_simulationdoc
    test_statisticaldoc
    test_visualisationdoc
