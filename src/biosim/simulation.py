@@ -14,10 +14,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import subprocess
 
-from biosim.fauna import Carnivore, Herbivore
-from biosim.landscapes import Ocean, Savannah, Desert, Jungle, Mountain
-from biosim.map import Map
-from biosim.visualisation import Visualisation
+from .fauna import Carnivore, Herbivore
+from .landscapes import Ocean, Savannah, Desert, Jungle, Mountain
+from .map import Map
+from .visualisation import Visualisation
 
 _FFMPEG_BINARY = 'ffmpeg'
 _CONVERT_BINARY = 'magick'
@@ -189,6 +189,8 @@ class BioSim:
             self._year += 1
             print(self.num_animals_per_species)
             print('Year '+str(self._year))
+            df = self.animal_distribution
+            df.to_csv('../results/data.csv', sep='\t', encoding='utf-8')
 
     def _setup_graphics(self):
         """

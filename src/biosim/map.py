@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 """
-
 """
 
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
@@ -22,18 +21,18 @@ class Map:
     - feeding in all cells
     - lose weights for all animals in all cells
     and it has the life cycle for each year
-
     """
 
     def __init__(self, island_map):
         """
         The constructor for Map class.
-
         Parameters
         ----------
         island_map: str
         """
-        self.island_map = self.string_to_np_array(island_map)
+
+        self.map = island_map
+        self.island_map = self.string_to_np_array()
         self.not_surrounded_by_ocean(self.island_map)
         self.landscape_classes = {'O': Ocean,
                                   'S': Savannah,
@@ -52,26 +51,21 @@ class Map:
     def cells(self):
         """
         Returns full data matrix.
-
         Returns
         -------
         _cells: matrix
-
         """
         return self._cells
 
     def create_cell(self, cell_letter):
         """
         create cell object based on given string
-
         Parameters
         ----------
         cell_letter: str
-
         Returns
         -------
         class of landscape (Jungle, Mountain, Savannah, Ocean, Desert)
-
         """
         return self.landscape_classes[cell_letter]()
 
@@ -79,11 +73,9 @@ class Map:
         """
         get the border element of the matrix, the cells on the border of the
          provided map array
-
         Parameters
         ----------
         map_array: array
-
         Returns
         -------
         map_edges: list
@@ -96,11 +88,9 @@ class Map:
     def not_surrounded_by_ocean(self, map_array):
         """
         Raise an exception if the border of geography is not ocean
-
         Parameters
         ----------
         map_array: np.ndarray
-
         """
         edges = self.edges(map_array)
         for side in edges:
@@ -114,11 +104,9 @@ class Map:
         iterate through the given character array and build the object of
         landscapes for each character. Afterwards, save the landscape class and
         instantiate the object.
-
         Returns
         -------
         cells_array: np.ndarray of landscape objects
-
         """
         cells_array = np.empty(self.island_map.shape, dtype=object)
         for i in np.arange(self.island_map.shape[0]):
@@ -127,20 +115,17 @@ class Map:
                 cells_array[i][j] = self.create_cell(cell_letter)
         return cells_array
 
-    @staticmethod
-    def string_to_np_array(map_str):
+    def string_to_np_array(self):
         """
         Converts string to numpy array with the same diemsions.
-
         Parameters
         ----------
         map_str: str
-
         Returns
         -------
         char_map: np.ndarray
         """
-        map_string_clean = map_str.replace(' ', '')
+        map_string_clean = self.map.replace(' ', '')
         char_map = np.array(
             [[j for j in i] for i in map_string_clean.splitlines()])
         return char_map
@@ -152,7 +137,6 @@ class Map:
         ----------
         x: int
         y: int
-
         Returns
         -------
         adj_cells_list: list
@@ -174,11 +158,9 @@ class Map:
         """
         Add the given population to the animal population of the
         cell with specific location
-
         Parameters
         ----------
         pop: iterable
-
         """
         for animal_group in pop:
             loc = animal_group['loc']
@@ -195,11 +177,9 @@ class Map:
     def total_num_animals_per_species(self, species):
         """
         Calculates number of animals per kind for all cells per species.
-
         Parameters
         ----------
         species: str
-
         Returns
         -------
         num_animals: dict
@@ -215,7 +195,6 @@ class Map:
     def life_cycle(self):
         """
         Calculates life cycle of animals yearly.
-
         """
         self.feed_stage()
         self.give_birth_stage()
@@ -238,7 +217,6 @@ class Map:
         giving birth all the animals in all cells, then adding newborn babies
         to the adult animals to be considered in procreatation next year and
         also to be considered in all life cycle stages.
-
         """
         rows, cols = self.cells_dims
         for x in range(rows):
@@ -252,7 +230,6 @@ class Map:
     def grow_up_stage(self):
         """
         growing up all the animals in all cells
-
         """
         rows, cols = self.cells_dims
         for x in range(rows):
@@ -262,7 +239,6 @@ class Map:
     def lose_weight_stage(self):
         """
         losing weight for all the animals in all cells
-
         """
         rows, cols = self.cells_dims
         for x in range(rows):
