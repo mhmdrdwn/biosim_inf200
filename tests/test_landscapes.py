@@ -18,6 +18,7 @@ import pytest
 from biosim.landscapes import Desert, Ocean, Mountain, Savannah, Jungle
 from biosim.fauna import Herbivore, Carnivore
 from random import seed
+import numpy as np
 
 
 class TestLandscapes:
@@ -31,12 +32,13 @@ class TestLandscapes:
         -------
         (carn_1, carn_2, herb_1, herb_2) : tuple
         """
-        seed(1)
+        np.random.seed(1)
         herb_1 = Herbivore()
         herb_2 = Herbivore()
-        seed(1)
+        np.random.seed(1)
         carn_1 = Carnivore()
         carn_2 = Carnivore()
+        print(herb_1.weight, herb_2.weight)
         return carn_1, carn_2, herb_1, herb_2
 
     @pytest.fixture
@@ -137,11 +139,9 @@ class TestLandscapes:
 
         """
         sav, des = (gen_landscape_data[i] for i in ('s', 'd'))
-        dict_to_sort = sav.in_cell_fauna
-        sav.sort_by_fitness(dict_to_sort, 'Herbivore')
-        dict_keys = sav.sorted_fauna_fitness['Herbivore'].keys()
-        h1_higher_fitness = list(dict_keys)[0]
-        h2_lower_fitness = list(dict_keys)[1]
+        sav.sort_by_fitness()
+        h1_higher_fitness = sav.in_cell_fauna['Herbivore'][0]
+        h2_lower_fitness = sav.in_cell_fauna['Herbivore'][1]
         h1_weight_pre_eat = h1_higher_fitness.weight
         h2_weight_pre_eat = h2_lower_fitness.weight
         assert sav.available_fodder['Herbivore'] > 0
@@ -186,7 +186,6 @@ class TestLandscapes:
         """
         sav, ocean, des = (gen_landscape_data[i] for i in ('s', 'o', 'd'))
         herb = sav.in_cell_fauna['Herbivore'][0]
-        carn = sav.in_cell_fauna['Carnivore'][0]
         assert des.relative_abundance_fodder(herb) == 0
         assert sav.relative_abundance_fodder(herb) == 10
         with pytest.raises(ValueError):
@@ -205,14 +204,14 @@ class TestLandscapes:
                          for i in ('s', 'o', 'd', 'm', 'j'))
         herb = sav.in_cell_fauna['Herbivore'][0]
         carn = sav.in_cell_fauna['Carnivore'][0]
-        assert sav.propensity(herb) == pytest.approx(1.3956124250860895)
-        assert sav.propensity(carn) == pytest.approx(1.1434419526158457)
+        assert sav.propensity(herb) == pytest.approx(22026.465794806718)
+        assert des.propensity(herb) == math.exp(0) == 1
+        assert jun.propensity(herb) == pytest.approx(22026.465794806718)
         assert mount.propensity(herb) == 0
         assert ocean.propensity(carn) == 0
-        assert jun.propensity(herb) == pytest.approx(1.3956124250860895)
-        assert des.propensity(herb) == math.exp(0) == 1
-        assert des.propensity(carn) == pytest.approx(1.1434419526158457)
-        assert jun.propensity(carn) == pytest.approx(1.1434419526158457)
+        assert sav.propensity(carn) == pytest.approx(1.1238862622324772)
+        assert des.propensity(carn) == pytest.approx(1.1238862622324772)
+        assert jun.propensity(carn) == pytest.approx(1.1238862622324772)
 
     def test_probability_of_cell(self, gen_landscape_data):
         """
@@ -231,10 +230,10 @@ class TestLandscapes:
         carn = jun.in_cell_fauna['Carnivore'][0]
         total_propensity_carn = sum(i.propensity(carn) for i in adj_cells)
         assert sav.probability(carn, total_propensity_carn) == \
-               pytest.approx(0.33333333333333337)
+               pytest.approx(0.3333333333333333)
         total_propensity_herb = sum(i.propensity(herb) for i in adj_cells)
         assert sav.probability(herb, total_propensity_herb) == \
-               pytest.approx(0.41100462902526524)
+               pytest.approx(0.9999092083843409)
 
 
 class TestDesert(TestLandscapes):
