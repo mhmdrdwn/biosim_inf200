@@ -163,6 +163,3 @@ class TestMap:
         m.give_birth_stage()
         num_animals_after = m.total_num_animals_per_species('Herbivore')
         assert num_animals_after >= num_animals_before
-
-
-    def test_

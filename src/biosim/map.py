@@ -69,7 +69,8 @@ class Map:
         """
         return self.landscape_classes[cell_letter]()
 
-    def edges(self, map_array):
+    @staticmethod
+    def edges(map_array):
         """
         get the border element of the matrix, the cells on the border of the
          provided map array
@@ -118,9 +119,6 @@ class Map:
     def string_to_np_array(self):
         """
         Converts string to numpy array with the same diemsions.
-        Parameters
-        ----------
-        map_str: str
         Returns
         -------
         char_map: np.ndarray

@@ -83,10 +83,6 @@ class Fauna(ABC):
         Sets default value for class attributes - age & weight of animal.
         Birth weight draws from gaussian distribution.
 
-        Parameters
-        ----------
-        attribute_name: str
-
         """
         return np.random.normal(cls.parameters['w_birth'],
                                 cls.parameters['sigma_birth'])

@@ -187,8 +187,7 @@ class BioSim:
 
             self._map.life_cycle()
             self._year += 1
-            print(self.num_animals_per_species)
-            print('Year '+str(self._year))
+
             df = self.animal_distribution
             df.to_csv('../results/data.csv', sep='\t', encoding='utf-8')
 

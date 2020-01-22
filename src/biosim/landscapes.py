@@ -46,11 +46,6 @@ class Landscape(ABC):
     def sort_by_fitness(self):
         """
         Sorts animal objects of each species according to their fitness.
-        Parameters
-        ----------
-        animal_objects: dict
-        species_to_sort: str
-        reverse: bool
         """
         self.in_cell_fauna['Carnivore'].sort(
             key=operator.attrgetter('fitness'), reverse=True)
