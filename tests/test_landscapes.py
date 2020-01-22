@@ -93,7 +93,7 @@ class TestLandscapes:
         h1_weight_pre_eat = h1_higher_fitness.weight
         h2_weight_pre_eat = h2_lower_fitness.weight
         assert sav.available_fodder['Herbivore'] > 0
-        sav.feed_herbivore()
+        sav.feed_animals()
         assert sav.available_fodder['Herbivore'] == 0
         h1_weight_post_eat = h1_higher_fitness.weight
         h2_weight_post_eat = h2_lower_fitness.weight
@@ -105,17 +105,12 @@ class TestLandscapes:
         h1_weight_pre_eat = h1.weight
         h2_weight_pre_eat = h2.weight
         assert des.available_fodder['Herbivore'] == 0
-        des.feed_herbivore()
+        des.feed_animals()
         h1_weight_post_eat = h1.weight
         h2_weight_post_eat = h2.weight
         assert des.available_fodder['Herbivore'] == 0
         assert h1_weight_post_eat == h1_weight_pre_eat
         assert h2_weight_post_eat == h2_weight_pre_eat
-
-    def test_feed_carnivore(self, gen_landscape_data):
-        sav, des = (gen_landscape_data[i] for i in ('s', 'd'))
-        sav.feed_carnivore()
-        # its weight remains the same meaning it doesn't eat anything
 
     def test_relevant_fodder(self, gen_landscape_data):
         sav, des, jun = (gen_landscape_data[i] for i in ('s', 'd', 'j'))
@@ -125,8 +120,7 @@ class TestLandscapes:
         assert des.relevant_fodder(herb) == des.available_fodder['Herbivore']
         assert des.relevant_fodder(herb) == 0
         assert des.relevant_fodder(carn) == des.available_fodder['Carnivore']
-        assert des.relevant_fodder(carn) == pytest.approx(
-            20.10644554278285)
+        assert des.relevant_fodder(carn) == sum(i.weight for i in des.in_cell_fauna['Herbivore'])
 
     def test_relative_abundance_fodder(self, gen_landscape_data):
         sav, ocean, des = (gen_landscape_data[i] for i in ('s', 'o', 'd'))

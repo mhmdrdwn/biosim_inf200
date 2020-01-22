@@ -213,10 +213,8 @@ class BioSim:
         dist_matrix_carnivore = np.array(df[['Carnivore']]).reshape(rows, cols)
         dist_matrix_herbivore = np.array(df[['Herbivore']]).reshape(rows, cols)
         self._update_animals_graph()
-        self._vis.update_herbivore_dist(dist_matrix_herbivore,
-                                        self._cmax_animals['Herbivore'])
-        self._vis.update_carnivore_dist(dist_matrix_carnivore,
-                                        self._cmax_animals['Carnivore'])
+        self._vis.update_herbivore_dist(dist_matrix_herbivore)
+        self._vis.update_carnivore_dist(dist_matrix_carnivore)
         plt.pause(1e-6)
         self._fig.suptitle('Year: ' + str(self.year), x=0.5)
 

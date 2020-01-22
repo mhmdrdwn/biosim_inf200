@@ -187,7 +187,7 @@ class Visualisation:
             self._carnivore_dist = self._fig.add_subplot(2, 2, 4)
             self._carnivore_img_axis = None
 
-    def update_herbivore_dist(self, distribution, v_max):
+    def update_herbivore_dist(self, distribution):
         """
         Updates herbivores distribution.
 
@@ -199,17 +199,18 @@ class Visualisation:
         if self._herbivore_img_axis is not None:
             self._herbivore_img_axis.set_data(distribution)
         else:
+            v_max = type(self._herbivore_dist)
             y, x = self._map_dims
             self._herbivore_dist.imshow(distribution,
                                         interpolation='nearest',
-                                        vmin=0, vmax=v_max)
+                                        vmin=0, vmax=5)
             self._herbivore_dist.set_xticks(range(0, x, 5))
             self._herbivore_dist.set_xticklabels(range(1, 1 + x, 5))
             self._herbivore_dist.set_yticks(range(0, y, 5))
             self._herbivore_dist.set_yticklabels(range(1, 1 + y, 5))
             self._herbivore_dist.set_title('Herbivore Distribution')
 
-    def update_carnivore_dist(self, distribution, v_max):
+    def update_carnivore_dist(self, distribution):
         """
         Updates carnivores distribution.
 
@@ -224,7 +225,7 @@ class Visualisation:
             y, x = self._map_dims
             self._carnivore_dist.imshow(distribution,
                                         interpolation='nearest',
-                                        vmin=0, vmax=v_max)
+                                        vmin=0, vmax=5)
             self._carnivore_dist.set_xticks(range(0, x, 5))
             self._carnivore_dist.set_xticklabels(range(1, 1 + x, 5))
             self._carnivore_dist.set_yticks(range(0, y, 5))

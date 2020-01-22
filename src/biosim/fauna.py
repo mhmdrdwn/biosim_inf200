@@ -289,7 +289,6 @@ class Herbivore(Fauna):
 
         """
         super().__init__(age, weight)
-        self.parameters = Herbivore.parameters
 
 
 class Carnivore(Fauna):
@@ -310,7 +309,6 @@ class Carnivore(Fauna):
         """
         super().__init__(age, weight)
         self._kill_prob = None
-        self.parameters = Carnivore.parameters
 
     def kill_prob(self, herbivore_to_kill):
         """

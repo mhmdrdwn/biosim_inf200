@@ -21,14 +21,14 @@ class Landscape(ABC):
     Landscape abstract class. It has five subclasses: Jungle, Desert,
     Savannah, Ocean, Mountain inherited from this base class.
     """
-    available_fodder = {}
     parameters = {}
-    in_cell_fauna = {}
-    adult_fauna = {}
 
     @abstractmethod
     def __init__(self):
         self.sorted_fauna_fitness = {}
+        self.available_fodder = {'Herbivore': 0, 'Carnivore': 0}
+        self.in_cell_fauna = {'Herbivore': [], 'Carnivore': []}
+        self.adult_fauna = {'Herbivore': [], 'Carnivore': []}
 
     def save_fitness(self, fauna_objects, species):
         """
@@ -152,6 +152,7 @@ class Landscape(ABC):
         animal: Carnivore or Herbivore object
 
         """
+
         key = animal.__class__.__name__
         self.in_cell_fauna[key].append(animal)
 
@@ -181,7 +182,7 @@ class Landscape(ABC):
         carnivore = len(self.in_cell_fauna['Carnivore'])
         return {'Herbivore': herbivore, 'Carnivore': carnivore}
 
-    def feed_herbivore(self):
+    def _feed_herbivore(self):
         """
         Herbivores with the highest fitness eat first, "sorted_fauna_fitness"
          dictionary is reverse sorted .
@@ -209,7 +210,7 @@ class Landscape(ABC):
                 herbivore.eat(amount_to_eat)
                 self.available_fodder['Herbivore'] = 0
 
-    def feed_carnivore(self):
+    def _feed_carnivore(self):
         """
         Carnivores with the highest fitness eat first. The method
         "sort_by_fitness" return reverse sorted carnivores by fitness.
@@ -227,8 +228,9 @@ class Landscape(ABC):
             if self.available_fodder['Carnivore'] == 0:
                 break
             else:
-                if len(self.sorted_fauna_fitness['Herbivore']) > 0:
-                    for herbivore in self.sorted_fauna_fitness['Herbivore']:
+                for herbivore in self.sorted_fauna_fitness['Herbivore']:
+                    weights = 0
+                    while appetite >= weights:
                         if carnivore.kill_prob(herbivore):
                             weight_to_eat = herbivore.weight
                             self.remove_animal(herbivore)
@@ -236,6 +238,7 @@ class Landscape(ABC):
                                 carnivore.eat(appetite)
                             elif weight_to_eat < appetite:
                                 carnivore.eat(weight_to_eat)
+                            weights += weight_to_eat
 
     def feed_animals(self):
         """
@@ -243,11 +246,11 @@ class Landscape(ABC):
         to eat
 
         """
-        self.grow_herb_fodder()
-        self.feed_herbivore()
-        self.feed_carnivore()
+        self._grow_herb_fodder()
+        self._feed_herbivore()
+        self._feed_carnivore()
 
-    def grow_herb_fodder(self):
+    def _grow_herb_fodder(self):
         pass
 
     def grow_up_animals(self):
@@ -393,13 +396,10 @@ class Savannah(Landscape):
         if given_parameters is not None:
             self.set_given_parameters(given_parameters)
         self.parameters = Savannah.parameters
-        self.in_cell_fauna = {'Carnivore': [], 'Herbivore': []}
-        self.available_fodder['Herbivore'] = self.parameters['f_max']
-        total_herb_weight = sum(animal.weight for animal in
-                                self.in_cell_fauna['Herbivore'])
-        self.available_fodder['Carnivore'] = total_herb_weight
+        self.available_fodder = {'Herbivore': self.parameters['f_max'],
+                                 'Carnivore': self.total_herb_weight}
 
-    def grow_herb_fodder(self):
+    def _grow_herb_fodder(self):
         """
         Calculates new fodder growing in savannah according to the following
         equation:
@@ -408,6 +408,10 @@ class Savannah(Landscape):
         self.available_fodder['Herbivore'] += \
             self.parameters['alpha'] * (self.parameters['f_max'] -
                                         self.available_fodder['Herbivore'])
+
+    @property
+    def total_herb_weight(self):
+        return sum(i.weight for i in self.in_cell_fauna['Herbivore'])
 
 
 class Jungle(Landscape):
@@ -431,14 +435,16 @@ class Jungle(Landscape):
         super().__init__()
         if given_parameters is not None:
             self.set_given_parameters(given_parameters)
-        self.in_cell_fauna = {'Carnivore': [], 'Herbivore': []}
         self.parameters = Jungle.parameters
-        self.available_fodder['Herbivore'] = self.parameters['f_max']
-        total_herb_weight = sum(
-            animal.weight for animal in self.in_cell_fauna['Herbivore'])
-        self.available_fodder['Carnivore'] = total_herb_weight
+        self.available_fodder = {'Herbivore': self.parameters['f_max'],
+                                 'Carnivore': self.total_herb_weight}
 
-    def grow_herb_fodder(self):
+
+    @property
+    def total_herb_weight(self):
+        return sum(i.weight for i in self.in_cell_fauna['Herbivore'])
+
+    def _grow_herb_fodder(self):
         """
         Resets a fixed amount of fodder 'f_max' to available_fodder
         of herbivore.
@@ -454,15 +460,16 @@ class Desert(Landscape):
     Carnivores can prey on herbivores in the desert.
     """
     is_accessible = True
-    available_fodder = {'Herbivore': 0}
 
     def __init__(self):
         super().__init__()
-        self.in_cell_fauna = {'Carnivore': [], 'Herbivore': []}
-        total_herb_weight = sum(
-            i.weight for i in self.in_cell_fauna['Herbivore'])
         self.available_fodder = {'Herbivore': 0,
-                                 'Carnivore': total_herb_weight}
+                                 'Carnivore': self.total_herb_weight}
+
+
+    @property
+    def total_herb_weight(self):
+        return sum(i.weight for i in self.in_cell_fauna['Herbivore'])
 
 
 class Mountain(Landscape):
@@ -472,14 +479,11 @@ class Mountain(Landscape):
     always empty for this kind of landscape and there is no fodder.
 
     """
-    available_fodder = {'Herbivore': 0, 'Carnivore': 0}
-    in_cell_fauna = {'Herbivore': [], 'Carnivore': []}
+
     is_accessible = False
 
     def __init__(self):
         super().__init__()
-        self.in_cell_fauna = Mountain.in_cell_fauna
-        self.available_fodder = Mountain.available_fodder
 
 
 class Ocean(Landscape):
@@ -488,12 +492,37 @@ class Ocean(Landscape):
     always empty for this kind of landscape and there is no fodder.
 
     """
-    available_fodder = {'Herbivore': 0, 'Carnivore': 0}
-    in_cell_fauna = {'Herbivore': [], 'Carnivore': []}
+
     is_accessible = False
 
     def __init__(self):
         super().__init__()
-        self.in_cell_fauna = Ocean.in_cell_fauna
-        self.available_fodder = Ocean.available_fodder
-        self.in_cell_fauna = Ocean.in_cell_fauna
+
+
+if __name__ == '__main__':
+    from biosim.fauna import Herbivore
+    d = Desert()
+
+    h = Herbivore()
+    d.add_animal(h)
+    d.add_animal(h)
+    #print(d)
+    #print(d.in_cell_fauna)
+    #print(d.available_fodder)
+    s = Savannah()
+
+    h = Herbivore()
+    s.add_animal(h)
+    #print(s)
+    #print(s.in_cell_fauna)
+    #print(s.available_fodder)
+
+    j = Jungle()
+    h = Herbivore()
+    j.add_animal(h)
+    j.add_animal(h)
+    #print(j)
+    #print(j.in_cell_fauna)
+    #print(j.available_fodder)
+    print(j.__dir__())
+    print(j.total_herb_weight)
