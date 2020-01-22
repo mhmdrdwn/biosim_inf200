@@ -14,7 +14,14 @@ import numpy as np
 
 class Map:
     """
-    The map class contains map parent class with .
+    The map class contains map class. It has large scale methods like
+    - migration for all cells
+    - growing up all animals in all cells
+    - removing (die) animals in all cells
+    - giving birth in all cells
+    - feeding in all cells
+    - lose weights for all animals in all cells
+    and it has the life cycle for each year
 
     """
 
@@ -24,7 +31,7 @@ class Map:
 
         Parameters
         ----------
-        island_map: str?
+        island_map: str
         """
         self.island_map = self.string_to_np_array(island_map)
         self.not_surrounded_by_ocean(self.island_map)
@@ -228,7 +235,10 @@ class Map:
 
     def give_birth_stage(self):
         """
-        giving birth all the animals in all cells
+        giving birth all the animals in all cells, then adding newborn babies
+        to the adult animals to be considered in procreatation next year and
+        also to be considered in all life cycle stages.
+
         """
         rows, cols = self.cells_dims
         for x in range(rows):

@@ -373,6 +373,10 @@ class Landscape(ABC):
                                    str(parameter) +
                                    ' can\'t be set')
 
+    @property
+    def total_herb_weight(self):
+        return sum(i.weight for i in self.in_cell_fauna['Herbivore'])
+
 
 class Savannah(Landscape):
     """
@@ -397,7 +401,7 @@ class Savannah(Landscape):
             self.set_given_parameters(given_parameters)
         self.parameters = Savannah.parameters
         self.available_fodder = {'Herbivore': self.parameters['f_max'],
-                                 'Carnivore': self.total_herb_weight}
+                                 'Carnivore': sum(i.weight for i in self.in_cell_fauna['Herbivore'])}
 
     def _grow_herb_fodder(self):
         """
@@ -408,10 +412,6 @@ class Savannah(Landscape):
         self.available_fodder['Herbivore'] += \
             self.parameters['alpha'] * (self.parameters['f_max'] -
                                         self.available_fodder['Herbivore'])
-
-    @property
-    def total_herb_weight(self):
-        return sum(i.weight for i in self.in_cell_fauna['Herbivore'])
 
 
 class Jungle(Landscape):
@@ -439,11 +439,6 @@ class Jungle(Landscape):
         self.available_fodder = {'Herbivore': self.parameters['f_max'],
                                  'Carnivore': self.total_herb_weight}
 
-
-    @property
-    def total_herb_weight(self):
-        return sum(i.weight for i in self.in_cell_fauna['Herbivore'])
-
     def _grow_herb_fodder(self):
         """
         Resets a fixed amount of fodder 'f_max' to available_fodder
@@ -465,11 +460,6 @@ class Desert(Landscape):
         super().__init__()
         self.available_fodder = {'Herbivore': 0,
                                  'Carnivore': self.total_herb_weight}
-
-
-    @property
-    def total_herb_weight(self):
-        return sum(i.weight for i in self.in_cell_fauna['Herbivore'])
 
 
 class Mountain(Landscape):

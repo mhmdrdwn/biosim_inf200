@@ -4,8 +4,8 @@
 """
 Test set for landscapes class functionality and attributes.
 
-This set of tests checks the landscapes classes methods perform as expected as per
-the provided modeling.
+This set of tests checks the landscapes classes methods perform as expected
+as per the provided modeling.
 
 """
 
@@ -23,6 +23,14 @@ from random import seed
 class TestLandscapes:
     @pytest.fixture
     def gen_animal_data(self):
+        """
+        Fixture to generate animals data to be used as input for landscape
+        data
+
+        Returns
+        -------
+        (carn_1, carn_2, herb_1, herb_2) : tuple
+        """
         seed(1)
         herb_1 = Herbivore()
         herb_2 = Herbivore()
@@ -33,7 +41,17 @@ class TestLandscapes:
 
     @pytest.fixture
     def gen_landscape_data(self, gen_animal_data):
-        #landscape_params = {'f_max': 10.0}
+        """
+        generate landscape data to be used for all tests
+
+        Parameters
+        ----------
+        gen_animal_data: tuple
+
+        Returns
+        -------
+        landscapes_dict : dict
+        """
         carn_1, carn_2, herb_1, herb_2 = gen_animal_data
         animals = {'Herbivore': [herb_1, herb_2], 'Carnivore': [carn_1, carn_2]}
         landscapes_dict = {'s': Savannah(),
@@ -50,6 +68,14 @@ class TestLandscapes:
         return landscapes_dict
 
     def test_save_fitness(self, gen_landscape_data):
+        """
+        check saving current life fitness of animals
+
+        Parameters
+        ----------
+        gen_landscape_data: tuple
+
+        """
         sav = gen_landscape_data['s']
         sav.save_fitness(sav.in_cell_fauna, 'Herbivore')
         assert len(sav.sorted_fauna_fitness) == 1
@@ -60,6 +86,14 @@ class TestLandscapes:
         assert 'Carnivore' in sav.sorted_fauna_fitness.keys()
 
     def test_sort_fitness(self, gen_landscape_data):
+        """
+        Animals are sorted whether reverse or in ascending order
+
+        Parameters
+        ----------
+        gen_landscape_data: tuple
+
+        """
         sav = gen_landscape_data['s']
         dict_to_sort = sav.in_cell_fauna
         sav.sort_by_fitness(dict_to_sort, 'Herbivore', False)
@@ -70,6 +104,15 @@ class TestLandscapes:
         assert list(dict_values)[0] >= list(dict_values)[1]
 
     def test_add_and_remove_fauna(self, gen_landscape_data):
+        """
+        check the length of current animals in cells after addition
+        or removing
+
+        Parameters
+        ----------
+        gen_landscape_data: tuple
+
+        """
         sav, des = (gen_landscape_data[i] for i in ('s', 'd'))
         assert len(sav.in_cell_fauna['Carnivore'] + sav.in_cell_fauna[
             'Herbivore']) == 4
@@ -84,6 +127,15 @@ class TestLandscapes:
             'Herbivore']) == 4
 
     def test_feed_herbivore(self, gen_landscape_data):
+        """
+        weight of herbivore should increase after weight by the given formula:
+        'beta' * amount_to_eat
+
+        Parameters
+        ----------
+        gen_landscape_data: tuple
+
+        """
         sav, des = (gen_landscape_data[i] for i in ('s', 'd'))
         dict_to_sort = sav.in_cell_fauna
         sav.sort_by_fitness(dict_to_sort, 'Herbivore')
@@ -123,6 +175,14 @@ class TestLandscapes:
         assert des.relevant_fodder(carn) == sum(i.weight for i in des.in_cell_fauna['Herbivore'])
 
     def test_relative_abundance_fodder(self, gen_landscape_data):
+        """
+        weight of herbivore should increase after weight by the given formula
+
+        Parameters
+        ----------
+        gen_landscape_data: tuple
+
+        """
         sav, ocean, des = (gen_landscape_data[i] for i in ('s', 'o', 'd'))
         herb = sav.in_cell_fauna['Herbivore'][0]
         carn = sav.in_cell_fauna['Carnivore'][0]
@@ -134,6 +194,14 @@ class TestLandscapes:
                pytest.approx(0.134042970285219)
 
     def test_propensity(self, gen_landscape_data):
+        """
+        weight of herbivore should increase after weight by the given formula
+
+        Parameters
+        ----------
+        gen_landscape_data: tuple
+
+        """
         sav, ocean, des, mount, jun = (gen_landscape_data[i]
                          for i in ('s', 'o', 'd', 'm', 'j'))
         herb = sav.in_cell_fauna['Herbivore'][0]
@@ -148,6 +216,14 @@ class TestLandscapes:
         assert jun.propensity(carn) == pytest.approx(1.1434419526158457)
 
     def test_probability_of_cell(self, gen_landscape_data):
+        """
+        weight of herbivore should increase after weight by the given formula
+
+        Parameters
+        ----------
+        gen_landscape_data: tuple
+
+        """
         sav, ocean, des, mount, jun = (gen_landscape_data[i]
                          for i in ('s', 'o', 'd', 'm', 'j'))
 
@@ -163,9 +239,15 @@ class TestLandscapes:
 
 
 class TestDesert(TestLandscapes):
-    # test of is accessible for all of the subclasses should be added.
     def test_no_fodder(self, gen_landscape_data):
-        """No fodder available in the desert"""
+        """
+        No herbi fodder is available in desert
+
+        Parameters
+        ----------
+        gen_landscape_data: tuple
+
+        """
         ocean = gen_landscape_data['o']
         assert ocean.available_fodder['Herbivore'] == 0
         assert ocean.available_fodder['Carnivore'] == 0
@@ -173,6 +255,14 @@ class TestDesert(TestLandscapes):
 
 class TestOcean(TestLandscapes):
     def test_number_animals(self, gen_landscape_data):
+        """
+        number of animals is zero in ocean
+
+        Parameters
+        ----------
+        gen_landscape_data: tuple
+
+        """
         ocean = gen_landscape_data['o']
         assert len(ocean.in_cell_fauna['Carnivore']) == 0
         assert len(ocean.in_cell_fauna['Herbivore']) == 0
@@ -180,6 +270,13 @@ class TestOcean(TestLandscapes):
 
 class TestMountains(TestLandscapes):
     def test_number_animals(self, gen_landscape_data):
+        """
+        NUmber of animals in mountains is zero
+        Parameters
+        ----------
+        gen_landscape_data: tuple
+
+        """
         mount = gen_landscape_data['m']
         assert len(mount.in_cell_fauna['Carnivore']) == 0
         assert len(mount.in_cell_fauna['Herbivore']) == 0
@@ -187,6 +284,15 @@ class TestMountains(TestLandscapes):
 
 class TestSavannah(TestLandscapes):
     def test_grow_herb_fodder(self, gen_landscape_data):
+        """
+        Fodder grows by the formula
+        alpha * ('f_max'- available_fodder)
+
+        Parameters
+        ----------
+        gen_landscape_data
+
+        """
         sav = gen_landscape_data['s']
         assert sav.available_fodder['Herbivore'] == sav.parameters['f_max']
         assert sav.available_fodder['Herbivore'] == 10
@@ -198,9 +304,15 @@ class TestSavannah(TestLandscapes):
         assert fodder_post_grow - fodder_pre_grow == \
                sav.parameters['alpha'] * (sav.parameters['f_max'] -
                                         fodder_pre_grow)
-        # the growth or the difference between them is given by the formula
 
     def test_reset_parameters(self, gen_landscape_data):
+        """
+        parameters after setting is different than default parameters
+        Parameters
+        ----------
+        gen_landscape_data: tuple
+
+        """
         sav = gen_landscape_data['s']
         alpha_pre_change = sav.parameters['alpha']
         sav.set_given_parameters({'alpha': 0.5})
@@ -210,6 +322,14 @@ class TestSavannah(TestLandscapes):
 
 class TestJungle(TestLandscapes):
     def test_grow_herb_fodder(self, gen_landscape_data):
+        """
+        fodder become as the original value (f_max) after a year
+
+        Parameters
+        ----------
+        gen_landscape_data: tuple
+
+        """
         jun = gen_landscape_data['j']
         assert jun.available_fodder['Herbivore'] == jun.parameters['f_max']
         assert jun.available_fodder['Herbivore'] == 10
@@ -219,10 +339,17 @@ class TestJungle(TestLandscapes):
         fodder_post_grow = jun.available_fodder['Herbivore']
         assert fodder_pre_grow < fodder_post_grow
         assert fodder_post_grow == jun.parameters['f_max']
-        # at the start of each simulation the fodder will have f_max
-        # after a year the fodder will have f_max, no matter how much was eaten
 
     def test_reset_parameters(self, gen_landscape_data):
+        """
+        Reset parameter mutate the default parameters with the given
+        parameters
+
+        Parameters
+        ----------
+        gen_landscape_data: tuple
+
+        """
         jun = gen_landscape_data['j']
         f_max_pre_change = jun.parameters['f_max']
         jun.set_given_parameters({'f_max': 400})

@@ -7,6 +7,7 @@ __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 import os
+import random
 
 import pandas as pd
 import numpy as np
@@ -85,7 +86,7 @@ class BioSim:
         if len(set(lengths)) > 1:
             raise ValueError('This given string is not uniform')
 
-        np.random.seed(seed)
+        random.seed(seed)
 
         self._island_map = island_map
         self._map = Map(island_map)
