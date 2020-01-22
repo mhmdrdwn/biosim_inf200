@@ -1,90 +1,120 @@
 # -*- coding: utf-8 -*-
 
 """
+Fauna Classes and subclasses (Herbivore, Carnivore).
+Fauna class is a base class, all objects are instantiated from the
+Carnivore and Herbivore subclasses
+
 """
 
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
 from abc import ABC, abstractmethod
-from random import gauss
+
+import numpy as np
 import math
 
 
 class Fauna(ABC):
     """
-    Animal abstract class, it has two subclasses which are animal species:
-    Herbivores & Carnivores. They have certain characteristics in common, but
-    feed in different ways.
+    Animal abstract superclass, inheriting from the (Abstract Base class) ABC,
+    it has two subclasses which are animal species.
+    Herbivores & Carnivores. The two subclasses feed in different ways.
     """
     parameters = {}
 
     @abstractmethod
     def __init__(self, age=None, weight=None):
+
         """
-        The constructor for abstract class Fauna.
+        Constructor for superclass, if age or weight is initialised
+        automatically if not provided. Also, specifing invalid age or weight
+         values will raise a a value error. Initial fitness is
+        set to zero.
 
         Parameters
         ----------
         age: int
-        weight: float
+        weight: float, int
+
         """
         if age is None:
-            self.set_default_attribute('age')
+            self.age = 0
         else:
-            self.protect_against_non_valid_attribute('Age', age)
+            self.raise_non_valid_attribute('Age', age)
             self.age = age
 
         if weight is None:
-            self.set_default_attribute('weight')
+            self._weight = self.set_default_weight()
         else:
-            self.protect_against_non_valid_attribute('Weight', weight)
+            self.raise_non_valid_attribute('Weight', weight)
             self._weight = weight
 
-        self._fitness = 0
+        self.just_give_birth = False
 
-    @staticmethod
-    def protect_against_non_valid_attribute(attribute_name, attribute):
-        if not isinstance(attribute, (int, float)):
-            raise ValueError(attribute_name + ' of animal can\'t be set to '
-                             + attribute_name +
-                             ', it has to be integer or float')
-    
-    def set_default_attribute(self, attribute_name):
-        """
-        Sets default value for class attributes - age & weight of animal.
-        Birth weight draws from gaussian distribution.
-
-        Parameters
-        ----------
-        attribute_name: str
-        """
-        if attribute_name is 'weight':
-            self._weight = gauss(self.parameters['w_birth'],
-                                 self.parameters['sigma_birth'])
-        if attribute_name is 'age':
-            self.age = 0
+        self._fitness = None
+        self.calculate_fitness()
+        self._recompute_fitness = False
 
     @property
     def weight(self):
         return self._weight
 
+    @staticmethod
+    def raise_non_valid_attribute(attribute_name, attribute):
+        """
+        Raise an error if the input is invalid type
+
+        Parameters
+        ----------
+        attribute_name : str
+        attribute : value of the attribute. i.e. int
+
+        """
+        if not isinstance(attribute, (int, float)):
+            raise ValueError(attribute_name + ' of animal can\'t be set to '
+                             + attribute_name +
+                             ', it has to be integer or float')
+
+    @classmethod
+    def set_default_weight(cls):
+        """
+        Sets default value for class attributes - age & weight of animal.
+        Birth weight draws from gaussian distribution.
+
+        """
+        return np.random.normal(cls.parameters['w_birth'],
+                                cls.parameters['sigma_birth'])
+
     def grow_up(self):
         """
-        Increases animal age yearly
+        Increase age yearly
+
         """
         self.age += 1
 
     def lose_weight(self):
         """
-        Decreases weight of the animal every year by the factor 'eta'.
+        Decreases weight of the animal every year by the factor 'eta'
         """
-        weight_to_reduce = self._weight * self.parameters['eta']
+        weight_to_reduce = self.weight * self.parameters['eta']
         self._weight -= weight_to_reduce
+        self._recompute_fitness = True
 
     @property
     def fitness(self):
-        self.calculate_fitness()
+        """
+        Getter with a flag variable reset to True when the fitness is
+        recalculated using the equation.
+        Returns
+        -------
+        fitness : float
+
+        """
+        if self._recompute_fitness:
+            self.calculate_fitness()
+            self._recompute_fitness = False
         return self._fitness
 
     @staticmethod
@@ -104,6 +134,7 @@ class Fauna(ABC):
         -------
         q1*q2: float
             Which is equal to fitness.
+
         """
         q1 = 1 / (1 + math.exp((parameters['phi_age'])
                                * (age - parameters['a_half'])))
@@ -115,26 +146,31 @@ class Fauna(ABC):
         """
         Controls condition when weight is zero. Otherwise, calculate animal
         fitness which is based on age & weight of the animal.
+
         """
-        if self._weight == 0:
+        if self.weight == 0:
             self._fitness = 0
         else:
             self._fitness = self.fitness_formula(
-                self.age, self._weight, self.parameters)
+                self.age, self.weight, self.parameters)
 
     @property
     def move_prob(self):
         """
+        probability of animal to move from cell to another
+
         Returns
         -------
-        animal movement probability: float
+        animal movement probability: boolean
+
         """
-        return self.parameters['mu'] * self.fitness
+        move_probability = self.parameters['mu'] * self._fitness
+        return move_probability > np.random.random()
 
     def birth_prob(self, num_fauna):
         """
-        Calculates the probability to give birth to an offspring is as follows:
-        'gamma' * fitness * (number of fauna-1)
+        Calculates the probability to give birth as follows:
+        gamma * fitness * (number of fauna-1)
         If this equation is greater than one, the probability is one.
         The probability is zero in one of below conditions occur:
         - if there is less than 2 animals of same kind
@@ -147,16 +183,18 @@ class Fauna(ABC):
 
         Returns
         -------
-        birth probability: float
+        birth probability: bool
+
         """
         zeta = self.parameters['zeta']
         w_birth = self.parameters['w_birth']
         sigma_birth = self.parameters['sigma_birth']
         if num_fauna >= 2 and self.weight >= zeta * (w_birth + sigma_birth):
             gamma = self.parameters['gamma']
-            return min(1, gamma * self.fitness * (num_fauna - 1))
+            return np.random.random() < min(1, gamma *
+                                            self._fitness * (num_fauna - 1))
         else:
-            return 0
+            return False
 
     def lose_weight_give_birth(self, baby):
         """
@@ -167,9 +205,11 @@ class Fauna(ABC):
         ----------
         baby: obj
             An object of any Fauna subclasses, either Carnivores or Herbivores
+            based on mother's species
         """
-        if self._weight > baby.weight * baby.parameters['xi']:
+        if self.weight >= baby.weight * baby.parameters['xi']:
             self._weight -= baby.weight * baby.parameters['xi']
+            self.just_give_birth = True
 
     @property
     def death_prob(self):
@@ -179,51 +219,51 @@ class Fauna(ABC):
 
         Returns
         -------
-        death probability: float
+        death probability: bool
+
         """
-        if self.fitness == 0:
-            return 1
+        if self._fitness == 0:
+            return True
         else:
-            return self.parameters['omega'] * (1 - self.fitness)
+            return np.random.random() < self.parameters['omega'] \
+                   * (1 - self._fitness)
 
     def eat(self, amount_to_eat):
         """
-        Increases animal weight after receiving food.
+        Increases animal weight after receiving food
 
         Parameters
         ----------
-        amount_to_eat: float
+        amount_to_eat: int, float
+
         """
         self._weight += self.parameters['beta'] * amount_to_eat
-
 
     @classmethod
     def set_given_parameters(cls, params):
         """
-        Checks the user defined parameter value.
+        save the user defined parameter value for Carnivore and Herbivore
+        inside the class variables parameters.
 
         Parameters
         ----------
         params: dict
+
         """
 
         for parameter in params:
             if parameter in cls.parameters:
-                if parameter == 'eta' and params[parameter] > 1:
+                if parameter == 'eta' and params['eta'] > 1:
                     raise ValueError('Illegal parameter value, eta '
                                      'can\'t be more than 1')
-                if parameter == 'DeltaPhiMax' and params[parameter] < 0:
+                if parameter == 'DeltaPhiMax' and params[parameter] <= 0:
                     raise ValueError('Illegal parameter value, ' +
                                      str(parameter) + ' can\'t be or negative')
-                if params[parameter] <= 0:
-                    # protect against negative values
+                if params[parameter] < 0:
                     raise ValueError('Illegal parameter value, ' +
-                                     str(parameter) + ' can\'t be zero '
-                                                      'or negative')
+                                     str(parameter) + ' can\'t be negative')
                 else:
-                    # if given_parameters[parameter] >= 0
-                    cls.parameters[parameter] = \
-                        params[parameter]
+                    cls.parameters[parameter] = params[parameter]
             else:
                 raise RuntimeError('Unknown parameter, ' + str(parameter) +
                                    ' can\'t be set')
@@ -237,16 +277,15 @@ class Herbivore(Fauna):
 
     def __init__(self, age=None, weight=None):
         """
-        The constructor for the Herbivore class, which is a subclass of
-        Fauna class.
+        subclass of Fauna class.
 
         Parameters
         ----------
         age: int
         weight: float
+
         """
         super().__init__(age, weight)
-        self.parameters = Herbivore.parameters
 
 
 class Carnivore(Fauna):
@@ -258,8 +297,7 @@ class Carnivore(Fauna):
 
     def __init__(self, age=None, weight=None):
         """
-        The constructor for the Carnivore class, which is a subclass of
-        Fauna class.
+        subclass of Fauna class.
 
         Parameters
         ----------
@@ -268,18 +306,18 @@ class Carnivore(Fauna):
         """
         super().__init__(age, weight)
         self._kill_prob = None
-        self.parameters = Carnivore.parameters
 
     def kill_prob(self, herbivore_to_kill):
         """
         Returns kill probability with following rules:
-        - Carnivore only can kill the herbivore with less fitness than its own
-          fitness. So that, if the fitness of carnivore is less than herbivore's
-          the killing probability is zero.
+        - Carnivore only can kill the herbivore with less fitness than
+          its own fitness. So that, if the fitness of carnivore is less than
+          herbivore's the killing probability is zero.
         - If the difference between two animals (carnivore and herbivore)
-          is more than the parameter 'DeltaPhiMax', killing probability is 100%.
-        - In other cases, the killing probability is drawn by following formula:
-          (carnivore fitness - herbivore fitness) / 'DeltaPhiMax'
+          is more than the parameter 'DeltaPhiMax', killing probability is
+          100%.
+        - In other cases, the killing probability is drawn by following
+          formula: (carnivore fitness - herbivore fitness) / 'DeltaPhiMax'
 
         Parameters
         ----------
@@ -288,23 +326,15 @@ class Carnivore(Fauna):
 
         Returns
         -------
-        _kill_prob: float
+        _kill_prob: bool
         """
-        if self.fitness <= herbivore_to_kill.fitness:
+
+        if self._fitness <= herbivore_to_kill.fitness:
             self._kill_prob = 0
-        elif 0 < self.fitness - herbivore_to_kill.fitness < \
+        elif 0 < self._fitness - herbivore_to_kill.fitness < \
                 self.parameters['DeltaPhiMax']:
-            self._kill_prob = (self.fitness - herbivore_to_kill.fitness) / \
+            self._kill_prob = (self._fitness - herbivore_to_kill.fitness) / \
                               self.parameters['DeltaPhiMax']
         else:
             self._kill_prob = 1
-        return self._kill_prob
-
-
-if __name__ == '__main__':
-    c1 = Carnivore()
-    print(c1.parameters['F'])
-    c1.set_given_parameters({'F': 40000})
-    c2 = Carnivore()
-    print(c1.parameters['F'])
-    print(c2.parameters['F'])
+        return np.random.random() < self._kill_prob
