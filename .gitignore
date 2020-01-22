@@ -142,3 +142,7 @@ $RECYCLE.BIN/
 doc/_build/
 
 *.png
+
+src/biosim.egg-info/
+
+src/

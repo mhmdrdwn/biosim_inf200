@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Test set for landscapes class functionality and attributes.
-
-This set of tests checks the landscapes classes methods perform as expected as per
-the provided modeling.
+Test set for Simulation class functionality and attributes.
 
 """
 
@@ -21,6 +18,10 @@ import textwrap
 
 
 class TestSimulation:
+    """
+    This set of tests checks the Simulation class methods perform as expected as
+    provided in modeling.
+    """
     @pytest.fixture
     def gen_simulation_data(self):
         import textwrap

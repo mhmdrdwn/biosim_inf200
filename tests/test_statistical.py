@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Test set for landscapes class functionality and attributes.
-
-This set of tests checks the landscapes classes methods perform as expected as
-per the provided modeling.
-
+Test set for Statistical test.
 """
 
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
@@ -19,6 +15,9 @@ from scipy import stats
 
 
 class TestGaussian:
+    """
+    Tests that whether the birth weight is following the gaussian distribution.
+    """
     @pytest.fixture
     def generate_animal_data(self):
         """

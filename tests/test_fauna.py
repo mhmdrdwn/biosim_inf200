@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Test set for Animals class functionality.
-
-This set of tests checks the Animals class methods perform as expected as per
-the provided modeling.
+Test set for fauna classes functionality and attributes.
 
 """
 
@@ -17,7 +14,10 @@ import numpy as np
 
 
 class TestFauna:
-
+    """
+    This set of tests checks the Fauna class methods perform as expected
+    as provided in modeling.
+    """
     @pytest.fixture
     def gen_animal_data(self):
         """
@@ -203,6 +203,10 @@ class TestFauna:
 
 
 class TestHerbivores(TestFauna):
+    """
+    This set of tests checks the Herbivore class methods perform as expected
+    as provided in modeling.
+    """
     def test_parameters_set(self, gen_animal_data):
         """
         Parameters setting using the class method provided for the relevent
@@ -232,6 +236,10 @@ class TestHerbivores(TestFauna):
 
 
 class TestCarnivores(TestFauna):
+    """
+    This set of tests checks the Carnivore class methods perform as expected
+    as provided in modeling.
+    """
     def test_kill_probability(self, gen_animal_data):
         """
         The given weights shows that the herb is more fit than the carn.

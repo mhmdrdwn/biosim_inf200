@@ -2,10 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Test set for landscapes class functionality and attributes.
-
-This set of tests checks the landscapes classes methods perform as expected
-as per the provided modeling.
+Test set for landscapes classes functionality and attributes.
 
 """
 
@@ -22,6 +19,10 @@ import numpy as np
 
 
 class TestLandscapes:
+    """
+    This set of tests checks the Landscapes class methods perform as expected
+    as provided in modeling.
+    """
     @pytest.fixture
     def gen_animal_data(self):
         """
@@ -237,6 +238,10 @@ class TestLandscapes:
 
 
 class TestDesert(TestLandscapes):
+    """
+    This set of tests checks the Desert class methods perform as expected
+    as provided in modeling.
+    """
     def test_no_fodder(self, gen_landscape_data):
         """
         No herbi fodder is available in desert
@@ -252,6 +257,10 @@ class TestDesert(TestLandscapes):
 
 
 class TestOcean(TestLandscapes):
+    """
+    This set of tests checks the Ocean class methods perform as expected
+    as provided in modeling.
+    """
     def test_number_animals(self, gen_landscape_data):
         """
         number of animals is zero in ocean
@@ -267,6 +276,10 @@ class TestOcean(TestLandscapes):
 
 
 class TestMountains(TestLandscapes):
+    """
+    This set of tests checks the Mountain class methods perform as expected
+    as provided in modeling.
+    """
     def test_number_animals(self, gen_landscape_data):
         """
         NUmber of animals in mountains is zero
@@ -281,6 +294,10 @@ class TestMountains(TestLandscapes):
 
 
 class TestSavannah(TestLandscapes):
+    """
+    This set of tests checks the Savannah class methods perform as expected
+    as provided in modeling.
+    """
     def test_grow_herb_fodder(self, gen_landscape_data):
         """
         Fodder grows by the formula
@@ -319,6 +336,10 @@ class TestSavannah(TestLandscapes):
 
 
 class TestJungle(TestLandscapes):
+    """
+    This set of tests checks the Jungle class methods perform as expected
+    as provided in modeling.
+    """
     def test_grow_herb_fodder(self, gen_landscape_data):
         """
         fodder become as the original value (f_max) after a year

@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Test set for landscapes class functionality and attributes.
-
-This set of tests checks the landscapes classes methods perform as expected as per
-the provided modeling.
+Test set for Map class functionality and attributes.
 
 """
 
@@ -22,6 +19,11 @@ import numpy as np
 
 
 class TestMap:
+    """
+    This set of tests checks the map class methods perform as expected
+    as provided in modeling.
+
+    """
     @pytest.fixture
     def gen_animal_data(self):
         seed(1)
@@ -84,6 +86,7 @@ class TestMap:
         """
         test that all adjacent elements are only the perpendicular cells
 
+<<<<<<< Updated upstream
         """
         map_str = """  OOOOOOOOOOOOOOOOOOOOO
                        OMSOOOOOSMMMMJJJJJJJO
@@ -163,3 +166,5 @@ class TestMap:
         m.give_birth_stage()
         num_animals_after = m.total_num_animals_per_species('Herbivore')
         assert num_animals_after >= num_animals_before
+=======
+>>>>>>> Stashed changes
