@@ -5,7 +5,7 @@ Also, the concepts of fixtures are used. Moreover, the statistical tests and som
 
 
 Test Classes
---------
+------------
 The tests consists of these python files.
 
 * **test_fauna.py**: contains unit tests in *TestFauna*, *TestHerbivores* and *TestCarnivores* classes.
