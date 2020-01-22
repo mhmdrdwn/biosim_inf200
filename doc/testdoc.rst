@@ -14,7 +14,7 @@ The tests consists of these python files.
 * **test_simulation.py**: contains unit tests in *TestSimulation* class.
 * **test_statistical.py**: consists of statistical test *TestGaussian* and *TestProbability* classes.
 
-Also, two compatibility checks are provided by EPAP, and the biosim package passes both:
+Also, biosim package passes the two compatibility checks provided by EPAP:
 
 * **test_biosim-interface.py**
 * **check_sim.py**
