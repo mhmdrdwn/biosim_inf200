@@ -15,9 +15,7 @@ import pytest
 from biosim.landscapes import Jungle
 from biosim.fauna import Herbivore, Carnivore
 from scipy import stats
-import mock
-from mock import patch
-import numpy
+
 
 
 class TestGaussian:
@@ -99,11 +97,7 @@ class TestProbability:
         j.add_animal(herb_2)
         herb_1.calculate_fitness()
         assert herb_1.death_prob
-        herb_2.calculate_fitness()
-        carn_1.calculate_fitness()
-        carn_2.calculate_fitness()
-        mock.Mock()
-        mock.patch('numpy.random.random', return_value=0.00049292282)
+        mocker.patch('numpy.random.random', return_value=0.0)
         j.die_animals()
         h_count = len(j.in_cell_fauna['Herbivore'])
         c_count = len(j.in_cell_fauna['Carnivore'])
