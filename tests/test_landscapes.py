@@ -95,13 +95,13 @@ class TestLandscapes:
 
         """
         sav = gen_landscape_data['s']
-        dict_to_sort = sav.in_cell_fauna
-        sav.sort_by_fitness(dict_to_sort, 'Herbivore', False)
-        dict_values = sav.sorted_fauna_fitness['Herbivore'].values()
-        assert list(dict_values)[0] <= list(dict_values)[1]
-        sav.sort_by_fitness(dict_to_sort, 'Carnivore')
-        dict_values = sav.sorted_fauna_fitness['Carnivore'].values()
-        assert list(dict_values)[0] >= list(dict_values)[1]
+        sav.sort_by_fitness()
+        herb_1 = sav.in_cell_fauna['Herbivore'][0]
+        herb_2 = sav.in_cell_fauna['Herbivore'][1]
+        assert herb_1.fitness <= herb_2.fitness
+        carn_1 = sav.in_cell_fauna['Carnivore'][0]
+        carn_2 = sav.in_cell_fauna['Carnivore'][1]
+        assert carn_1.fitness >= carn_2.fitness
 
     def test_add_and_remove_fauna(self, gen_landscape_data):
         """
@@ -172,7 +172,8 @@ class TestLandscapes:
         assert des.relevant_fodder(herb) == des.available_fodder['Herbivore']
         assert des.relevant_fodder(herb) == 0
         assert des.relevant_fodder(carn) == des.available_fodder['Carnivore']
-        assert des.relevant_fodder(carn) == sum(i.weight for i in des.in_cell_fauna['Herbivore'])
+        assert des.relevant_fodder(carn) == sum(i.weight for i in
+                                                des.in_cell_fauna['Herbivore'])
 
     def test_relative_abundance_fodder(self, gen_landscape_data):
         """
@@ -187,11 +188,9 @@ class TestLandscapes:
         herb = sav.in_cell_fauna['Herbivore'][0]
         carn = sav.in_cell_fauna['Carnivore'][0]
         assert des.relative_abundance_fodder(herb) == 0
-        assert sav.relative_abundance_fodder(herb) == \
-               pytest.approx(0.3333333333333333)
-        assert ocean.relative_abundance_fodder(herb) == 0
-        assert des.relative_abundance_fodder(carn) == \
-               pytest.approx(0.134042970285219)
+        assert sav.relative_abundance_fodder(herb) == 10
+        with pytest.raises(ValueError):
+            ocean.relative_abundance_fodder(herb)
 
     def test_propensity(self, gen_landscape_data):
         """
