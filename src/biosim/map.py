@@ -14,8 +14,8 @@ and it has the life cycle for each year
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
 __email__ = 'mohamed.radwan@nmbu.no, nasibeh.mohammadi@nmbu.no'
 
-from biosim.landscapes import Desert, Ocean, Mountain, Savannah, Jungle
-from biosim.fauna import Herbivore, Carnivore
+from .landscapes import Desert, Ocean, Mountain, Savannah, Jungle
+from .fauna import Herbivore, Carnivore
 import numpy as np
 
 
@@ -29,10 +29,10 @@ class Map:
         island_map: str
         """
 
-        self.map = island_map
-        self.island_map = self._string_to_np_array()
-        self._not_surrounded_by_ocean(self.island_map)
-        self.landscape_classes = {'O': Ocean,
+        self._map = island_map
+        self._island_map = self._string_to_np_array()
+        self._not_surrounded_by_ocean(self._island_map)
+        self._landscape_classes = {'O': Ocean,
                                   'S': Savannah,
                                   'M': Mountain,
                                   'J': Jungle,
@@ -65,7 +65,7 @@ class Map:
         -------
         class of landscape (Jungle, Mountain, Savannah, Ocean, Desert)
         """
-        return self.landscape_classes[cell_letter]()
+        return self._landscape_classes[cell_letter]()
 
     @staticmethod
     def _edges(map_array):
@@ -107,10 +107,10 @@ class Map:
         -------
         cells_array: np.ndarray of landscape objects
         """
-        cells_array = np.empty(self.island_map.shape, dtype=object)
-        for i in np.arange(self.island_map.shape[0]):
-            for j in np.arange(self.island_map.shape[1]):
-                cell_letter = self.island_map[i][j]
+        cells_array = np.empty(self._island_map.shape, dtype=object)
+        for i in np.arange(self._island_map.shape[0]):
+            for j in np.arange(self._island_map.shape[1]):
+                cell_letter = self._island_map[i][j]
                 cells_array[i][j] = self._create_cell(cell_letter)
         return cells_array
 
@@ -121,7 +121,7 @@ class Map:
         -------
         char_map: np.ndarray
         """
-        map_string_clean = self.map.replace(' ', '')
+        map_string_clean = self._map.replace(' ', '')
         char_map = np.array(
             [[j for j in i] for i in map_string_clean.splitlines()])
         return char_map
