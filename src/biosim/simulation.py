@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """
+simulation class handles calling all visualisations to take the data each step
+of simulation. It also saves data into csv files
 """
 
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'

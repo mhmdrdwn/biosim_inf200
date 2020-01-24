@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """
+Visualisation class handles the setup of all graph and heatmap to
+show the simulated data each year.
 """
 
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
