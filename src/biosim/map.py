@@ -1,6 +1,14 @@
 # -*- coding: utf-8 -*-
 
 """
+The map class contains map class. It has large scale methods like
+- migration for all cells
+- growing up all animals in all cells
+- removing (die) animals in all cells
+- giving birth in all cells
+- feeding in all cells
+- lose weights for all animals in all cells
+and it has the life cycle for each year
 """
 
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
@@ -12,16 +20,6 @@ import numpy as np
 
 
 class Map:
-    """
-    The map class contains map class. It has large scale methods like
-    - migration for all cells
-    - growing up all animals in all cells
-    - removing (die) animals in all cells
-    - giving birth in all cells
-    - feeding in all cells
-    - lose weights for all animals in all cells
-    and it has the life cycle for each year
-    """
 
     def __init__(self, island_map):
         """
@@ -32,8 +30,8 @@ class Map:
         """
 
         self.map = island_map
-        self.island_map = self.string_to_np_array()
-        self.not_surrounded_by_ocean(self.island_map)
+        self.island_map = self._string_to_np_array()
+        self._not_surrounded_by_ocean(self.island_map)
         self.landscape_classes = {'O': Ocean,
                                   'S': Savannah,
                                   'M': Mountain,
@@ -57,7 +55,7 @@ class Map:
         """
         return self._cells
 
-    def create_cell(self, cell_letter):
+    def _create_cell(self, cell_letter):
         """
         create cell object based on given string
         Parameters
@@ -70,7 +68,7 @@ class Map:
         return self.landscape_classes[cell_letter]()
 
     @staticmethod
-    def edges(map_array):
+    def _edges(map_array):
         """
         get the border element of the matrix, the cells on the border of the
          provided map array
@@ -86,14 +84,14 @@ class Map:
                      map_array[:rows - 1, 0], map_array[:rows - 1, cols - 1]]
         return map_edges
 
-    def not_surrounded_by_ocean(self, map_array):
+    def _not_surrounded_by_ocean(self, map_array):
         """
         Raise an exception if the border of geography is not ocean
         Parameters
         ----------
         map_array: np.ndarray
         """
-        edges = self.edges(map_array)
+        edges = self._edges(map_array)
         for side in edges:
             if not np.all(side == 'O'):
                 raise ValueError('The given geography string is not valid.'
@@ -113,10 +111,10 @@ class Map:
         for i in np.arange(self.island_map.shape[0]):
             for j in np.arange(self.island_map.shape[1]):
                 cell_letter = self.island_map[i][j]
-                cells_array[i][j] = self.create_cell(cell_letter)
+                cells_array[i][j] = self._create_cell(cell_letter)
         return cells_array
 
-    def string_to_np_array(self):
+    def _string_to_np_array(self):
         """
         Converts string to numpy array with the same diemsions.
         Returns
@@ -128,7 +126,7 @@ class Map:
             [[j for j in i] for i in map_string_clean.splitlines()])
         return char_map
 
-    def adj_cells(self, x, y):
+    def _adj_cells(self, x, y):
         """
         Returns the list of 4 adjacent cells.
         Parameters
@@ -194,14 +192,14 @@ class Map:
         """
         Calculates life cycle of animals yearly.
         """
-        self.feed_stage()
-        self.give_birth_stage()
-        self.migrate_stage()
-        self.grow_up_stage()
-        self.lose_weight_stage()
-        self.die_stage()
+        self._feed_stage()
+        self._give_birth_stage()
+        self._migrate_stage()
+        self._grow_up_stage()
+        self._lose_weight_stage()
+        self._die_stage()
 
-    def feed_stage(self):
+    def _feed_stage(self):
         """
         feeding all the animals in all cells
         """
@@ -210,7 +208,7 @@ class Map:
             for y in range(cols):
                 self._cells[x, y].feed_animals()
 
-    def give_birth_stage(self):
+    def _give_birth_stage(self):
         """
         giving birth all the animals in all cells, then adding newborn babies
         to the adult animals to be considered in procreatation next year and
@@ -225,7 +223,7 @@ class Map:
             for y in range(cols):
                 self._cells[x, y].add_baby_to_adult_animals()
 
-    def grow_up_stage(self):
+    def _grow_up_stage(self):
         """
         growing up all the animals in all cells
         """
@@ -234,7 +232,7 @@ class Map:
             for y in range(cols):
                 self._cells[x, y].grow_up_animals()
 
-    def lose_weight_stage(self):
+    def _lose_weight_stage(self):
         """
         losing weight for all the animals in all cells
         """
@@ -243,7 +241,7 @@ class Map:
             for y in range(cols):
                 self._cells[x, y].lose_weight_animals()
 
-    def die_stage(self):
+    def _die_stage(self):
         """
         die all the animals that are with higher probability in all cells
         """
@@ -252,9 +250,9 @@ class Map:
             for y in range(cols):
                 self._cells[x, y].die_animals()
 
-    def migrate_stage(self):
+    def _migrate_stage(self):
         """
         migrate all the animals in all cells
         """
         for [x, y], cell in np.ndenumerate(self._cells):
-            cell.migrate(self.adj_cells(x, y))
+            cell.migrate(self._adj_cells(x, y))

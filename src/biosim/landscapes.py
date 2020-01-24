@@ -24,24 +24,9 @@ class Landscape(ABC):
 
     @abstractmethod
     def __init__(self):
-        self.sorted_fauna_fitness = {}
         self._available_fodder = {'Herbivore': 0, 'Carnivore': 0}
         self.in_cell_fauna = {'Herbivore': [], 'Carnivore': []}
         self.adult_fauna = {'Herbivore': [], 'Carnivore': []}
-
-    def save_fitness(self, fauna_objects, species):
-        """
-        Save the current fitness in a dictionary. it saves the fitness
-        for only given species to save computation cost.
-        Parameters
-        ----------
-        fauna_objects: dict
-        species: str
-        """
-        species_fauna_fitness = {}
-        for animal in fauna_objects[species]:
-            species_fauna_fitness[animal] = animal.fitness
-        self.sorted_fauna_fitness[species] = species_fauna_fitness
 
     def sort_by_fitness(self):
         """
