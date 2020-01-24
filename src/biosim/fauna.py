@@ -328,12 +328,11 @@ class Carnivore(Fauna):
         -------
         _kill_prob: bool
         """
-
         if self._fitness <= herbivore_to_kill.fitness:
             self._kill_prob = 0
-        elif 0 < self._fitness - herbivore_to_kill.fitness < \
+        elif 0 < self.fitness - herbivore_to_kill.fitness < \
                 self.parameters['DeltaPhiMax']:
-            self._kill_prob = (self._fitness - herbivore_to_kill.fitness) / \
+            self._kill_prob = (self.fitness - herbivore_to_kill.fitness) / \
                               self.parameters['DeltaPhiMax']
         else:
             self._kill_prob = 1
