@@ -191,7 +191,11 @@ class BioSim:
             self._map.life_cycle()
             self._year += 1
 
-        self._save_to_csv()
+            pd = self._animal_distribution
+            print('Year '+str(self._year))
+            print(pd)
+
+        # self._save_to_csv()
 
     def _save_to_csv(self):
         df = self._animal_distribution
