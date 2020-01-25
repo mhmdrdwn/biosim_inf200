@@ -39,6 +39,7 @@ class Fauna(ABC):
         weight: float, int
 
         """
+        np.random.seed(123456)
         if age is None:
             self.age = 0
         else:
@@ -210,6 +211,7 @@ class Fauna(ABC):
         if self.weight >= baby.weight * baby.parameters['xi']:
             self._weight -= baby.weight * baby.parameters['xi']
             self.just_give_birth = True
+        self._recompute_fitness = False
 
     @property
     def death_prob(self):
@@ -238,6 +240,7 @@ class Fauna(ABC):
 
         """
         self._weight += self.parameters['beta'] * amount_to_eat
+        self._recompute_fitness = False
 
     @classmethod
     def set_given_parameters(cls, params):

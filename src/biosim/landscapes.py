@@ -26,6 +26,8 @@ class Landscape(ABC):
     def __init__(self):
         self.in_cell_fauna = {'Herbivore': [], 'Carnivore': []}
         self.adult_fauna = {'Herbivore': [], 'Carnivore': []}
+        np.random.seed(123456)
+
 
     def sort_by_fitness(self):
         """
@@ -192,7 +194,7 @@ class Landscape(ABC):
                     elif appetite - amount_to_eat < herbivore.weight:
                         amount_to_eat += appetite - amount_to_eat
                 dead_animals.append(herbivore)
-                carnivore.eat(amount_to_eat)
+            carnivore.eat(amount_to_eat)
             for herbivore in dead_animals:
                 self.in_cell_fauna['Herbivore'].remove(herbivore)
 
