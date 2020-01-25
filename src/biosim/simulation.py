@@ -90,7 +90,7 @@ class BioSim:
         if len(set(lengths)) > 1:
             raise ValueError('This given string is not uniform')
 
-        random.seed(seed)
+        np.random.seed(seed)
 
         self._island_map = island_map
         self._map = Map(island_map)
@@ -99,7 +99,7 @@ class BioSim:
         self.add_population(ini_pop)
 
         if ymax_animals is None:
-            self.ymax_animals = 16000
+            self.ymax_animals = 7000
         else:
             self.ymax_animals = ymax_animals
 
@@ -215,6 +215,7 @@ class BioSim:
         self._vis.animal_graphs(self._final_year, self.ymax_animals)
 
         self._vis.animal_dist_graphs()
+        self._fig.tight_layout()
 
     def _update_graphics(self):
         """
