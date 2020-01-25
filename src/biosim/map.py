@@ -219,10 +219,6 @@ class Map:
             for y in range(cols):
                 self._cells[x, y].give_birth_animals()
 
-        for x in range(rows):
-            for y in range(cols):
-                self._cells[x, y].add_baby_to_adult_animals()
-
     def _grow_up_stage(self):
         """
         growing up all the animals in all cells

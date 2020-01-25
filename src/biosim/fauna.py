@@ -118,7 +118,7 @@ class Fauna(ABC):
         return self._fitness
 
     @staticmethod
-    def fitness_formula(age, weight, parameters):
+    def _fitness_formula(age, weight, parameters):
         """
         Computes fitness according to the formula:
         Phi = q(-1, a, a_half, phi_age)*q(+1, w, w_half, phi_weight)
@@ -151,7 +151,7 @@ class Fauna(ABC):
         if self.weight == 0:
             self._fitness = 0
         else:
-            self._fitness = self.fitness_formula(
+            self._fitness = self._fitness_formula(
                 self.age, self.weight, self.parameters)
 
     @property
@@ -328,7 +328,6 @@ class Carnivore(Fauna):
         -------
         _kill_prob: bool
         """
-
         if self._fitness <= herbivore_to_kill.fitness:
             self._kill_prob = 0
         elif 0 < self._fitness - herbivore_to_kill.fitness < \

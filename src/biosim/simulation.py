@@ -46,6 +46,7 @@ class BioSim:
     ):
         """
         The constructor of BioSim class which contains simulation.
+        The constructor of BioSim class which contains simulation.
         If ymax_animals is None, the y-axis limit is adjusted automatically.
         If cmax_animals is None, sensible, fixed default values is used.
         If img_base is None, no figures are written to file.
@@ -191,7 +192,8 @@ class BioSim:
             self._map.life_cycle()
             self._year += 1
 
-        self._save_to_csv()
+            print("Year "+str(self._year))
+            print(self.num_animals_per_species)
 
     def _save_to_csv(self):
         df = self._animal_distribution

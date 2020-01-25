@@ -197,13 +197,15 @@ class Visualisation:
         ----------
         distribution: data frame
         """
+        v_max = distribution.max()
+        v_min = distribution.min()
         if self._herbivore_img_axis is not None:
             self._herbivore_img_axis.set_data(distribution)
         else:
             y, x = self._map_dims
             self._herbivore_dist.imshow(distribution,
                                         interpolation='nearest',
-                                        vmin=0, vmax=5)
+                                        vmin=v_min, vmax=v_max)
             self._herbivore_dist.set_xticks(range(0, x, 5))
             self._herbivore_dist.set_xticklabels(range(1, 1 + x, 5))
             self._herbivore_dist.set_yticks(range(0, y, 5))
@@ -218,13 +220,15 @@ class Visualisation:
         ----------
         distribution: str
         """
+        v_max = distribution.max()
+        v_min = distribution.min()
         if self._carnivore_img_axis is not None:
             self._carnivore_img_axis.set_data(distribution)
         else:
             y, x = self._map_dims
             self._carnivore_dist.imshow(distribution,
                                         interpolation='nearest',
-                                        vmin=0, vmax=5)
+                                        vmin=v_min, vmax=v_max)
             self._carnivore_dist.set_xticks(range(0, x, 5))
             self._carnivore_dist.set_xticklabels(range(1, 1 + x, 5))
             self._carnivore_dist.set_yticks(range(0, y, 5))
