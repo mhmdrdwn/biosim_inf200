@@ -39,6 +39,7 @@ class Fauna(ABC):
         weight: float, int
 
         """
+        np.random.seed(123456)
         if age is None:
             self.age = 0
         else:
@@ -118,7 +119,7 @@ class Fauna(ABC):
         return self._fitness
 
     @staticmethod
-    def fitness_formula(age, weight, parameters):
+    def _fitness_formula(age, weight, parameters):
         """
         Computes fitness according to the formula:
         Phi = q(-1, a, a_half, phi_age)*q(+1, w, w_half, phi_weight)
@@ -151,7 +152,7 @@ class Fauna(ABC):
         if self.weight == 0:
             self._fitness = 0
         else:
-            self._fitness = self.fitness_formula(
+            self._fitness = self._fitness_formula(
                 self.age, self.weight, self.parameters)
 
     @property
@@ -210,6 +211,7 @@ class Fauna(ABC):
         if self.weight >= baby.weight * baby.parameters['xi']:
             self._weight -= baby.weight * baby.parameters['xi']
             self.just_give_birth = True
+        self._recompute_fitness = False
 
     @property
     def death_prob(self):
@@ -238,6 +240,7 @@ class Fauna(ABC):
 
         """
         self._weight += self.parameters['beta'] * amount_to_eat
+        self._recompute_fitness = False
 
     @classmethod
     def set_given_parameters(cls, params):
@@ -328,12 +331,11 @@ class Carnivore(Fauna):
         -------
         _kill_prob: bool
         """
-
         if self._fitness <= herbivore_to_kill.fitness:
             self._kill_prob = 0
-        elif 0 < self._fitness - herbivore_to_kill.fitness < \
+        elif 0 < self.fitness - herbivore_to_kill.fitness < \
                 self.parameters['DeltaPhiMax']:
-            self._kill_prob = (self._fitness - herbivore_to_kill.fitness) / \
+            self._kill_prob = (self.fitness - herbivore_to_kill.fitness) / \
                               self.parameters['DeltaPhiMax']
         else:
             self._kill_prob = 1

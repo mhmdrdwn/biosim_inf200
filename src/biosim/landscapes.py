@@ -24,24 +24,10 @@ class Landscape(ABC):
 
     @abstractmethod
     def __init__(self):
-        self.sorted_fauna_fitness = {}
-        self._available_fodder = {'Herbivore': 0, 'Carnivore': 0}
         self.in_cell_fauna = {'Herbivore': [], 'Carnivore': []}
         self.adult_fauna = {'Herbivore': [], 'Carnivore': []}
+        np.random.seed(123456)
 
-    def save_fitness(self, fauna_objects, species):
-        """
-        Save the current fitness in a dictionary. it saves the fitness
-        for only given species to save computation cost.
-        Parameters
-        ----------
-        fauna_objects: dict
-        species: str
-        """
-        species_fauna_fitness = {}
-        for animal in fauna_objects[species]:
-            species_fauna_fitness[animal] = animal.fitness
-        self.sorted_fauna_fitness[species] = species_fauna_fitness
 
     def sort_by_fitness(self):
         """
@@ -136,7 +122,7 @@ class Landscape(ABC):
         Removes the object of animal from the list of same species of the cell.
         Parameters
         ----------
-        animal: object?
+        animal: Carnivore or Herbivore object
         """
         species = animal.__class__.__name__
         self.in_cell_fauna[species].remove(animal)
@@ -167,7 +153,8 @@ class Landscape(ABC):
         - If there is no fodder, the animal receives no food.
         """
         self.sort_by_fitness()
-        for herbivore in self.in_cell_fauna['Herbivore']:
+        herbi_animals = np.array(self.in_cell_fauna['Herbivore'])
+        for herbivore in herbi_animals:
             herb_available_fodder = self.available_fodder['Herbivore']
             appetite = herbivore.parameters['F']
             if herb_available_fodder == 0:
@@ -192,24 +179,24 @@ class Landscape(ABC):
         - Or, it has tried to kill each herbivore in the cell.
         """
         self.sort_by_fitness()
-        for carnivore in self.in_cell_fauna['Carnivore']:
+        carni_animals =  self.in_cell_fauna['Carnivore']
+        for carnivore in carni_animals:
             appetite = carnivore.parameters['F']
             amount_to_eat = 0
-            not_eaten_animals = []
-            for i, herbivore in enumerate(self.in_cell_fauna['Herbivore']):
+            dead_animals = []
+            herbi_animals = np.array(self.in_cell_fauna['Herbivore'])
+            for herbivore in herbi_animals:
                 if appetite <= amount_to_eat:
-                    not_eaten_animals.extend(self.in_cell_fauna
-                                             ['Herbivore'][i:])
                     break
                 elif carnivore.kill_prob(herbivore):
                     if appetite - amount_to_eat < herbivore.weight:
                         amount_to_eat += herbivore.weight
                     elif appetite - amount_to_eat < herbivore.weight:
                         amount_to_eat += appetite - amount_to_eat
-                else:
-                    not_eaten_animals.append(herbivore)
+                dead_animals.append(herbivore)
             carnivore.eat(amount_to_eat)
-            self.in_cell_fauna['Herbivore'] = not_eaten_animals
+            for herbivore in dead_animals:
+                self.in_cell_fauna['Herbivore'].remove(herbivore)
 
     def feed_animals(self):
         """
@@ -252,15 +239,6 @@ class Landscape(ABC):
                 if animal.death_prob:
                     self.remove_animal(animal)
 
-    def add_baby_to_adult_animals(self):
-        """
-        After the breeding stage, the new babies are added to the cell
-        animals dictionary and remove it from the baby fauna dictionary.
-        adult_fauna as input to calculate the giving birth probability.
-        """
-
-        self.adult_fauna = self.in_cell_fauna
-
     def give_birth_animals(self):
         """
         Adds new object of baby to the animals' dictionary of same kind, and
@@ -271,9 +249,9 @@ class Landscape(ABC):
         in the first year of the cycle. But added to the adult animals for the
         next year
         """
-
-        for species, animals in self.adult_fauna.items():
-            half_num_fauna = math.floor(len(self.adult_fauna[species]) / 2)
+        adult_fauna = self.in_cell_fauna
+        for species, animals in adult_fauna.items():
+            half_num_fauna = math.floor(len(adult_fauna[species]) / 2)
             # half of the animals will give birth of adult animals
             for i in range(half_num_fauna):
                 animal = animals[i]
@@ -345,14 +323,12 @@ class Landscape(ABC):
     @property
     def available_fodder(self):
         if isinstance(self, (Ocean, Mountain)):
-            raise ValueError('There are no fodder available in this cell')
+            return {'Herbivore': 0, 'Carnivore': 0}
         elif isinstance(self, Desert):
-            self._available_fodder = {'Herbivore': 0,
-                                      'Carnivore': self.total_herb_weight}
+            return {'Herbivore': 0, 'Carnivore': self.total_herb_weight}
         else:
-            self._available_fodder = {'Herbivore': self.parameters['f_max'],
-                                      'Carnivore': self.total_herb_weight}
-        return self._available_fodder
+            return {'Herbivore': self.parameters['f_max'],
+                    'Carnivore': self.total_herb_weight}
 
 
 class Savannah(Landscape):

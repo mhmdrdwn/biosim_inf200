@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """
+Visualisation class handles the setup of all graph and heatmap to
+show the simulated data each year.
 """
 
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
@@ -92,10 +94,12 @@ class Visualisation:
             y, x = self._map_dims
             self._map_graph.imshow(self.generate_map_array())
             self._map_graph.set_xticks(range(0, x, 5))
-            self._map_graph.set_xticklabels(range(1, x + 1, 5))
+            self._map_graph.set_xticklabels(range(0, x , 5))
             self._map_graph.set_yticks(range(0, y, 5))
-            self._map_graph.set_yticklabels(range(1, y + 1, 5))
+            self._map_graph.set_yticklabels(range(0, y , 5))
             self._map_graph.set_title('Island')
+            self._map_graph.set_xlabel('X')
+            self._map_graph.set_ylabel('Y')
 
     def _build_carn_sim_curve(self, final_year):
         """
@@ -170,10 +174,13 @@ class Visualisation:
         if self._mean_ax is None:
             self._mean_ax = self._fig.add_subplot(2, 2, 2)
             self._mean_ax.set_ylim(0, y_lim)
-        self._mean_ax.set_xlim(0, final_year + 1)
+        self._mean_ax.set_xlim(0, final_year+1)
         self._build_herb_sim_curve(final_year)
         self._build_carn_sim_curve(final_year)
         self._mean_ax.set_title('Animals population')
+        self._mean_ax.set_xlabel('Year')
+        self._mean_ax.set_ylabel('Population')
+
 
     def animal_dist_graphs(self):
         """
@@ -195,18 +202,22 @@ class Visualisation:
         ----------
         distribution: data frame
         """
+        v_max = distribution.max()
+        v_min = distribution.min()
         if self._herbivore_img_axis is not None:
             self._herbivore_img_axis.set_data(distribution)
         else:
             y, x = self._map_dims
             self._herbivore_dist.imshow(distribution,
                                         interpolation='nearest',
-                                        vmin=0, vmax=5)
+                                        vmin=v_min, vmax=v_max)
             self._herbivore_dist.set_xticks(range(0, x, 5))
-            self._herbivore_dist.set_xticklabels(range(1, 1 + x, 5))
+            self._herbivore_dist.set_xticklabels(range(0, x, 5))
             self._herbivore_dist.set_yticks(range(0, y, 5))
-            self._herbivore_dist.set_yticklabels(range(1, 1 + y, 5))
+            self._herbivore_dist.set_yticklabels(range(0, y, 5))
             self._herbivore_dist.set_title('Herbivore Distribution')
+            self._herbivore_dist.set_xlabel('X')
+            self._herbivore_dist.set_ylabel('Y')
 
     def update_carnivore_dist(self, distribution):
         """
@@ -216,16 +227,19 @@ class Visualisation:
         ----------
         distribution: str
         """
+        v_max = distribution.max()
+        v_min = distribution.min()
         if self._carnivore_img_axis is not None:
             self._carnivore_img_axis.set_data(distribution)
         else:
             y, x = self._map_dims
             self._carnivore_dist.imshow(distribution,
                                         interpolation='nearest',
-                                        vmin=0, vmax=5)
+                                        vmin=v_min, vmax=v_max)
             self._carnivore_dist.set_xticks(range(0, x, 5))
-            self._carnivore_dist.set_xticklabels(range(1, 1 + x, 5))
+            self._carnivore_dist.set_xticklabels(range(0, x, 5))
             self._carnivore_dist.set_yticks(range(0, y, 5))
-            self._carnivore_dist.set_yticklabels(range(1, 1 + y, 5))
+            self._carnivore_dist.set_yticklabels(range(0, y, 5))
             self._carnivore_dist.set_title('Carnivore Distribution')
-
+            self._carnivore_dist.set_xlabel('X')
+            self._carnivore_dist.set_ylabel('Y')

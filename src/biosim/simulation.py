@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """
+simulation class handles calling all visualisations to take the data each step
+of simulation. It also saves data into csv files
 """
 
 __author__ = 'Mohamed Radwan, Nasibeh Mohammadi'
@@ -31,6 +33,7 @@ class BioSim:
     """
     Simulates the biosim project behaviours.
     """
+
     def __init__(
             self,
             island_map,
@@ -42,6 +45,7 @@ class BioSim:
             img_fmt="png",
     ):
         """
+        The constructor of BioSim class which contains simulation.
         The constructor of BioSim class which contains simulation.
         If ymax_animals is None, the y-axis limit is adjusted automatically.
         If cmax_animals is None, sensible, fixed default values is used.
@@ -68,17 +72,17 @@ class BioSim:
             String with file type for figures
         """
 
-        self.landscapes = {'O': Ocean,
-                           'S': Savannah,
-                           'M': Mountain,
-                           'J': Jungle,
-                           'D': Desert}
-        self.landscapes_with_changable_parameters = [Savannah, Jungle]
+        self._landscapes = {'O': Ocean,
+                            'S': Savannah,
+                            'M': Mountain,
+                            'J': Jungle,
+                            'D': Desert}
+        self._landscapes_with_changable_parameters = [Savannah, Jungle]
 
-        self.animal_species = {'Carnivore': Carnivore, 'Herbivore': Herbivore}
+        self._animal_species = {'Carnivore': Carnivore, 'Herbivore': Herbivore}
 
         for char in island_map.replace('\n', ''):
-            if char not in self.landscapes:
+            if char not in self._landscapes:
                 raise ValueError('This given string contains unknown '
                                  'geographies')
 
@@ -86,7 +90,7 @@ class BioSim:
         if len(set(lengths)) > 1:
             raise ValueError('This given string is not uniform')
 
-        random.seed(seed)
+        np.random.seed(seed)
 
         self._island_map = island_map
         self._map = Map(island_map)
@@ -95,7 +99,7 @@ class BioSim:
         self.add_population(ini_pop)
 
         if ymax_animals is None:
-            self.ymax_animals = 16000
+            self.ymax_animals = 7000
         else:
             self.ymax_animals = ymax_animals
 
@@ -126,8 +130,8 @@ class BioSim:
         params: dict
             With valid parameter specification for species
         """
-        if species in self.animal_species:
-            species_class = self.animal_species[species]
+        if species in self._animal_species:
+            species_class = self._animal_species[species]
             animal = species_class()
             animal.set_given_parameters(params)
         else:
@@ -145,10 +149,10 @@ class BioSim:
         params: dict
             With valid parameter specification for landscape
         """
-        if landscape in self.landscapes:
-            landscape_class = self.landscapes[landscape]
+        if landscape in self._landscapes:
+            landscape_class = self._landscapes[landscape]
             if landscape_class in \
-                    self.landscapes_with_changable_parameters:
+                    self._landscapes_with_changable_parameters:
                 landscape_class.set_given_parameters(params)
             else:
                 raise ValueError(landscape + ' parameters is not valid')
@@ -188,8 +192,14 @@ class BioSim:
             self._map.life_cycle()
             self._year += 1
 
-            df = self.animal_distribution
-            df.to_csv('../results/data.csv', sep='\t', encoding='utf-8')
+            print("Year "+str(self._year))
+            print(self.num_animals_per_species)
+
+        # self._save_to_csv()
+
+    def _save_to_csv(self):
+        df = self._animal_distribution
+        df.to_csv('../results/data.csv', sep='\t', encoding='utf-8')
 
     def _setup_graphics(self):
         """
@@ -205,12 +215,13 @@ class BioSim:
         self._vis.animal_graphs(self._final_year, self.ymax_animals)
 
         self._vis.animal_dist_graphs()
+        self._fig.tight_layout()
 
     def _update_graphics(self):
         """
         Updates graphics with current data.
         """
-        df = self.animal_distribution
+        df = self._animal_distribution
         rows, cols = self._map.cells_dims
         dist_matrix_carnivore = np.array(df[['Carnivore']]).reshape(rows, cols)
         dist_matrix_herbivore = np.array(df[['Herbivore']]).reshape(rows, cols)
@@ -308,7 +319,7 @@ class BioSim:
         total_num: int
         """
         total_num = 0
-        for species in self.animal_species:
+        for species in self._animal_species:
             total_num += self._map.total_num_animals_per_species(species)
         return total_num
 
@@ -322,13 +333,13 @@ class BioSim:
         num_per_species: dict
         """
         num_per_species = {}
-        for species in self.animal_species:
+        for species in self._animal_species:
             num_per_species[species] = \
                 self._map.total_num_animals_per_species(species)
         return num_per_species
 
     @property
-    def animal_distribution(self):
+    def _animal_distribution(self):
         """
         Calculates Pandas DataFrame with animal count per species for each cell
         on island.
