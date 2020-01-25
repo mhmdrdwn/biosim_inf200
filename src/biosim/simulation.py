@@ -192,8 +192,16 @@ class BioSim:
             self._map.life_cycle()
             self._year += 1
 
+<<<<<<< HEAD
             print("Year "+str(self._year))
             print(self.num_animals_per_species)
+=======
+            pd = self._animal_distribution
+            print('Year '+str(self._year))
+            print(pd)
+
+        # self._save_to_csv()
+>>>>>>> after_submission
 
     def _save_to_csv(self):
         df = self._animal_distribution

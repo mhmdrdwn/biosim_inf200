@@ -29,7 +29,7 @@ class Landscape(ABC):
 
     def sort_by_fitness(self):
         """
-        Sorts animal objects of each species according to their fitness.
+        fSorts animal objects of each species according to their fitness.
         """
         self.in_cell_fauna['Carnivore'].sort(
             key=operator.attrgetter('fitness'), reverse=True)
@@ -248,9 +248,15 @@ class Landscape(ABC):
         in the first year of the cycle. But added to the adult animals for the
         next year
         """
+<<<<<<< HEAD
         adult_fauna = self.in_cell_fauna
         for species, animals in adult_fauna.items():
             half_num_fauna = math.floor(len(adult_fauna[species]) / 2)
+=======
+        print(self.adult_fauna)
+        for species, animals in self.adult_fauna.items():
+            half_num_fauna = math.floor(len(self.adult_fauna[species]) / 2)
+>>>>>>> after_submission
             # half of the animals will give birth of adult animals
             for i in range(half_num_fauna):
                 animal = animals[i]
