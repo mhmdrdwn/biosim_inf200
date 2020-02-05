@@ -252,3 +252,8 @@ class Map:
         """
         for [x, y], cell in np.ndenumerate(self._cells):
             cell.migrate(self._adj_cells(x, y))
+
+
+
+
+
