@@ -15,6 +15,11 @@ Simulation Results:
 results/
 ```
 
+Presentation:
+```
+Exam/
+```
+
 To run the simulation:
 ```
 python Examples/check_sim.py
