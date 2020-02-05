@@ -14,4 +14,3 @@ To run the simulation:
 ```
 python Examples/check_sim.py
 ```
-
