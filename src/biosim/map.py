@@ -33,10 +33,10 @@ class Map:
         self._island_map = self._string_to_np_array()
         self._not_surrounded_by_ocean(self._island_map)
         self._landscape_classes = {'O': Ocean,
-                                  'S': Savannah,
-                                  'M': Mountain,
-                                  'J': Jungle,
-                                  'D': Desert}
+                                   'S': Savannah,
+                                   'M': Mountain,
+                                   'J': Jungle,
+                                   'D': Desert}
         self._fauna_classes = {'Carnivore': Carnivore,
                                'Herbivore': Herbivore}
 
@@ -252,8 +252,3 @@ class Map:
         """
         for [x, y], cell in np.ndenumerate(self._cells):
             cell.migrate(self._adj_cells(x, y))
-
-
-
-
-

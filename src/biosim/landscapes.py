@@ -26,7 +26,6 @@ class Landscape(ABC):
     def __init__(self):
         self.in_cell_fauna = {'Herbivore': [], 'Carnivore': []}
         self.adult_fauna = {'Herbivore': [], 'Carnivore': []}
-        np.random.seed(123456)
 
     def sort_by_fitness(self):
         """
