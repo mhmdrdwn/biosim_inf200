@@ -5,9 +5,14 @@ The project used test-driven approach for modeling of the ecosystem in the islan
 Further details about the project is given in:
 [exam_sheet](https://github.com/mhmdrdwn/BioSim_G26_Mohamed_Nasibeh/blob/master/exam_sheet.pdf)
 
-Project design is in:
+Project design:
 ```
 src/biosim/
+```
+
+Simulation Results:
+```
+results/
 ```
 
 To run the simulation:

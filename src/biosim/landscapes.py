@@ -26,8 +26,6 @@ class Landscape(ABC):
     def __init__(self):
         self.in_cell_fauna = {'Herbivore': [], 'Carnivore': []}
         self.adult_fauna = {'Herbivore': [], 'Carnivore': []}
-        np.random.seed(123456)
-
 
     def sort_by_fitness(self):
         """
@@ -179,7 +177,7 @@ class Landscape(ABC):
         - Or, it has tried to kill each herbivore in the cell.
         """
         self.sort_by_fitness()
-        carni_animals =  self.in_cell_fauna['Carnivore']
+        carni_animals = self.in_cell_fauna['Carnivore']
         for carnivore in carni_animals:
             appetite = carnivore.parameters['F']
             amount_to_eat = 0
@@ -234,7 +232,8 @@ class Landscape(ABC):
         number is more than or equal to death probability for that object
         in the cell.
         """
-        for species, animals in self.in_cell_fauna.items():
+        current_animals = self.in_cell_fauna
+        for species, animals in current_animals.items():
             for animal in animals:
                 if animal.death_prob:
                     self.remove_animal(animal)
